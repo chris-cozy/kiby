@@ -44,7 +44,7 @@ module.exports = {
                 });
             }
 
-            // await userKirby.save();
+            await userKirby.save();
 
             gifUrl = await getGif('cute');
 
