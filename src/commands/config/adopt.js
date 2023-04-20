@@ -44,16 +44,18 @@ module.exports = {
                 });
             }
 
-            await userKirby.save();
+            // await userKirby.save();
+
+            gifUrl = await getGif('cute');
 
             // Create embed to send
             const embed = new EmbedBuilder()
                 .setTitle(client.user.username)
                 .setColor('Random')
-                .setDescription(`You now own a kirby! **${targetName}** is a nice name for them.`)
-                .setURL('https://discord.js.org/#/')
+                .setDescription(`You have adopted a Kirby! **${targetName}** is a nice name for them.`)
+                //.setURL('https://discord.js.org/#/')
                 .setThumbnail(client.user.displayAvatarURL())
-                .setImage(getGif('happy'))
+                .setImage(gifUrl)
                 .setTimestamp()
                 .setFooter({ text: `requested by ${interaction.user.tag} `, iconURL: `${interaction.user.displayAvatarURL()}` });
 

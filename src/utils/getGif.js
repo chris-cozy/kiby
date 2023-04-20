@@ -1,4 +1,5 @@
 const { Client } = require('discord.js');
+const fetch = require("node-fetch");
 /**
  * Grab a gif based on the request
  * @param {Client} client 
@@ -12,6 +13,6 @@ module.exports = async (client, request) => {
     const response = await fetch(url);
     const result = await response.json();
     const index = Math.floor(Math.random() * result.results.length);
-
-    return result.results[index].url;
+    let gifUrl = result.results[index].media[0].gif.url;
+    return gifUrl;
 }
