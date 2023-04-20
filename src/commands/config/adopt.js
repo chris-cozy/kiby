@@ -1,9 +1,10 @@
 const { Client, Interaction, ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.js');
-const autoRole = require('../../schemas/stats');
+const userStats = require('../../schemas/stats');
 
 module.exports = {
-    name: 'configure',
-    description: "Configure your kirby!",
+    name: 'adopt',
+    description: "Adopt your kirby!",
+    deleted: false,
     options: [
         {
             name: 'name',
@@ -33,7 +34,7 @@ module.exports = {
             let userKirby = await userStats.findOne({ userId: interaction.user.id });
 
             if (userKirby) {
-                interaction.editReply("You already have a kirby to take care of!");
+                interaction.editReply(`You already have **${userKirby.kirbyName}** to take care of!`);
                 return;
             } else {
                 userKirby = new userStats({
@@ -43,7 +44,7 @@ module.exports = {
             }
 
             await userKirby.save();
-            interaction.editReply(`You now own a kirby! ${targetName} is a nice name for them.`);
+            interaction.editReply(`You now own a kirby! **${targetName}** is a nice name for them.`);
         } catch (error) {
             console.log(`There was an error: $${error}`);
         }
