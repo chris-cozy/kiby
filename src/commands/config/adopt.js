@@ -1,5 +1,6 @@
-const { Client, Interaction, ApplicationCommandOptionType, PermissionFlagsBits } = require('discord.js');
+const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
+const getGif = require('../../utils/getGif');
 
 module.exports = {
     name: 'adopt',
@@ -44,7 +45,19 @@ module.exports = {
             }
 
             await userKirby.save();
-            interaction.editReply(`You now own a kirby! **${targetName}** is a nice name for them.`);
+
+            // Create embed to send
+            const embed = new EmbedBuilder()
+                .setTitle(client.user.username)
+                .setColor('Random')
+                .setDescription(`You now own a kirby! **${targetName}** is a nice name for them.`)
+                .setURL('https://discord.js.org/#/')
+                .setThumbnail(client.user.displayAvatarURL())
+                .setImage(getGif('happy'))
+                .setTimestamp()
+                .setFooter({ text: `requested by ${interaction.user.tag} `, iconURL: `${interaction.user.displayAvatarURL()}` });
+
+            interaction.editReply({ embeds: [embed] });
         } catch (error) {
             console.log(`There was an error: $${error}`);
         }
