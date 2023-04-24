@@ -1,5 +1,4 @@
-const { EmbedBuilder } = require('discord.js');
-const { Client, Interaction } = require('discord.js');
+const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 
 module.exports = {
