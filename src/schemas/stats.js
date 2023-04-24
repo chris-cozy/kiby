@@ -37,6 +37,10 @@ const statsSchema = new Schema({
         required: true,
         default: 100,
     },
+    adoptDate: {
+        type: Date,
+        required: true,
+    },
 });
 
 module.exports = model('userStats', statsSchema);

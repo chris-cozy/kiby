@@ -21,7 +21,7 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: false });
 
         if (!interaction.inGuild()) {
             interaction.editReply("You can only run this command inside of a server.");
@@ -41,6 +41,7 @@ module.exports = {
                 userKirby = new userStats({
                     userId: interaction.user.id,
                     kirbyName: targetName,
+                    adoptDate: new Date(),
                 });
             }
 
