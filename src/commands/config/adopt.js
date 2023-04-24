@@ -34,6 +34,7 @@ module.exports = {
         // If user has a kirby, exit. If not, create it
         try {
             let userKirby = await userStats.findOne({ userId: interaction.user.id });
+            let userDate = await userDates.findOne({ userId: interaction.user.id });
 
             if (userKirby) {
                 interaction.editReply(`You already have **${userKirby.kirbyName}** to take care of!`);
@@ -45,12 +46,13 @@ module.exports = {
                     adoptDate: new Date(),
                 });
 
-                userCare = new userDates({
+                userDate = new userDates({
                     userId: interaction.user.id,
                 });
             }
 
             await userKirby.save();
+            await userDate.save();
 
             gifUrl = await getGif('cute');
 
