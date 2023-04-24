@@ -1,5 +1,6 @@
 const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
+const userDates = require('../../schemas/dates');
 const getGif = require('../../utils/getGif');
 
 module.exports = {
@@ -42,6 +43,10 @@ module.exports = {
                     userId: interaction.user.id,
                     kirbyName: targetName,
                     adoptDate: new Date(),
+                });
+
+                userCare = new userDates({
+                    userId: interaction.user.id,
                 });
             }
 
