@@ -44,15 +44,16 @@ module.exports = {
         // Check if user owns a kirby
         if (userKirby) {
             try {
-                // Check if it has been minimum time since last feed
-                if ((currentDate - userDate.lastFeed) < (minutes * milliConversion)) {
-                    interaction.editReply(`You can only feed ${userKirby.kirbyName} every ${minutes} minutes!`);
-                    return;
-                }
 
                 // Check if kirby is hungry
                 if (userKirby.hunger == max) {
                     interaction.editReply(`**${userKirby.kirbyName}** is not hungry!`);
+                    return;
+                }
+
+                // Check if it has been minimum time since last feed
+                if ((currentDate - userDate.lastFeed) < (minutes * milliConversion)) {
+                    interaction.editReply(`You can only feed ${userKirby.kirbyName} every ${minutes} minutes!`);
                     return;
                 }
 
@@ -65,7 +66,7 @@ module.exports = {
                 }
 
                 const embed = new EmbedBuilder()
-                    .setTitle(userKirby.kirbyName)
+                    .setTitle('**FEEDING**')
                     .setColor('Random')
                     .setDescription(`**${interaction.user.username}** has fed **${userKirby.kirbyName}**!`)
                     .addFields(
@@ -107,14 +108,12 @@ module.exports = {
                     console.log(`There was an error saving.`);
                 });
 
-
                 // Send embed
                 interaction.editReply({ embeds: [embed] });
 
             } catch (error) {
                 console.log(`there was an error: ${error}`);
             }
-
         } else {
             interaction.editReply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
             return;
