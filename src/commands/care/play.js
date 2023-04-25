@@ -34,7 +34,7 @@ module.exports = {
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
 
-        const minutes = 0.1;
+        const minutes = 10;
         const milliConversion = 60000;
         const currentDate = new Date();
         const max = 100;
@@ -94,11 +94,11 @@ module.exports = {
 
                 // Save database updates
                 await userKirby.save().catch((e) => {
-                    console.log(`There was an error saving.`);
+                    console.log(`There was an error saving: ${e}`);
                 });
 
                 await userDate.save().catch((e) => {
-                    console.log(`There was an error saving.`);
+                    console.log(`There was an error saving: ${e}`);
                 });
 
                 // Send embed

@@ -20,7 +20,7 @@ function randon_num(min, max) {
  */
 module.exports = (client) => {
 
-    const minutes = 0.2;
+    const minutes = 60;
     const milliConversion = 60000;
 
 
@@ -56,13 +56,17 @@ module.exports = (client) => {
                     }
                 }
 
-                await user.save();
+                // Save database updates
+                await user.save().catch((e) => {
+                    console.log(`There was an error saving: ${e}`);
+                });
 
                 // Delete user data from database
                 if ((user.hp == 0)) {
                     try {
                         const res1 = await userStats.deleteOne({ userId: user.userId });
                         const res2 = await userDates.deleteOne({ userId: user.userId });
+
                         await res1.save();
                         await res2.save();
                     } catch (error) {
