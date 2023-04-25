@@ -20,7 +20,7 @@ function randon_num(min, max) {
  */
 module.exports = (client) => {
 
-    const minutes = 60;
+    const minutes = 0.2;
     const milliConversion = 60000;
 
 
@@ -49,7 +49,7 @@ module.exports = (client) => {
                     }
                 }
 
-                if ((user.affection == 0) && (user.hunger == 0)) {
+                if ((user.affection == 0) || (user.hunger == 0)) {
                     user.hp -= randon_num(10, 20);
                     if (user.hp < 0) {
                         user.hp = 0;

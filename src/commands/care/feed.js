@@ -34,7 +34,7 @@ module.exports = {
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
 
-        const minutes = 30;
+        const minutes = 0.1;
         const milliConversion = 60000;
         const currentDate = new Date();
         const max = 100;
@@ -50,6 +50,12 @@ module.exports = {
                     return;
                 }
 
+                // Check if kirby is hungry
+                if (userKirby.hunger == max) {
+                    interaction.editReply(`**${userKirby.kirbyName}** is not hungry!`);
+                    return;
+                }
+
                 // Generate feed and xp amount
                 let feedGranted = randon_num(10, 30);
                 const xpGranted = randon_num(5, 15);
@@ -61,7 +67,7 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setTitle(userKirby.kirbyName)
                     .setColor('Random')
-                    .setDescription(`**${interaction.user.username}'s** has fed **${userKirby.kirbyName}**!`)
+                    .setDescription(`**${interaction.user.username}** has fed **${userKirby.kirbyName}**!`)
                     .addFields(
                         {
                             name: 'Health',
@@ -81,6 +87,7 @@ module.exports = {
 
                 // Update feed and xp in db
                 userDate.lastFeed = currentDate;
+                userKirby.hunger += feedGranted;
 
                 userKirby.xp += xpGranted;
                 // If user's xp exceeds that for current level
