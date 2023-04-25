@@ -8,7 +8,7 @@ const userStats = require('../../schemas/stats');
  * @param {Number} max 
  * @return A number for the xp
  */
-function randomPenalty(min, max) {
+function randon_num(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -20,7 +20,7 @@ function randomPenalty(min, max) {
  */
 module.exports = (client) => {
 
-    const statusChangeMins = 60;
+    const minutes = 60;
     const milliConversion = 60000;
 
 
@@ -35,22 +35,22 @@ module.exports = (client) => {
                 const userDate = await userDates.findOne({ userId: user.userId });
                 const currentDate = new Date();
 
-                if ((currentDate - userDate.lastFeed) > (statusChangeMins * milliConversion)) {
-                    user.hunger -= randomPenalty(10, 30);
+                if ((currentDate - userDate.lastFeed) > (minutes * milliConversion)) {
+                    user.hunger -= randon_num(10, 30);
                     if (user.hunger < 0) {
                         user.hunger = 0;
                     }
                 }
 
-                if ((currentDate - userDate.lastAffection) > (statusChangeMins * milliConversion)) {
-                    user.affection -= randomPenalty(10, 30);
+                if ((currentDate - userDate.lastAffection) > (minutes * milliConversion)) {
+                    user.affection -= randon_num(10, 30);
                     if (user.affection < 0) {
                         user.affection = 0;
                     }
                 }
 
                 if ((user.affection == 0) && (user.hunger == 0)) {
-                    user.hp -= randomPenalty(10, 20);
+                    user.hp -= randon_num(10, 20);
                     if (user.hp < 0) {
                         user.hp = 0;
                     }
@@ -74,5 +74,5 @@ module.exports = (client) => {
         } else {
             console.log('There are no active Kirbys!');
         }
-    }, (statusChangeMins * milliConversion));
+    }, (minutes * milliConversion));
 };

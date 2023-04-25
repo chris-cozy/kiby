@@ -54,7 +54,7 @@ module.exports = {
             await userKirby.save();
             await userDate.save();
 
-            gifUrl = await getGif('cute');
+            const gifUrl = await getGif('cute');
 
             // Create embed to send
             const embed = new EmbedBuilder()
