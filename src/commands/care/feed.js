@@ -82,9 +82,9 @@ module.exports = {
                         }
                     )
                     .setImage(gifUrl)
-                    .setThumbnail(client.user.displayAvatarURL())
+                    //.setThumbnail(client.user.displayAvatarURL())
                     .setTimestamp()
-                    .setFooter({ text: `requested by ${interaction.user.tag} `, iconURL: `${interaction.user.displayAvatarURL()}` });
+                    .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
                 // Update feed and xp in db
                 userDate.lastFeed = currentDate;

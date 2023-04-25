@@ -17,14 +17,14 @@ function randon_num(min, max) {
 }
 
 module.exports = {
-    name: 'play',
-    description: 'Play with your Kirby!',
+    name: 'pet',
+    description: 'Pet your Kirby!',
     devonly: false,
     testOnly: false,
     deleted: false,
 
     /**
-     * @brief Play with user's kirby
+     * @brief Pet user's kirby
      * @param {Client} client 
      * @param {Interaction} interaction 
      */
@@ -38,7 +38,7 @@ module.exports = {
         const milliConversion = 60000;
         const currentDate = new Date();
         const max = 100;
-        const gifUrl = await getGif('play with');
+        const gifUrl = await getGif('petting');
 
 
         // Check if user owns a kirby
@@ -46,12 +46,12 @@ module.exports = {
             try {
                 // Check if it has been minimum time since last affection
                 if ((currentDate - userDate.lastAffection) < (minutes * milliConversion)) {
-                    interaction.editReply(`You can only play ${userKirby.kirbyName} every ${minutes} minutes! They need personal time too!`);
+                    interaction.editReply(`You can only pet ${userKirby.kirbyName} every ${minutes} minutes! They need personal space too!`);
                     return;
                 }
 
                 // Generate affection and xp amount
-                let affectionGranted = randon_num(10, 30);
+                let affectionGranted = randon_num(5, 15);
                 const xpGranted = randon_num(5, 15);
 
                 if ((userKirby.affection + affectionGranted) > max) {
@@ -59,9 +59,9 @@ module.exports = {
                 }
 
                 const embed = new EmbedBuilder()
-                    .setTitle('**PLAYING**')
+                    .setTitle('**PETTING**')
                     .setColor('Random')
-                    .setDescription(`**${interaction.user.username}** is playing with **${userKirby.kirbyName}**!`)
+                    .setDescription(`**${interaction.user.username}** is petting **${userKirby.kirbyName}**!`)
                     .addFields(
                         {
                             name: 'Health',
