@@ -61,17 +61,17 @@ module.exports = {
                     .addFields(
                         {
                             name: 'Health',
-                            value: `${userKirby.hp}`,
+                            value: `**${userKirby.hp}**/100`,
                             inline: true
                         },
                         {
                             name: 'Hunger',
-                            value: `${userKirby.hunger}`,
+                            value: `**${userKirby.hunger}**/100`,
                             inline: true
                         },
                         {
                             name: 'Affection',
-                            value: `${userKirby.affection}`,
+                            value: `**${userKirby.affection}**/100`,
                             inline: true
                         },
                         {
