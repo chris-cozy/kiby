@@ -14,7 +14,7 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ ephemeral: false });
 
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
 
@@ -82,7 +82,7 @@ module.exports = {
                     )
                     .setThumbnail(client.user.displayAvatarURL())
                     .setTimestamp()
-                    .setFooter({ text: `requested by ${interaction.user.tag} `, iconURL: `${interaction.user.displayAvatarURL()}` });
+                    .setFooter({ text: `${interaction.user.tag}'s Kirby`, iconURL: `${interaction.user.displayAvatarURL()}` });
 
                 interaction.editReply({ embeds: [embed] });
 
