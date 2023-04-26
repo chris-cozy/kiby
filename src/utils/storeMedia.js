@@ -41,44 +41,45 @@ module.exports = async () => {
             name: "swimmingKirby.png",
             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/swimmingKirby.png",
         },
+        {
+            type: "angry",
+            name: "angryKirby.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/angryKirby.png",
+        },
+        {
+            type: "play",
+            name: "artistKirby.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/artistKirby.png",
+        },
+        {
+            type: "portrait",
+            name: "beanieKirby.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/beanieKirby.png",
+        },
+        {
+            type: "hungry",
+            name: "droolingKirby.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/droolingKirby.png",
+        },
+        {
+            type: "hungry",
+            name: "kirbyDreamingOfFood.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyDreamingOfFood.png",
+        },
+        {
+            type: "portrait",
+            name: "kirbyFloating.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyFloating.png",
+        },
+        {
+            type: "play",
+            name: "kirbyLayingOnNotebook.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyLayingOnNotebook.png",
+        },
     ]
 
     const waiting = [
-        {
-            type: "angry",
-            name: "angryKirby.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/angryKirby.jfif",
-        },
-        {
-            type: "play",
-            name: "artistKirby.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/artistKirby.jfif",
-        },
-        {
-            type: "portrait",
-            name: "beanieKirby.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/beanieKirby.jfif",
-        },
-        {
-            type: "hungry",
-            name: "droolingKirby.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/droolingKirby.jfif",
-        },
-        {
-            type: "hungry",
-            name: "kirbyDreamingOfFood.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyDreamingOfFood.jfif",
-        },
-        {
-            type: "portrait",
-            name: "kirbyFloating.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyFloating.jfif",
-        },
-        {
-            type: "play",
-            name: "kirbyLayingOnNotebook.jfif",
-            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyLayingOnNotebook.jfif",
-        },
+
     ]
 
     await media.insertMany([
