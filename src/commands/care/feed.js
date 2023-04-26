@@ -3,18 +3,8 @@ const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
 const calculateXpForLevel = require('../../utils/calculateXpForLevel');
 const getMedia = require('../../utils/getMedia');
+const randomNumber = require("../../utils/randomNumber");
 
-/**
- * @brief Calculate a random number between the bounds
- * @param {Number} min 
- * @param {Number} max 
- * @return A number between the bounds
- */
-function randon_num(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 module.exports = {
     name: 'feed',
@@ -61,8 +51,8 @@ module.exports = {
                 }
 
                 // Generate feed and xp amount
-                let feedGranted = randon_num(10, 30);
-                const xpGranted = randon_num(5, 15);
+                let feedGranted = randomNumber(10, 30);
+                const xpGranted = randomNumber(5, 15);
 
                 if ((userKirby.hunger + feedGranted) > max) {
                     feedGranted = max - userKirby.hunger;

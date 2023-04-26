@@ -1,4 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
+const randomNumber = require("../../utils/randomNumber");
+
 /**
  * Handle a message sent in the server. 
  * Upon being mentioned, respond with random combination of kirby language
@@ -53,13 +55,14 @@ module.exports = async (client, message) => {
     let response = '';
 
     while (response == '') {
+
         // Return random length between 0 and the maximum word length for sentence
-        const sentenceLength = Math.floor(Math.random() * (maxSentenceLength - minSentenceLength + 1)) + minSentenceLength;
+        const sentenceLength = randomNumber(0, maxSentenceLength);
 
         // Cycle through and construct each word
         for (let i = 0; i < sentenceLength; i++) {
 
-            const wordLength = Math.floor(Math.random() * (maxWordLength - minWordLength + 1)) + minWordLength;
+            const wordLength = randomNumber(minWordLength, maxWordLength);
 
             for (let k = 0; k < wordLength; k++) {
                 const index = Math.floor(Math.random() * lexigraph.length);

@@ -1,18 +1,7 @@
 const { ActivityType, Client } = require('discord.js');
 const userDates = require('../../schemas/dates');
 const userStats = require('../../schemas/stats');
-
-/**
- * @brief Calculate a random number between the bounds
- * @param {Number} min 
- * @param {Number} max 
- * @return A number for the xp
- */
-function randon_num(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+const randomNumber = require("../../utils/randomNumber");
 
 /**
  * @brief Periodically check the user's last care dates for kirby
@@ -36,21 +25,21 @@ module.exports = (client) => {
                 const currentDate = new Date();
 
                 if ((currentDate - userDate.lastFeed) > (minutes * milliConversion)) {
-                    user.hunger -= randon_num(10, 30);
+                    user.hunger -= randomNumber(10, 30);
                     if (user.hunger < 0) {
                         user.hunger = 0;
                     }
                 }
 
                 if ((currentDate - userDate.lastAffection) > (minutes * milliConversion)) {
-                    user.affection -= randon_num(10, 30);
+                    user.affection -= randomNumber(10, 30);
                     if (user.affection < 0) {
                         user.affection = 0;
                     }
                 }
 
                 if ((user.affection == 0) || (user.hunger == 0)) {
-                    user.hp -= randon_num(10, 20);
+                    user.hp -= randomNumber(10, 20);
                     if (user.hp < 0) {
                         user.hp = 0;
                     }
