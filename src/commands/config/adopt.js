@@ -66,7 +66,7 @@ module.exports = {
                 .setThumbnail(client.user.displayAvatarURL())
                 .setImage('attachment://' + mediaFile.name)
                 .setTimestamp()
-                .setFooter({ text: `requested by ${interaction.user.tag} `, iconURL: `${interaction.user.displayAvatarURL()}` });
+                .setFooter({ text: `${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}` });
 
             interaction.editReply({ embeds: [embed], files: [mediaAttach] });
         } catch (error) {
