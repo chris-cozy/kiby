@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 /**
- * Database schema for user kirby statistics
+ * @brief Schema for user kirby statistics
  */
 const datesSchema = new Schema({
     userId: {

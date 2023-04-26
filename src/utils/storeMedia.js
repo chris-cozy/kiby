@@ -1,14 +1,49 @@
-const { Client } = require('discord.js');
 const media = require('../schemas/media');
 
 /**
- * Store kirby media in database
- * @param {Client} client 
+ * @brief Store kirby media in database
  */
-module.exports = async (client) => {
+module.exports = async () => {
 
-    await media.insertMany([
-        /*
+    const stored = [
+        {
+            type: "play",
+            name: "kirbyOnComputer.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyOnComputer.png",
+        },
+        {
+            type: "portrait",
+            name: "kirbyOnStar.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyOnStar.png",
+        },
+        {
+            type: "play",
+            name: "kirbyPlayingSwitch.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyPlayingSwitch.png",
+        },
+        {
+            type: "portrait",
+            name: "kirbyUnderHeart.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyUnderHeart.png",
+        },
+        {
+            type: "portrait",
+            name: "kirbyUnderHeart2.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyUnderHeart2.png",
+        },
+        {
+            type: "portrait",
+            name: "pileOfKirbys.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/pileOfKirbys.png",
+        },
+        {
+            type: "portrait",
+            name: "swimmingKirby.png",
+            url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/swimmingKirby.png",
+        },
+    ]
+
+    const waiting = [
         {
             type: "angry",
             name: "angryKirby.jfif",
@@ -44,43 +79,11 @@ module.exports = async (client) => {
             name: "kirbyLayingOnNotebook.jfif",
             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyLayingOnNotebook.jfif",
         },
-        */
-        /*
-         {
-             type: "play",
-             name: "kirbyOnComputer.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyOnComputer.png",
-         },
-         {
-             type: "portrait",
-             name: "kirbyOnStar.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyOnStar.png",
-         },
-         {
-             type: "play",
-             name: "kirbyPlayingSwitch.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyPlayingSwitch.png",
-         },
-         {
-             type: "portrait",
-             name: "kirbyUnderHeart.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyUnderHeart.png",
-         },
-         {
-             type: "portrait",
-             name: "kirbyUnderHeart2.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/kirbyUnderHeart2.png",
-         },
-         {
-             type: "portrait",
-             name: "pileOfKirbys.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/pileOfKirbys.png",
-         },
-         {
-             type: "portrait",
-             name: "swimmingKirby.png",
-             url: "C:/Users/cjsan/Documents/Code/Projects/discord/Kiby/src/media/swimmingKirby.png",
-         },
-         */
+    ]
+
+    await media.insertMany([
+
     ]);
+
+
 }

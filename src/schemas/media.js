@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 /**
- * Database schema for kirby media
+ * @brief Schema for kirby media
  */
 const media = new Schema({
     type: {

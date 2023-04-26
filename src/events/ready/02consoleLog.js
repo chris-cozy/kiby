@@ -1,8 +1,8 @@
-const { ActivityType } = require('discord.js');
+const { ActivityType, Client } = require('discord.js');
 
 /**
- * Alert that the bot is online
- * @param {*} client - The bot
+ * @brief Perform ready functions
+ * @param {Client} client - The bot
  */
 module.exports = (client) => {
     let status = [
@@ -20,8 +20,9 @@ module.exports = (client) => {
     const statusChangeMins = 10;
     const milliConversion = 60000;
 
-    console.log(`${client.user.tag} is online.`);
+    console.log(`${client.user.tag} is online. Poyo!`);
 
+    // Change status at the set interval
     setInterval(() => {
         // Generate random index
         let random = Math.floor(Math.random() * status.length);

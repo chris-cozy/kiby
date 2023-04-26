@@ -1,14 +1,13 @@
-const { Client } = require('discord.js');
 const fetch = require("node-fetch");
+
 /**
- * Grab a gif based on the request
- * @param {Client} client 
+ * @brief Grab a gif from Tenor
  * @param {String} request 
  * @returns A gif link
  */
-module.exports = async (client, request) => {
+module.exports = async (request) => {
     const keyword = request;
-    const url = `https://api.tenor.com/v1/search?q=${keyword} kirby&key=${process.env.TENOR_KEY}&limit=10`;
+    const url = `https://api.tenor.com/v1/search?q=${keyword}&key=${process.env.TENOR_KEY}&limit=10`;
 
     const response = await fetch(url);
     const result = await response.json();

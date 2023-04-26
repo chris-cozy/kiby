@@ -1,5 +1,5 @@
 /**
- * Check if commands are different
+ * @brief Check if commands are different
  * @param {object} existingCommand - Command object
  * @param {object} localCommand - Command object
  * @returns boolean
@@ -23,7 +23,7 @@ module.exports = (existingCommand, localCommand) => {
         return false;
     };
 
-    // Check if the choices are different
+    // Check if the options are different
     const areOptionsDifferent = (existingOptions, localOptions) => {
         for (const localOption of localOptions) {
             const existingOption = existingOptions?.find(

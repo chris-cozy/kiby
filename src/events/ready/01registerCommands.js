@@ -2,9 +2,15 @@ const { testServer } = require('../../../config.json');
 const getLocalCommands = require('../../utils/getLocalCommands');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
 const areCommandsDifferent = require('../../utils/areCommandsDifferent');
+const { Client } = require('discord.js');
 
+/**
+ * @brief Register local commands on bot
+ * @param {Client} client 
+ */
 module.exports = async (client) => {
     try {
+        // Get bot's commands
         const localCommands = getLocalCommands();
         const applicationCommands = await getApplicationCommands(client, testServer);
 
@@ -16,6 +22,7 @@ module.exports = async (client) => {
                 (cmd) => cmd.name === name
             );
 
+            // If command exist, edit accordingly. If not, add new command
             if (existingCommand) {
                 if (localCommand.deleted) {
                     await applicationCommands.delete(existingCommand.id);

@@ -1,10 +1,11 @@
 const { devs, testServer } = require('../../../config.json');
 const getLocalCommands = require('../../utils/getLocalCommands');
+const { Client, Interaction } = require('discord.js');
 
 /**
- * Handle commands
- * @param {*} client 
- * @param {*} interaction 
+ * @brief Handle commands
+ * @param {Client} client 
+ * @param {Interaction} interaction 
  */
 module.exports = async (client, interaction) => {
     if (!interaction.isChatInputCommand()) return;
@@ -20,7 +21,6 @@ module.exports = async (client, interaction) => {
 
         // If command has developer only perms, check if user is a developer
         if (commandObject.devOnly) {
-            // Ephemeral - only person running the command can see the msg
             if (!devs.includes(interaction.member.id)) {
                 interaction.reply({
                     content: 'Only developers are allowed to run this command',
@@ -32,7 +32,6 @@ module.exports = async (client, interaction) => {
 
         // If command has test-only perms, check if server is the testing server
         if (commandObject.testOnly) {
-            // Ephemeral - only person running the command can see the msg
             if (!(interaction.guild.id === testServer)) {
                 interaction.reply({
                     content: 'This command cannot be run here.',

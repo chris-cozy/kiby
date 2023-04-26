@@ -18,6 +18,7 @@ module.exports = {
 
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
 
+        // If user has a kirby
         if (userKirby) {
             let allUsers = await userStats.find().select('-_id userId level xp');
 

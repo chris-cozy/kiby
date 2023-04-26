@@ -1,18 +1,22 @@
-/**
- * Send the client's websocket ping
- */
+const { Client, Interaction } = require('discord.js');
+
 module.exports = {
     name: 'ping',
     description: 'ping pong - client and websocket ping',
     devonly: true,
     testOnly: true,
 
+    /**
+     * @brief Send the client and websocket ping
+     * @param {Client} client 
+     * @param {Interaction} interaction 
+     */
     callback: async (client, interaction) => {
         await interaction.deferReply();
 
         const reply = await interaction.fetchReply();
 
         const ping = reply.createdTimestamp - interaction.createdTimestamp;
-        interaction.editReply(`pong! poyoyo poyo ${ping}ms, poyo poy poyyoy ${client.ws.ping}ms`);
+        interaction.editReply(`pong! poyoyo **${ping}ms**, poyo poy **${client.ws.ping}ms**`);
     },
 }

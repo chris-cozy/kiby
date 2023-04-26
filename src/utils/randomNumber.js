@@ -1,4 +1,3 @@
-
 /**
  * @brief Calculate a random number between the bounds
  * @param {Number} min 

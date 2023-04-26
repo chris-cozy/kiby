@@ -67,7 +67,6 @@ module.exports = {
                         }
                     )
                     .setImage('attachment://' + mediaFile.name)
-                    //.setThumbnail(client.user.displayAvatarURL())
                     .setTimestamp()
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
@@ -93,9 +92,7 @@ module.exports = {
                     console.log(`There was an error saving: ${e}`);
                 });
 
-                // Send embed
                 interaction.editReply({ embeds: [embed], files: [mediaAttach] });
-
             } catch (error) {
                 console.log(`there was an error: ${error}`);
             }

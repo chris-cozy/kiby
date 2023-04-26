@@ -5,9 +5,8 @@ const randomNumber = require("../../utils/randomNumber");
 
 /**
  * @brief Periodically check the user's last care dates for kirby
- * @param {Client} client - The bot
  */
-module.exports = (client) => {
+module.exports = () => {
 
     const minutes = 60;
     const milliConversion = 60000;

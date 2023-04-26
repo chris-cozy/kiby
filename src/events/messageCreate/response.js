@@ -1,11 +1,10 @@
-const { EmbedBuilder } = require('discord.js');
+const { Client, Message } = require('discord.js');
 const randomNumber = require("../../utils/randomNumber");
 
 /**
- * Handle a message sent in the server. 
- * Upon being mentioned, respond with random combination of kirby language
- * @param {*} client - The bot
- * @param {object} message - The message which was sent
+ * @brief Handle a message sent in the server. Upon being mentioned, respond with random combination of kirby language
+ * @param {Client} client - The bot
+ * @param {Message} message - The message which was sent
  */
 module.exports = async (client, message) => {
     // Ignore msg if author is a bot

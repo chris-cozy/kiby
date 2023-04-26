@@ -1,7 +1,9 @@
+const { Client } = require('discord.js');
+
 /**
- * Grab commands for the application.
- * @param {*} client 
- * @param {int} guildId 
+ * @brief Grab commands for the application.
+ * @param {Client} client 
+ * @param {Number} guildId 
  * @returns Array of commands
  */
 module.exports = async (client, guildId) => {

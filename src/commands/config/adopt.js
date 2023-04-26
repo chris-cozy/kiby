@@ -63,7 +63,6 @@ module.exports = {
                 .setTitle(client.user.username)
                 .setColor('Random')
                 .setDescription(`You have adopted a Kirby! **${targetName}** is a nice name for them.`)
-                //.setURL('https://discord.js.org/#/')
                 .setThumbnail(client.user.displayAvatarURL())
                 .setImage('attachment://' + mediaFile.name)
                 .setTimestamp()

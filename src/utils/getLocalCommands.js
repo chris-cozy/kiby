@@ -2,8 +2,8 @@ const path = require('path');
 const getAllFiles = require('./getAllFiles');
 
 /**
- * Grab local commands (in codebase)
- * @param {array} exceptions - Array of command names to skip over
+ * @brief Grab local commands (in codebase)
+ * @param {Array} exceptions - Array of command names to skip over
  * @returns Array of local commmand objects
  */
 module.exports = (exceptions = []) => {
