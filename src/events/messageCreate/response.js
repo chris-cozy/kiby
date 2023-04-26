@@ -1,5 +1,6 @@
 const { Client, Message } = require('discord.js');
 const randomNumber = require("../../utils/randomNumber");
+const userStats = require('../../schemas/stats');
 
 /**
  * @brief Handle a message sent in the server. Upon being mentioned, respond with random combination of kirby language
@@ -22,58 +23,70 @@ module.exports = async (client, message) => {
         return;
     }
 
-    // Give the illusion of the bot typing
-    await message.channel.sendTyping();
+    let userKirby = await userStats.findOne({ userId: message.author.id });
 
-    const maxWordLength = 3;
-    const maxSentenceLength = 3;
-    const minWordLength = 1;
-    const minSentenceLength = 1;
-    const lexigraph = [
-        'yo',
-        'oy',
-        'pu',
-        'pa',
-        'ga',
-        'bu',
-        'lo',
-        'la',
-        'ha',
-        'ya',
-        'by',
-        'wu',
-    ];
+    if (userKirby) {
+        const kirbyName = userKirby.kirbyName;
 
-    const punctuation = [
-        '?',
-        '!',
-        '.',
-        '',
-    ]
+        // Give the illusion of the bot typing
+        await message.channel.sendTyping();
 
-    let response = '';
+        const maxWordLength = 3;
+        const maxSentenceLength = 3;
+        const minWordLength = 1;
+        const minSentenceLength = 1;
+        const lexigraph = [
+            'yo',
+            'oy',
+            'pu',
+            'pa',
+            'ga',
+            'bu',
+            'lo',
+            'la',
+            'ha',
+            'ya',
+            'by',
+            'wu',
+        ];
 
-    while (response == '') {
+        const punctuation = [
+            '?',
+            '!',
+            '.',
+            '',
+        ]
 
-        // Return random length between 0 and the maximum word length for sentence
-        const sentenceLength = randomNumber(0, maxSentenceLength);
+        let response = '';
 
-        // Cycle through and construct each word
-        for (let i = 0; i < sentenceLength; i++) {
+        while (response == '') {
 
-            const wordLength = randomNumber(minWordLength, maxWordLength);
+            // Return random length between 0 and the maximum word length for sentence
+            const sentenceLength = randomNumber(0, maxSentenceLength);
 
-            for (let k = 0; k < wordLength; k++) {
-                const index = Math.floor(Math.random() * lexigraph.length);
-                response += lexigraph[index];
+            // Cycle through and construct each word
+            for (let i = 0; i < sentenceLength; i++) {
+
+                const wordLength = randomNumber(minWordLength, maxWordLength);
+
+                for (let k = 0; k < wordLength; k++) {
+                    const index = Math.floor(Math.random() * lexigraph.length);
+                    response += lexigraph[index];
+                }
+
+                response += ' ';
             }
 
-            response += ' ';
+            const punctuationIndex = Math.floor(Math.random() * punctuation.length);
+            response += punctuation[punctuationIndex];
         }
 
-        const punctuationIndex = Math.floor(Math.random() * punctuation.length);
-        response += punctuation[punctuationIndex];
+        message.reply(`**${kirbyName}**: ` + response);
+
+    } else {
+        message.reply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
+        return;
     }
 
-    message.reply(response);
+
 };
