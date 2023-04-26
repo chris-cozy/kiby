@@ -82,7 +82,7 @@ module.exports = {
                     )
                     .setThumbnail(client.user.displayAvatarURL())
                     .setTimestamp()
-                    .setFooter({ text: `${interaction.user.tag}'s Kirby`, iconURL: `${interaction.user.displayAvatarURL()}` });
+                    .setFooter({ text: `${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}` });
 
                 interaction.editReply({ embeds: [embed] });
 
