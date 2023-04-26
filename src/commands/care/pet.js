@@ -1,8 +1,8 @@
-const { Client, Interaction, EmbedBuilder } = require('discord.js');
+const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
-const getGif = require('../../utils/getGif');
 const calculateXpForLevel = require('../../utils/calculateXpForLevel');
+const getMedia = require('../../utils/getMedia');
 
 /**
  * @brief Calculate a random number between the bounds
@@ -38,7 +38,10 @@ module.exports = {
         const milliConversion = 60000;
         const currentDate = new Date();
         const max = 100;
-        const gifUrl = await getGif('petting');
+
+        // Attaching media file
+        const mediaFile = await getMedia('play');
+        const mediaAttach = new AttachmentBuilder(mediaFile.url);
 
 
         // Check if user owns a kirby
@@ -74,7 +77,7 @@ module.exports = {
                             inline: true
                         }
                     )
-                    .setImage(gifUrl)
+                    .setImage('attachment://' + mediaFile.name)
                     //.setThumbnail(client.user.displayAvatarURL())
                     .setTimestamp()
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
@@ -102,7 +105,7 @@ module.exports = {
                 });
 
                 // Send embed
-                interaction.editReply({ embeds: [embed] });
+                interaction.editReply({ embeds: [embed], files: [mediaAttach] });
 
             } catch (error) {
                 console.log(`there was an error: ${error}`);

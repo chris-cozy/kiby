@@ -1,7 +1,7 @@
-const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
+const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
-const getGif = require('../../utils/getGif');
+const getMedia = require('../../utils/getMedia');
 
 module.exports = {
     name: 'adopt',
@@ -54,7 +54,9 @@ module.exports = {
             await userKirby.save();
             await userDate.save();
 
-            const gifUrl = await getGif('cute');
+            // Attaching media file
+            const mediaFile = await getMedia('portrait');
+            const mediaAttach = new AttachmentBuilder(mediaFile.url);
 
             // Create embed to send
             const embed = new EmbedBuilder()
@@ -63,11 +65,11 @@ module.exports = {
                 .setDescription(`You have adopted a Kirby! **${targetName}** is a nice name for them.`)
                 //.setURL('https://discord.js.org/#/')
                 .setThumbnail(client.user.displayAvatarURL())
-                .setImage(gifUrl)
+                .setImage('attachment://' + mediaFile.name)
                 .setTimestamp()
                 .setFooter({ text: `requested by ${interaction.user.tag} `, iconURL: `${interaction.user.displayAvatarURL()}` });
 
-            interaction.editReply({ embeds: [embed] });
+            interaction.editReply({ embeds: [embed], files: [mediaAttach] });
         } catch (error) {
             console.log(`There was an error: $${error}`);
         }
