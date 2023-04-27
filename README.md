@@ -1,6 +1,7 @@
 # Kiby (discord.js)
 ## Description
 This is a discord bot created using the discord.js library, as well as other capatible libraries. The purpose of this bot is to function as a digital tomagatchi, which users can take care of to maintain its life.
+Users feed, pet, and play with their Kirby to keep it happy and healthy. If they neglect their Kirby it will slowly lose hunger and affection points. If either hunger and affection reach 0, then the Kirby's health will begin to decrease over time. If the Kirby's health reaches 0 then the Kirby will die.
 ### Future Implications
 Coming soon is a slight overhaul and battle system, allowing users to battle other Kirby owners in pokemon-style, turn-based combat to gain battle stars and climb the BattleBoard.
 
@@ -10,9 +11,9 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 ### Config Commands
 - /adopt - Adopt and name a Kirby
 ### Care Commands
-- /feed - Feed your Kirby
-- /pet - Pet your Kirby
-- /play - Play with your Kirby
+- /feed - Feed your Kirby. This can be done once every 30 minutes. Grants hunger points.
+- /pet - Pet your Kirby. This can be done once every 5 minutes. Grants affection points.
+- /play - Play with your Kirby. This can be done once 10 minutes. Grants affection points.
 ### Miscellaneous Commands
 - /info - Display current stats on your Kirby
 - /leaderboard - Display the top ten Kirbys
