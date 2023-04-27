@@ -32,6 +32,7 @@ module.exports = {
         const milliConversion = 60000;
         const currentDate = new Date();
         const max = 100;
+        const pink = '#FF69B4'
 
         // Attaching media file
         const mediaFile = await getMedia('play');
@@ -57,7 +58,7 @@ module.exports = {
 
                 const embed = new EmbedBuilder()
                     .setTitle('**PLAYING**')
-                    .setColor('Random')
+                    .setColor(pink)
                     .setDescription(`**${interaction.user.username}** is playing with **${userKirby.kirbyName}**!`)
                     .addFields(
                         {

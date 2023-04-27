@@ -34,6 +34,7 @@ module.exports = {
         const milliConversion = 60000;
         const currentDate = new Date();
         const max = 100;
+        const pink = '#FF69B4'
 
         // Attaching media file
         const mediaFile = await getMedia('feed');
@@ -66,7 +67,7 @@ module.exports = {
 
                 const embed = new EmbedBuilder()
                     .setTitle('**FEEDING**')
-                    .setColor('Random')
+                    .setColor(pink)
                     .setDescription(`**${interaction.user.username}** has fed **${userKirby.kirbyName}**!`)
                     .addFields(
                         {

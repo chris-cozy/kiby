@@ -30,6 +30,7 @@ module.exports = {
         }
 
         const targetName = interaction.options.get('name').value;
+        const pink = '#FF69B4'
 
         // If user has a kirby, exit. If not, create it
         try {
@@ -61,7 +62,7 @@ module.exports = {
             // Create embed to send
             const embed = new EmbedBuilder()
                 .setTitle(client.user.username)
-                .setColor('Random')
+                .setColor(pink)
                 .setDescription(`You have adopted a Kirby! **${targetName}** is a nice name for them.`)
                 .setThumbnail(client.user.displayAvatarURL())
                 .setImage('attachment://' + mediaFile.name)

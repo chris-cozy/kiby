@@ -30,6 +30,7 @@ module.exports = {
         const div4 = '────────── ⋆⋅☆⋅⋆ ──────────'
         const div5 = '───────────────────────────'
         const zeroSpace = '\u200b'
+        const pink = '#FF69B4'
 
         // If user has a kirby
         if (userKirby) {
@@ -52,7 +53,7 @@ module.exports = {
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
                     .setTitle(userKirby.kirbyName)
-                    .setColor('Random')
+                    .setColor(pink)
                     .setDescription(`**${interaction.user.username}'s** Kirby!\n${div}${zeroSpace}`)
                     .setURL('https://discord.js.org/#/')
                     .addFields(
