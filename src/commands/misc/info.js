@@ -77,7 +77,7 @@ module.exports = {
                         },
                         {
                             name: 'Adopt Date',
-                            value: `${userKirby.adoptDate}`,
+                            value: `${userKirby.adoptDate.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}`,
                             inline: false
                         }
                     )
