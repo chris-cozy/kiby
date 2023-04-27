@@ -1,5 +1,6 @@
 const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
+const calculateXpForLevel = require('../../utils/calculateXpForLevel');
 
 module.exports = {
     name: 'info',
@@ -44,17 +45,17 @@ module.exports = {
                     .addFields(
                         {
                             name: 'Level',
-                            value: `${userKirby.level}`,
+                            value: `**${userKirby.level}**`,
                             inline: true
                         },
                         {
                             name: 'Xp',
-                            value: `${userKirby.xp}`,
+                            value: `**${userKirby.xp}**/${Math.ceil(calculateXpForLevel(userKirby.level))}`,
                             inline: true
                         },
                         {
                             name: 'Global Rank',
-                            value: `${currentRank}/${allUsers.length}`,
+                            value: `**${currentRank}**/${allUsers.length}`,
                             inline: true
                         },
                     )
