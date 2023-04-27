@@ -18,9 +18,10 @@ module.exports = {
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: false });
 
-        let allUsers = await userStats.find();
+        const pink = '#FF69B4'
 
         // Sort all users by level and xp
+        let allUsers = await userStats.find();
         allUsers.sort((a, b) => {
             if (a.level === b.level) {
                 return b.xp - a.xp;
@@ -34,13 +35,12 @@ module.exports = {
         if (length > 10) {
             length = 10;
         }
-        let topten = '';
-        const pink = '#FF69B4'
 
         // Construct the leaderboard variable
+        let topten = '';
         for (let i = 0; i < length; i++) {
             let user = await client.users.fetch(allUsers[i].userId)
-            topten += `${i + 1}.   **${allUsers[i].kirbyName}**(${user})        Level: ${allUsers[i].level}\n`
+            topten += `${i + 1}.   **${allUsers[i].kirbyName}**(${user.username})        Level: ${allUsers[i].level}\n`
         }
 
         try {
@@ -56,7 +56,7 @@ module.exports = {
             interaction.editReply({ embeds: [embed] });
 
         } catch (error) {
-            console.log(`there was an error: ${error}`);
+            console.log(`There was an error: ${error}`);
         }
     },
 }
