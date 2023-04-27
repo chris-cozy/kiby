@@ -2,6 +2,7 @@ const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require('discor
 const userStats = require('../../schemas/stats');
 const calculateXpForLevel = require('../../utils/calculateXpForLevel');
 const getMedia = require('../../utils/getMedia');
+const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('discord.js');
 
 module.exports = {
     name: 'info',
@@ -23,9 +24,8 @@ module.exports = {
         // Attaching media file
         const mediaFile = await getMedia('portrait');
         const mediaAttach = new AttachmentBuilder(mediaFile.url);
-        // Line of invisible characters for spacing
-        const spacing = '᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼'
-        const div = '--------------'
+        const div = '-------------------------------------------------------'
+        const zeroSpace = '\u200b'
 
         // If user has a kirby
         if (userKirby) {
@@ -49,7 +49,7 @@ module.exports = {
                     .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
                     .setTitle(userKirby.kirbyName)
                     .setColor('Random')
-                    .setDescription(`**${interaction.user.username}'s** Kirby pet!\n${div}${div}${div}${div}`)
+                    .setDescription(`**${interaction.user.username}'s** Kirby!\n${div}${zeroSpace}`)
                     .setURL('https://discord.js.org/#/')
                     .addFields(
                         {
@@ -84,13 +84,6 @@ module.exports = {
                             value: `**${userKirby.affection}**/100`,
                             inline: true
                         },
-                        /*
-                        {
-                            name: 'Adopt Date',
-                            value: `${userKirby.adoptDate.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}`,
-                            inline: false
-                        }
-                        */
                     )
                     .setThumbnail('attachment://' + mediaFile.name)
                     .setTimestamp()
