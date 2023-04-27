@@ -1,6 +1,7 @@
-const { Client, Interaction, EmbedBuilder } = require('discord.js');
+const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const calculateXpForLevel = require('../../utils/calculateXpForLevel');
+const getMedia = require('../../utils/getMedia');
 
 module.exports = {
     name: 'info',
@@ -18,6 +19,13 @@ module.exports = {
         await interaction.deferReply({ ephemeral: false });
 
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
+
+        // Attaching media file
+        const mediaFile = await getMedia('portrait');
+        const mediaAttach = new AttachmentBuilder(mediaFile.url);
+        // Line of invisible characters for spacing
+        const spacing = '᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼᲼'
+        const div = '--------------'
 
         // If user has a kirby
         if (userKirby) {
@@ -38,9 +46,10 @@ module.exports = {
 
             try {
                 const embed = new EmbedBuilder()
+                    .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
                     .setTitle(userKirby.kirbyName)
                     .setColor('Random')
-                    .setDescription(`**${interaction.user.username}'s** Kirby pet!`)
+                    .setDescription(`**${interaction.user.username}'s** Kirby pet!\n${div}${div}${div}${div}`)
                     .setURL('https://discord.js.org/#/')
                     .addFields(
                         {
@@ -75,17 +84,19 @@ module.exports = {
                             value: `**${userKirby.affection}**/100`,
                             inline: true
                         },
+                        /*
                         {
                             name: 'Adopt Date',
                             value: `${userKirby.adoptDate.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}`,
                             inline: false
                         }
+                        */
                     )
-                    .setThumbnail(client.user.displayAvatarURL())
+                    .setThumbnail('attachment://' + mediaFile.name)
                     .setTimestamp()
-                    .setFooter({ text: `${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}` });
+                    .setFooter({ text: `Adopted ${userKirby.adoptDate.toLocaleDateString('en-us', { year: "numeric", month: "short", day: "numeric" })}`, iconURL: `${interaction.user.displayAvatarURL()}` });
 
-                interaction.editReply({ embeds: [embed] });
+                interaction.editReply({ embeds: [embed], files: [mediaAttach] });
 
             } catch (error) {
                 console.log(`there was an error: ${error}`);
