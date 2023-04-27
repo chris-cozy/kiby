@@ -35,6 +35,7 @@ module.exports = {
             length = 10;
         }
         let topten = '';
+        const pink = '#FF69B4'
 
         // Construct the leaderboard variable
         for (let i = 0; i < length; i++) {
@@ -46,7 +47,7 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
                 .setTitle('Kiby Leaderboard')
-                .setColor('Random')
+                .setColor(pink)
                 .setDescription(topten)
                 .setURL('https://discord.js.org/#/')
                 .setTimestamp()
