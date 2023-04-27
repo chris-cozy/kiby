@@ -19,7 +19,11 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        await interaction.deferReply({ ephemeral: true });
+        if (interaction.inGuild()) {
+            await interaction.deferReply({ ephemeral: true });
+        } else {
+            await interaction.deferReply({ ephemeral: false });
+        }
 
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
