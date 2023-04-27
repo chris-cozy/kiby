@@ -25,6 +25,10 @@ module.exports = {
         const mediaFile = await getMedia('portrait');
         const mediaAttach = new AttachmentBuilder(mediaFile.url);
         const div = '-------------------------------------------------------'
+        const div2 = '─── ･ ｡ﾟ☆: *.☽ .* :☆ﾟ. ───'
+        const div3 = '✦•······················•✦•······················•✦'
+        const div4 = '────────── ⋆⋅☆⋅⋆ ──────────'
+        const div5 = '───────────────────────────'
         const zeroSpace = '\u200b'
 
         // If user has a kirby
