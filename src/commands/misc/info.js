@@ -50,7 +50,7 @@ module.exports = {
                         },
                         {
                             name: 'Xp',
-                            value: `**${userKirby.xp}**/${Math.ceil(calculateXpForLevel(userKirby.level))}`,
+                            value: `**${userKirby.xp}**/${Math.round(calculateXpForLevel(userKirby.level))}`,
                             inline: true
                         },
                         {

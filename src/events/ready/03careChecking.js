@@ -10,6 +10,8 @@ module.exports = () => {
 
     const minutes = 60;
     const milliConversion = 60000;
+    const min = 0;
+    const max = 100;
 
 
     setInterval(async () => {
@@ -25,22 +27,31 @@ module.exports = () => {
 
                 if ((currentDate - userDate.lastFeed) > (minutes * milliConversion)) {
                     user.hunger -= randomNumber(10, 30);
-                    if (user.hunger < 0) {
-                        user.hunger = 0;
+                    if (user.hunger < min) {
+                        user.hunger = min;
                     }
                 }
 
                 if ((currentDate - userDate.lastAffection) > (minutes * milliConversion)) {
                     user.affection -= randomNumber(10, 30);
-                    if (user.affection < 0) {
-                        user.affection = 0;
+                    if (user.affection < min) {
+                        user.affection = min;
                     }
                 }
 
-                if ((user.affection == 0) || (user.hunger == 0)) {
+                // Health decrease
+                if ((user.affection == min) || (user.hunger == min)) {
                     user.hp -= randomNumber(10, 20);
-                    if (user.hp < 0) {
-                        user.hp = 0;
+                    if (user.hp < min) {
+                        user.hp = min;
+                    }
+                }
+
+                // Health increase
+                if ((user.affection == max) && (user.hunger == max)) {
+                    user.hp += randomNumber(10, 20);
+                    if (user.hp > max) {
+                        user.hp = max;
                     }
                 }
 
@@ -50,7 +61,7 @@ module.exports = () => {
                 });
 
                 // Delete user data from database
-                if ((user.hp == 0)) {
+                if ((user.hp == min)) {
                     try {
                         const res1 = await userStats.deleteOne({ userId: user.userId });
                         const res2 = await userDates.deleteOne({ userId: user.userId });
