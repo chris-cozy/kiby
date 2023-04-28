@@ -54,7 +54,7 @@ module.exports = {
                     .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
                     .setTitle(userKirby.kirbyName)
                     .setColor(pink)
-                    .setDescription(`**${interaction.user.username}'s** Kirby!\n${div}${zeroSpace}`)
+                    .setDescription(`${div}${zeroSpace}`)
                     .setURL('https://discord.js.org/#/')
                     .addFields(
                         {
