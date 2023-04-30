@@ -1,4 +1,4 @@
-const { Client, Interaction, ApplicationCommandOptionType, AttachmentBuilder } = require("discord.js");
+const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require("discord.js");
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
 const getMedia = require('../../utils/getMedia');
@@ -21,7 +21,9 @@ module.exports = {
         const minutes = 480;
         const milliConversion = 60000;
         const currentDate = new Date();
-        const awakeDate = currentDate + (minutes * milliConversion);
+        const awakeDate = new Date(currentDate.getTime() + (minutes * milliConversion));
+        console.log(currentDate);
+        console.log(awakeDate);
 
         // Attaching media file
         const mediaFile = await getMedia('sleep');
@@ -33,31 +35,30 @@ module.exports = {
 
             // If user exists, grab dates and check relevance, then update collect date. 
             if (userDate) {
-
-
-                // Check if user has slept today
-                if (userDate.lastSleep.toDateString() === currentDate.toDateString()) {
-                    interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!` });
-                    return;
-                } else {
-                    // Change sleep date
-                    userDate.lastSleep = currentDate;
-
-                    const embed = new EmbedBuilder()
-                        .setTitle('**SLEEPING**')
-                        .setColor(pink)
-                        .setDescription(`**${userKirby.kirbyName}** is sleeping until ${awakeDate}!`)
-                        .setImage('attachment://' + mediaFile.name)
-                        .setTimestamp()
-                        .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
-
-                    // Update database
-                    await userDate.save().catch((e) => {
-                        console.log(`There was an error saving: ${e}`);
-                    });
-
-                    interaction.editReply({ embeds: [embed], files: [mediaAttach] });
+                if (userDate.lastSleep) {
+                    // Check if user has slept today
+                    if (userDate.lastSleep.toDateString() === currentDate.toDateString()) {
+                        interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!` });
+                        return;
+                    }
                 }
+                // Change sleep date
+                userDate.lastSleep = currentDate;
+
+                const embed = new EmbedBuilder()
+                    .setTitle('**SLEEPING**')
+                    .setColor(pink)
+                    .setDescription(`**${userKirby.kirbyName}** is sleeping until ${awakeDate.toLocaleString()}!`)
+                    .setImage('attachment://' + mediaFile.name)
+                    .setTimestamp()
+                    .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
+
+                // Update database
+                await userDate.save().catch((e) => {
+                    console.log(`There was an error saving: ${e}`);
+                });
+
+                interaction.editReply({ embeds: [embed], files: [mediaAttach] });
             } else {
                 interaction.editReply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
                 return;

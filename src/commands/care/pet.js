@@ -34,13 +34,24 @@ module.exports = {
         const pink = '#FF69B4'
 
         // Attaching media file
-        const mediaFile = await getMedia('play');
-        const mediaAttach = new AttachmentBuilder(mediaFile.url);
+        let mediaFile = await getMedia('play');
+        let mediaAttach = new AttachmentBuilder(mediaFile.url);
 
 
         // Check if user owns a kirby
         if (userKirby) {
             try {
+
+                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
+                if (userDate.lastSleep) {
+                    // If Kirby is still asleep, still the care check
+                    if (currentDate < awakeDate) {
+                        mediaFile = await getMedia('sleep');
+                        mediaAttach = new AttachmentBuilder(mediaFile.url);
+                    }
+                }
+
+
                 // Check if it has been minimum time since last affection
                 if ((currentDate - userDate.lastPet) < (minutes * milliConversion)) {
                     interaction.editReply(`You can only pet ${userKirby.kirbyName} every ${minutes} minutes! They need personal space too!`);

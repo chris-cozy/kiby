@@ -25,11 +25,12 @@ module.exports = () => {
             allUsers.forEach(async (user) => {
                 const userDate = await userDates.findOne({ userId: user.userId });
                 const currentDate = new Date();
+                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
 
                 // Check if Kirby has ever slept
                 if (userDate.lastSleep) {
                     // If Kirby is still asleep, skip the care check
-                    if (currentDate < (userDate.lastSleep + sleeptime)) {
+                    if (currentDate < awakeDate) {
                         return;
                     }
                 }

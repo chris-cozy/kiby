@@ -46,9 +46,10 @@ module.exports = {
         if (userKirby) {
             try {
 
+                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
                 if (userDate.lastSleep) {
                     // If Kirby is still asleep, still the care check
-                    if (currentDate < (userDate.lastSleep + sleeptime)) {
+                    if (currentDate < awakeDate) {
                         interaction.editReply(`You can't feed ${userKirby.kirbyName} while they're asleep!`);
                         return;
                     }

@@ -43,10 +43,11 @@ module.exports = {
         // Check if user owns a kirby
         if (userKirby) {
             try {
+                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
 
                 if (userDate.lastSleep) {
                     // If Kirby is still asleep, still the care check
-                    if (currentDate < (userDate.lastSleep + sleeptime)) {
+                    if (currentDate < awakeDate) {
                         interaction.editReply(`You can't play with ${userKirby.kirbyName} while they're asleep!`);
                         return;
                     }
