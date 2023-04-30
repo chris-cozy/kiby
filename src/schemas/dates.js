@@ -21,7 +21,7 @@ const datesSchema = new Schema({
         default: new Date(),
     },
     lastSleep: {
-        type: Date(),
+        type: Date,
     },
 });
 
