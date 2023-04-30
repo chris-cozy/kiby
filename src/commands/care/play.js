@@ -43,7 +43,7 @@ module.exports = {
         if (userKirby) {
             try {
                 // Check if it has been minimum time since last affection
-                if ((currentDate - userDate.lastAffection) < (minutes * milliConversion)) {
+                if ((currentDate - userDate.lastPlay) < (minutes * milliConversion)) {
                     interaction.editReply(`You can only play ${userKirby.kirbyName} every ${minutes} minutes! They need personal time too!`);
                     return;
                 }
@@ -77,7 +77,7 @@ module.exports = {
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
                 // Update feed and xp in db
-                userDate.lastAffection = currentDate;
+                userDate.lastPlay = currentDate;
                 userKirby.affection += affectionGranted;
 
                 userKirby.xp += xpGranted;

@@ -32,7 +32,7 @@ module.exports = () => {
                     }
                 }
 
-                if ((currentDate - userDate.lastAffection) > (minutes * milliConversion)) {
+                if (((currentDate - userDate.lastPet) > (minutes * milliConversion)) || ((currentDate - userDate.lastPlay) > (minutes * milliConversion))) {
                     user.affection -= randomNumber(10, 30);
                     if (user.affection < min) {
                         user.affection = min;
