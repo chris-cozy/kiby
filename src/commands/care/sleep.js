@@ -22,8 +22,6 @@ module.exports = {
         const milliConversion = 60000;
         const currentDate = new Date();
         const awakeDate = new Date(currentDate.getTime() + (minutes * milliConversion));
-        console.log(currentDate);
-        console.log(awakeDate);
 
         // Attaching media file
         const mediaFile = await getMedia('sleep');
