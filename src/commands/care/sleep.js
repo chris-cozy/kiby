@@ -4,7 +4,7 @@ const userDates = require('../../schemas/dates');
 const getMedia = require('../../utils/getMedia');
 
 module.exports = {
-    nname: 'sleep',
+    name: 'sleep',
     description: 'Put your Kirby to sleep!',
     devonly: false,
     testOnly: false,
