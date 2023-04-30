@@ -33,6 +33,7 @@ module.exports = {
         const currentDate = new Date();
         const max = 100;
         const pink = '#FF69B4'
+        const sleeptime = 480 * milliConversion;
 
         // Attaching media file
         const mediaFile = await getMedia('play');
@@ -42,6 +43,17 @@ module.exports = {
         // Check if user owns a kirby
         if (userKirby) {
             try {
+
+                if (userDate.lastSleep) {
+                    // If Kirby is still asleep, still the care check
+                    if (currentDate < (userDate.lastSleep + sleeptime)) {
+                        interaction.editReply(`You can't play with ${userKirby.kirbyName} while they're asleep!`);
+                        return;
+                    }
+                }
+
+
+
                 // Check if it has been minimum time since last affection
                 if ((currentDate - userDate.lastPlay) < (minutes * milliConversion)) {
                     interaction.editReply(`You can only play ${userKirby.kirbyName} every ${minutes} minutes! They need personal time too!`);

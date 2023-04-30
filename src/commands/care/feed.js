@@ -35,6 +35,7 @@ module.exports = {
         const currentDate = new Date();
         const max = 100;
         const pink = '#FF69B4'
+        const sleeptime = 480 * milliConversion;
 
         // Attaching media file
         const mediaFile = await getMedia('feed');
@@ -44,6 +45,14 @@ module.exports = {
         // Check if user owns a kirby
         if (userKirby) {
             try {
+
+                if (userDate.lastSleep) {
+                    // If Kirby is still asleep, still the care check
+                    if (currentDate < (userDate.lastSleep + sleeptime)) {
+                        interaction.editReply(`You can't feed ${userKirby.kirbyName} while they're asleep!`);
+                        return;
+                    }
+                }
 
                 // Check if kirby is hungry
                 if (userKirby.hunger == max) {

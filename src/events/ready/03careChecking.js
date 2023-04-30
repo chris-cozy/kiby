@@ -12,6 +12,7 @@ module.exports = () => {
     const milliConversion = 60000;
     const min = 0;
     const max = 100;
+    const sleeptime = 480 * milliConversion;
 
 
     setInterval(async () => {
@@ -25,6 +26,15 @@ module.exports = () => {
                 const userDate = await userDates.findOne({ userId: user.userId });
                 const currentDate = new Date();
 
+                // Check if Kirby has ever slept
+                if (userDate.lastSleep) {
+                    // If Kirby is still asleep, skip the care check
+                    if (currentDate < (userDate.lastSleep + sleeptime)) {
+                        return;
+                    }
+                }
+
+                // Decrease hunger
                 if ((currentDate - userDate.lastFeed) > (minutes * milliConversion)) {
                     user.hunger -= randomNumber(10, 30);
                     if (user.hunger < min) {
@@ -32,6 +42,7 @@ module.exports = () => {
                     }
                 }
 
+                // Decrease affection
                 if (((currentDate - userDate.lastPet) > (minutes * milliConversion)) || ((currentDate - userDate.lastPlay) > (minutes * milliConversion))) {
                     user.affection -= randomNumber(10, 30);
                     if (user.affection < min) {
@@ -73,7 +84,6 @@ module.exports = () => {
                     }
                 }
             });
-
         } else {
             console.log('There are no active Kirbys!');
         }
