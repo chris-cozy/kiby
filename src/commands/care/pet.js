@@ -32,6 +32,7 @@ module.exports = {
         const currentDate = new Date();
         const max = 100;
         const pink = '#FF69B4'
+        const sleeptime = 480 * milliConversion;
 
         // Attaching media file
         let mediaFile = await getMedia('play');
