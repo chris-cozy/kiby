@@ -12,9 +12,16 @@ const datesSchema = new Schema({
         type: Date,
         default: new Date(),
     },
-    lastAffection: {
+    lastPet: {
         type: Date,
         default: new Date(),
+    },
+    lastPlay: {
+        type: Date,
+        default: new Date(),
+    },
+    lastSleep: {
+        type: Date(),
     },
 });
 
