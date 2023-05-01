@@ -1,9 +1,9 @@
-const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
 const calculateXpForLevel = require('../../utils/calculateXpForLevel');
-const getMedia = require('../../utils/getMedia');
 const randomNumber = require("../../utils/randomNumber");
+const command = require('../../classes/command');
 
 
 module.exports = {
@@ -19,6 +19,8 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
+        const feed = new command(30, 'feed');
+        const media = await feed.get_media_attachment();
 
         if (interaction.inGuild()) {
             await interaction.deferReply({ ephemeral: true });
@@ -26,42 +28,30 @@ module.exports = {
             await interaction.deferReply({ ephemeral: false });
         }
 
-
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
-
-        const minutes = 30;
-        const milliConversion = 60000;
-        const currentDate = new Date();
-        const max = 100;
-        const pink = '#FF69B4'
-        const sleeptime = 480 * milliConversion;
-
-        // Attaching media file
-        const mediaFile = await getMedia('feed');
-        const mediaAttach = new AttachmentBuilder(mediaFile.url);
 
 
         // Check if user owns a kirby
         if (userKirby) {
             try {
 
-                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
+                const awakeDate = new Date(userDate.lastSleep.getTime() + feed.sleepTime);
                 // If Kirby is still asleep, still the care check
-                if (currentDate < awakeDate) {
+                if (feed.currentDate < awakeDate) {
                     interaction.editReply(`You can't feed ${userKirby.kirbyName} while they're asleep!`);
                     return;
                 }
 
                 // Check if kirby is hungry
-                if (userKirby.hunger == max) {
+                if (userKirby.hunger == feed.max) {
                     interaction.editReply(`**${userKirby.kirbyName}** is not hungry!`);
                     return;
                 }
 
                 // Check if it has been minimum time since last feed
-                if ((currentDate - userDate.lastFeed) < (minutes * milliConversion)) {
-                    interaction.editReply(`You can only feed ${userKirby.kirbyName} every ${minutes} minutes!`);
+                if ((feed.currentDate - userDate.lastFeed) < (feed.interactionCooldown)) {
+                    interaction.editReply(`You can only feed ${userKirby.kirbyName} every ${feed.cooldownMins} minutes!`);
                     return;
                 }
 
@@ -69,13 +59,13 @@ module.exports = {
                 let feedGranted = randomNumber(10, 30);
                 const xpGranted = randomNumber(5, 15);
 
-                if ((userKirby.hunger + feedGranted) > max) {
-                    feedGranted = max - userKirby.hunger;
+                if ((userKirby.hunger + feedGranted) > feed.max) {
+                    feedGranted = feed.max - userKirby.hunger;
                 }
 
                 const embed = new EmbedBuilder()
                     .setTitle('**FEEDING**')
-                    .setColor(pink)
+                    .setColor(feed.pink)
                     .setDescription(`**${interaction.user.username}** has fed **${userKirby.kirbyName}**!`)
                     .addFields(
                         {
@@ -89,12 +79,12 @@ module.exports = {
                             inline: true
                         }
                     )
-                    .setImage('attachment://' + mediaFile.name)
+                    .setImage(media.mediaString)
                     .setTimestamp()
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
                 // Update feed and xp in db
-                userDate.lastFeed = currentDate;
+                userDate.lastFeed = feed.currentDate;
                 userKirby.hunger += feedGranted;
 
                 userKirby.xp += xpGranted;
@@ -115,7 +105,7 @@ module.exports = {
                     console.log(`There was an error saving: ${e}`);
                 });
 
-                interaction.editReply({ embeds: [embed], files: [mediaAttach] });
+                interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
             } catch (error) {
                 console.log(`there was an error: ${error}`);
             }

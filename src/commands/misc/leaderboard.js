@@ -1,6 +1,5 @@
 const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
-const calculateXpForLevel = require('../../utils/calculateXpForLevel');
 const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('discord.js');
 
 module.exports = {

@@ -1,9 +1,9 @@
-const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
 const calculateXpForLevel = require('../../utils/calculateXpForLevel');
-const getMedia = require('../../utils/getMedia');
 const randomNumber = require("../../utils/randomNumber");
+const command = require('../../classes/command');
 
 
 module.exports = {
@@ -19,6 +19,9 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
+        const play = new command(10);
+        const media = await play.get_media_attachment('play');
+
         if (interaction.inGuild()) {
             await interaction.deferReply({ ephemeral: true });
         } else {
@@ -28,25 +31,13 @@ module.exports = {
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
 
-        const minutes = 10;
-        const milliConversion = 60000;
-        const currentDate = new Date();
-        const max = 100;
-        const pink = '#FF69B4'
-        const sleeptime = 480 * milliConversion;
-
-        // Attaching media file
-        const mediaFile = await getMedia('play');
-        const mediaAttach = new AttachmentBuilder(mediaFile.url);
-
-
         // Check if user owns a kirby
         if (userKirby) {
             try {
-                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
+                const awakeDate = new Date(userDate.lastSleep.getTime() + play.sleepTime);
 
                 // If Kirby is still asleep, still the care check
-                if (currentDate < awakeDate) {
+                if (play.currentDate < awakeDate) {
                     interaction.editReply(`You can't play with ${userKirby.kirbyName} while they're asleep!`);
                     return;
                 }
@@ -54,8 +45,8 @@ module.exports = {
 
 
                 // Check if it has been minimum time since last affection
-                if ((currentDate - userDate.lastPlay) < (minutes * milliConversion)) {
-                    interaction.editReply(`You can only play ${userKirby.kirbyName} every ${minutes} minutes! They need personal time too!`);
+                if ((play.currentDate - userDate.lastPlay) < (play.interactionCooldown)) {
+                    interaction.editReply(`You can only play ${userKirby.kirbyName} every ${play.cooldownMins} minutes! They need personal time too!`);
                     return;
                 }
 
@@ -63,13 +54,13 @@ module.exports = {
                 let affectionGranted = randomNumber(10, 30);
                 const xpGranted = randomNumber(5, 15);
 
-                if ((userKirby.affection + affectionGranted) > max) {
-                    affectionGranted = max - userKirby.affection;
+                if ((userKirby.affection + affectionGranted) > play.max) {
+                    affectionGranted = play.max - userKirby.affection;
                 }
 
                 const embed = new EmbedBuilder()
                     .setTitle('**PLAYING**')
-                    .setColor(pink)
+                    .setColor(play.pink)
                     .setDescription(`**${interaction.user.username}** is playing with **${userKirby.kirbyName}**!`)
                     .addFields(
                         {
@@ -83,12 +74,12 @@ module.exports = {
                             inline: true
                         }
                     )
-                    .setImage('attachment://' + mediaFile.name)
+                    .setImage(media.mediaString)
                     .setTimestamp()
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
                 // Update feed and xp in db
-                userDate.lastPlay = currentDate;
+                userDate.lastPlay = play.currentDate;
                 userKirby.affection += affectionGranted;
 
                 userKirby.xp += xpGranted;
@@ -109,7 +100,7 @@ module.exports = {
                     console.log(`There was an error saving: ${e}`);
                 });
 
-                interaction.editReply({ embeds: [embed], files: [mediaAttach] });
+                interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
             } catch (error) {
                 console.log(`there was an error: ${error}`);
             }

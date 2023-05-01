@@ -24,10 +24,8 @@ module.exports = {
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
 
-        const minutes = 5;
         const milliConversion = 60000;
         const currentDate = new Date();
-        const max = 100;
         const pink = '#FF69B4'
         const sleeptime = 480 * milliConversion;
 

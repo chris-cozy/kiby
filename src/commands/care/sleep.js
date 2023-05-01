@@ -1,7 +1,7 @@
-const { Client, Interaction, EmbedBuilder, AttachmentBuilder } = require("discord.js");
+const { Client, Interaction, EmbedBuilder } = require("discord.js");
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
-const getMedia = require('../../utils/getMedia');
+const command = require('../../classes/command');
 
 module.exports = {
     name: 'sleep',
@@ -16,16 +16,11 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        await interaction.deferReply({ ephemeral: true });
-        const pink = '#FF69B4'
-        const minutes = 480;
-        const milliConversion = 60000;
-        const currentDate = new Date();
-        const awakeDate = new Date(currentDate.getTime() + (minutes * milliConversion));
+        const sleep = new command(480);
+        const media = await sleep.get_media_attachment('sleep');
+        const awakeDate = new Date(sleep.currentDate.getTime() + (sleep.interactionCooldown));
 
-        // Attaching media file
-        const mediaFile = await getMedia('sleep');
-        const mediaAttach = new AttachmentBuilder(mediaFile.url);
+        await interaction.deferReply({ ephemeral: true });
 
         try {
             let userKirby = await userStats.findOne({ userId: interaction.user.id });
@@ -34,19 +29,19 @@ module.exports = {
             // If user exists, grab dates and check relevance, then update collect date. 
             if (userDate) {
                 // Check if user has slept today
-                if (userDate.lastSleep.toDateString() === currentDate.toDateString()) {
+                if (userDate.lastSleep.toDateString() === sleep.currentDate.toDateString()) {
                     interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!` });
                     return;
                 }
 
                 // Change sleep date
-                userDate.lastSleep = currentDate;
+                userDate.lastSleep = sleep.currentDate;
 
                 const embed = new EmbedBuilder()
                     .setTitle('**SLEEPING**')
-                    .setColor(pink)
+                    .setColor(sleep.pink)
                     .setDescription(`**${userKirby.kirbyName}** is sleeping until ${awakeDate.toLocaleString()}!`)
-                    .setImage('attachment://' + mediaFile.name)
+                    .setImage(media.mediaString)
                     .setTimestamp()
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
@@ -55,7 +50,7 @@ module.exports = {
                     console.log(`There was an error saving: ${e}`);
                 });
 
-                interaction.editReply({ embeds: [embed], files: [mediaAttach] });
+                interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
             } else {
                 interaction.editReply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
                 return;
