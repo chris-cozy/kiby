@@ -27,12 +27,9 @@ module.exports = () => {
                 const currentDate = new Date();
                 const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
 
-                // Check if Kirby has ever slept
-                if (userDate.lastSleep) {
-                    // If Kirby is still asleep, skip the care check
-                    if (currentDate < awakeDate) {
-                        return;
-                    }
+                // If Kirby is still asleep, skip the care check
+                if (currentDate < awakeDate) {
+                    return;
                 }
 
                 // Decrease hunger

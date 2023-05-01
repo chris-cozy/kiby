@@ -22,6 +22,7 @@ const datesSchema = new Schema({
     },
     lastSleep: {
         type: Date,
+        default: new Date(10, 000),
     },
 });
 

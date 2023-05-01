@@ -33,13 +33,12 @@ module.exports = {
 
             // If user exists, grab dates and check relevance, then update collect date. 
             if (userDate) {
-                if (userDate.lastSleep) {
-                    // Check if user has slept today
-                    if (userDate.lastSleep.toDateString() === currentDate.toDateString()) {
-                        interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!` });
-                        return;
-                    }
+                // Check if user has slept today
+                if (userDate.lastSleep.toDateString() === currentDate.toDateString()) {
+                    interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!` });
+                    return;
                 }
+
                 // Change sleep date
                 userDate.lastSleep = currentDate;
 

@@ -44,12 +44,10 @@ module.exports = {
             try {
 
                 const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
-                if (userDate.lastSleep) {
-                    // If Kirby is still asleep, still the care check
-                    if (currentDate < awakeDate) {
-                        mediaFile = await getMedia('sleep');
-                        mediaAttach = new AttachmentBuilder(mediaFile.url);
-                    }
+                // If Kirby is still asleep, still the care check
+                if (currentDate < awakeDate) {
+                    mediaFile = await getMedia('sleep');
+                    mediaAttach = new AttachmentBuilder(mediaFile.url);
                 }
 
 
