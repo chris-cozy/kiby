@@ -1,7 +1,10 @@
 # Kiby (discord.js)
 <div id="header" align="center">
-  <img src="https://tenor.com/KPwY.gif" width="500"/>
+  <img src="src\media\gifs\kirby-cute.gif" width="500"/>
 </div>
+<!-- 
+<img src="https://tenor.com/KPwY.gif" width="500"/>
+-->
 
 ## Description
 This is a discord bot created using the discord.js library, as well as other capatible libraries. The purpose of this bot is to function as a digital tomagatchi, which users can take care of to maintain its life.
