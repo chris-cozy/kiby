@@ -1,4 +1,8 @@
 # Kiby (discord.js)
+<div id="header" align="center">
+  <img src="https://tenor.com/KPwY.gif" width="500"/>
+</div>
+
 ## Description
 This is a discord bot created using the discord.js library, as well as other capatible libraries. The purpose of this bot is to function as a digital tomagatchi, which users can take care of to maintain its life.
 Users feed, pet, and play with their Kirby to keep it happy and healthy. If they neglect their Kirby it will slowly lose hunger and affection points. If either hunger and affection reach 0, then the Kirby's health will begin to decrease over time. If the Kirby's health reaches 0 then the Kirby will die.
