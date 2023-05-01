@@ -18,6 +18,7 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 ### Miscellaneous Commands
 - /info - Display current stats on your Kirby
 - /leaderboard - Display the top ten Kirbys
+- /cooldowns - Display any current cooldowns on Kirby interactions
 - /ping - Show the bot's client and websocket ping
 ## Prerequisites
 Node.js
