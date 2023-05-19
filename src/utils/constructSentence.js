@@ -1,4 +1,4 @@
-const random_number = require("../randomNumber");
+const random_number = require("./randomNumber");
 
 /**
  * @brief Construct a random sentence using the kirby lexicon
