@@ -8,7 +8,6 @@ dotenv.config();
 const { Client, IntentsBitField } = require('discord.js');
 const eventHandler = require('./handlers/eventHandler');
 const mongoose = require('mongoose');
-const storeMedia = require('./utils/storeMedia')
 
 // Intents: Information the bot needs to recieve
 const client = new Client({
@@ -28,7 +27,6 @@ const client = new Client({
         console.log(`Connected to the local mongo database.`);
 
         eventHandler(client);
-        storeMedia(client);
         client.login(process.env.TOKEN);
     } catch (error) {
         console.log(`There was an error: ${error}`);
