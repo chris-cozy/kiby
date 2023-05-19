@@ -17,7 +17,6 @@ module.exports = async (request) => {
         path.join(__dirname, '..', 'media'),
         true
     )
-    console.log(mediaCategories);
 
     for (const mediaCategory of mediaCategories) {
         if (mediaCategory.substring(mediaCategory.lastIndexOf("\\") + 1) == keyword) {
@@ -31,7 +30,6 @@ module.exports = async (request) => {
         }
 
     }
-    console.log(mediaSelection);
 
     const chosen = mediaSelection[random_number(0, (mediaSelection.length - 1))];
 
@@ -39,6 +37,6 @@ module.exports = async (request) => {
         name: chosen.substring(chosen.lastIndexOf("\\") + 1),
         url: chosen,
     }
-    console.log(media);
+
     return media;
 }
