@@ -1,4 +1,4 @@
-const getAllFiles = require("../utils/getAllFiles");
+const get_all_files = require("../utils/getAllFiles");
 const path = require('path');
 const { Client } = require('discord.js');
 
@@ -8,11 +8,11 @@ const { Client } = require('discord.js');
  */
 module.exports = (client) => {
     // Targeting events directory, grabbing subdirs
-    const eventFolders = getAllFiles(path.join(__dirname, '..', 'events'), true);
+    const eventFolders = get_all_files(path.join(__dirname, '..', 'events'), true);
 
     // Extract files from each subdir
     for (const eventFolder of eventFolders) {
-        const eventFiles = getAllFiles(eventFolder);
+        const eventFiles = get_all_files(eventFolder);
 
         // Sort in alphabetical order
         eventFiles.sort((a, b) => a > b);

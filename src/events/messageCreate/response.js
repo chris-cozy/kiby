@@ -1,5 +1,5 @@
 const { Client, Message } = require('discord.js');
-const randomNumber = require("../../utils/randomNumber");
+const random_number = require("../../utils/randomNumber");
 const userStats = require('../../schemas/stats');
 
 /**
@@ -8,18 +8,8 @@ const userStats = require('../../schemas/stats');
  * @param {Message} message - The message which was sent
  */
 module.exports = async (client, message) => {
-    // Ignore msg if author is a bot
-    if (message.author.bot) {
-        return;
-    }
-
-    // Send alert if not sent in the right channel
-    if (message.channel.id !== process.env.OPENAI_CHANNEL_ID) {
-        console.log('not the designated channel');
-    }
-
-    // Ignore message if bot is not mentioned
-    if (!message.mentions.has(client.user.id)) {
+    // Ignore message if author is a bot, or if the bot is not mentioned
+    if (message.author.bot || (!message.mentions.has(client.user.id))) {
         return;
     }
 
@@ -62,12 +52,12 @@ module.exports = async (client, message) => {
         while (response == '') {
 
             // Return random length between 0 and the maximum word length for sentence
-            const sentenceLength = randomNumber(0, maxSentenceLength);
+            const sentenceLength = random_number(0, maxSentenceLength);
 
             // Cycle through and construct each word
             for (let i = 0; i < sentenceLength; i++) {
 
-                const wordLength = randomNumber(minWordLength, maxWordLength);
+                const wordLength = random_number(minWordLength, maxWordLength);
 
                 for (let k = 0; k < wordLength; k++) {
                     const index = Math.floor(Math.random() * lexigraph.length);

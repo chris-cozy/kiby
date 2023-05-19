@@ -10,9 +10,8 @@ const eventHandler = require('./handlers/eventHandler');
 const mongoose = require('mongoose');
 const storeMedia = require('./utils/storeMedia')
 
-//-----SETUP-----//
+// Intents: Information the bot needs to recieve
 const client = new Client({
-    // Information the bot needs to recieve
     intents: [
         IntentsBitField.Flags.Guilds,
         IntentsBitField.Flags.GuildMembers,
@@ -21,12 +20,12 @@ const client = new Client({
     ]
 });
 
-// Immediately invoked function, made async to wait for database connection
+// Immediately invoked function made async to wait for database connection
 (async () => {
     try {
         mongoose.set('strictQuery', false);
         await mongoose.connect(process.env.MONGO_CONNECTION, { keepAlive: true });
-        console.log(`Connected to the local database.`);
+        console.log(`Connected to the local mongo database.`);
 
         eventHandler(client);
         storeMedia(client);

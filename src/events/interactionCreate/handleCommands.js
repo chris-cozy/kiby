@@ -1,5 +1,5 @@
 const { devs, testServer } = require('../../../config.json');
-const getLocalCommands = require('../../utils/getLocalCommands');
+const get_local_commands = require('../../utils/getLocalCommands');
 const { Client, Interaction } = require('discord.js');
 
 /**
@@ -10,7 +10,7 @@ const { Client, Interaction } = require('discord.js');
 module.exports = async (client, interaction) => {
     if (!interaction.isChatInputCommand()) return;
 
-    const localCommands = getLocalCommands();
+    const localCommands = get_local_commands();
 
     // Check if command matches local commands. If so, use the object
     try {

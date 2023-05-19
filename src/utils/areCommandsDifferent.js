@@ -1,30 +1,28 @@
+const { Command } = require('discord.js');
+
 /**
  * @brief Check if commands are different
- * @param {object} existingCommand - Command object
- * @param {object} localCommand - Command object
+ * @param {Command} existingCommand - Command object
+ * @param {Command} localCommand - Command object
  * @returns boolean
  */
 module.exports = (existingCommand, localCommand) => {
-    // Check if the choices are different
-    const areChoicesDifferent = (existingChoices, localChoices) => {
+    // Check if the command's choices are different
+    const are_choices_different = (existingChoices, localChoices) => {
         for (const localChoice of localChoices) {
             const existingChoice = existingChoices?.find(
                 (choice) => choice.name === localChoice.name
             );
 
-            if (!existingChoice) {
-                return true;
-            }
-
-            if (localChoice.value !== existingChoice.value) {
+            if ((!existingChoice) || (localChoice.value !== existingChoice.value)) {
                 return true;
             }
         }
         return false;
     };
 
-    // Check if the options are different
-    const areOptionsDifferent = (existingOptions, localOptions) => {
+    // Check if the command's options are different
+    const are_options_different = (existingOptions, localOptions) => {
         for (const localOption of localOptions) {
             const existingOption = existingOptions?.find(
                 (option) => option.name === localOption.name
@@ -40,7 +38,7 @@ module.exports = (existingCommand, localCommand) => {
                 (localOption.required || false) !== existingOption.required ||
                 (localOption.choices?.length || 0) !==
                 (existingOption.choices?.length || 0) ||
-                areChoicesDifferent(
+                are_choices_different(
                     localOption.choices || [],
                     existingOption.choices || []
                 )
@@ -51,11 +49,11 @@ module.exports = (existingCommand, localCommand) => {
         return false;
     };
 
-    // Checks if the description is the same, or if the options have changed
+    // Checks if the command's description is the same, or if the options have changed
     if (
         existingCommand.description !== localCommand.description ||
         existingCommand.options?.length !== (localCommand.options?.length || 0) ||
-        areOptionsDifferent(existingCommand.options, localCommand.options || [])
+        are_options_different(existingCommand.options, localCommand.options || [])
     ) {
         return true;
     }
