@@ -1,6 +1,7 @@
 const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
+const command = require('../../classes/command');
 
 module.exports = {
     name: 'cooldowns',
@@ -24,14 +25,10 @@ module.exports = {
         let userKirby = await userStats.findOne({ userId: interaction.user.id });
         let userDate = await userDates.findOne({ userId: interaction.user.id });
 
-        const milliConversion = 60000;
-        const currentDate = new Date();
-        const pink = '#FF69B4'
-        const sleeptime = 480 * milliConversion;
-
-        const playWait = 10 * milliConversion;
-        const petWait = 5 * milliConversion;
-        const feedWait = 30 * milliConversion;
+        const cooldown = new command();
+        const playWait = 10 * cooldown.milliConversion;
+        const petWait = 5 * cooldown.milliConversion;
+        const feedWait = 30 * cooldown.milliConversion;
 
         let sleepCooldown;
         let petCooldown;
@@ -44,10 +41,10 @@ module.exports = {
         if (userKirby) {
             try {
 
-                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
+                const awakeDate = new Date(userDate.lastSleep.getTime() + cooldown.sleepTime);
 
                 // If Kirby is still asleep, set cooldowns to wake time. Else, check individual times
-                if (currentDate < awakeDate) {
+                if (cooldown.currentDate < awakeDate) {
                     asleep = "YES";
                     sleepCooldown = awakeDate.toLocaleString();
                     playCooldown = awakeDate.toLocaleString();
@@ -56,20 +53,20 @@ module.exports = {
                     asleep = "NO";
                     sleepCooldown = `${userKirby.kirbyName} is awake`;
 
-                    if (currentDate > (userDate.lastPlay.getTime() + playWait)) {
+                    if (cooldown.currentDate > (userDate.lastPlay.getTime() + playWait)) {
                         playCooldown = "CAN PLAY";
                     } else {
                         playCooldown = new Date(userDate.lastPlay.getTime() + playWait).toLocaleTimeString();
                     }
 
-                    if (currentDate > (userDate.lastFeed.getTime() + feedWait)) {
+                    if (cooldown.currentDate > (userDate.lastFeed.getTime() + feedWait)) {
                         feedCooldown = "CAN FEED";
                     } else {
                         feedCooldown = new Date(userDate.lastFeed.getTime() + feedWait).toLocaleTimeString;
                     }
                 }
 
-                if (currentDate > (userDate.lastPet.getTime() + petWait)) {
+                if (cooldown.currentDate > (userDate.lastPet.getTime() + petWait)) {
                     petCooldown = "CAN PET";
                 } else {
                     petCooldown = new Date(userDate.lastPet.getTime() + petWait).toLocaleTimeString();
@@ -77,7 +74,7 @@ module.exports = {
 
                 const embed = new EmbedBuilder()
                     .setTitle('**COOLDOWNS**')
-                    .setColor(pink)
+                    .setColor(cooldown.pink)
                     .setDescription(`The times when you can interact with **${userKirby.kirbyName}**!`)
                     .addFields(
                         {

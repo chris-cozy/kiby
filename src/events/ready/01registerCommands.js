@@ -1,7 +1,7 @@
 const { testServer } = require('../../../config.json');
-const getLocalCommands = require('../../utils/getLocalCommands');
-const getApplicationCommands = require('../../utils/getApplicationCommands');
-const areCommandsDifferent = require('../../utils/areCommandsDifferent');
+const get_local_commands = require('../../utils/getLocalCommands');
+const get_application_commands = require('../../utils/getApplicationCommands');
+const are_commands_different = require('../../utils/areCommandsDifferent');
 const { Client } = require('discord.js');
 
 /**
@@ -11,8 +11,8 @@ const { Client } = require('discord.js');
 module.exports = async (client) => {
     try {
         // Get bot's commands
-        const localCommands = getLocalCommands();
-        const applicationCommands = await getApplicationCommands(client, testServer);
+        const localCommands = get_local_commands();
+        const applicationCommands = await get_application_commands(client, testServer);
 
         for (const localCommand of localCommands) {
             const { name, description, options } = localCommand;
@@ -30,7 +30,7 @@ module.exports = async (client) => {
                     continue;
                 }
 
-                if (areCommandsDifferent(existingCommand, localCommand)) {
+                if (are_commands_different(existingCommand, localCommand)) {
                     await applicationCommands.edit(existingCommand.id, { description, options });
                     console.log(`Edited command "${name}".`);
                 }

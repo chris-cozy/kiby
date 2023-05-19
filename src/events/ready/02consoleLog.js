@@ -7,13 +7,14 @@ const { ActivityType, Client } = require('discord.js');
 module.exports = (client) => {
     let status = [
         {
-            name: 'Crunchyroll',
-            type: ActivityType.Watching
-        },
-        {
             name: 'Lofi Girl',
             type: ActivityType.Streaming,
             url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
+        },
+        {
+            name: 'Lofi Boy',
+            type: ActivityType.Streaming,
+            url: 'https://www.youtube.com/watch?v=MVPTGNGiI-4'
         }
     ]
 

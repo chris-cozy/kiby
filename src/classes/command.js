@@ -1,5 +1,5 @@
 const { AttachmentBuilder } = require('discord.js');
-const getMedia = require('../utils/getMedia');
+const get_media = require('../utils/getMedia');
 
 class command {
 
@@ -12,11 +12,12 @@ class command {
         this.sleepMins = 480;
         this.sleepTime = this.sleepMins * this.milliConversion;
         this.max = 100;
+        this.zeroSpace = '\u200b';
     }
 
     // Generate media file
     async get_media_attachment(keyword = 'portrait') {
-        this.mediaFile = await getMedia(keyword);
+        this.mediaFile = await get_media(keyword);
         this.mediaAttach = new AttachmentBuilder(this.mediaFile.url);
 
         this.media = {

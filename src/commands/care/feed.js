@@ -19,8 +19,8 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        const feed = new command(30, 'feed');
-        const media = await feed.get_media_attachment();
+        const feed = new command(30);
+        const media = await feed.get_media_attachment('feed');
 
         if (interaction.inGuild()) {
             await interaction.deferReply({ ephemeral: true });

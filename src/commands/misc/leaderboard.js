@@ -1,6 +1,6 @@
 const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
-const { bold, italic, strikethrough, underscore, spoiler, quote, blockQuote } = require('discord.js');
+const command = require('../../classes/command');
 
 module.exports = {
     name: 'leaderboard',
@@ -17,7 +17,7 @@ module.exports = {
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: false });
 
-        const pink = '#FF69B4'
+        const leaderboard = new command();
 
         // Sort all users by level and xp
         let allUsers = await userStats.find();
@@ -46,7 +46,7 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
                 .setTitle('Kiby Leaderboard')
-                .setColor(pink)
+                .setColor(leaderboard.pink)
                 .setDescription(topten)
                 .setURL('https://discord.js.org/#/')
                 .setTimestamp()

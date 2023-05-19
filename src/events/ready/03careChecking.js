@@ -8,11 +8,12 @@ const randomNumber = require("../../utils/randomNumber");
  */
 module.exports = () => {
 
-    const minutes = 60;
     const milliConversion = 60000;
+    const timer = 60 * milliConversion
+    const sleeptimer = 480 * milliConversion;
     const min = 0;
     const max = 100;
-    const sleeptime = 480 * milliConversion;
+
 
 
     setInterval(async () => {
@@ -23,9 +24,9 @@ module.exports = () => {
         if (allUsers) {
             // For each user, check difference between last care times
             allUsers.forEach(async (user) => {
-                const userDate = await userDates.findOne({ userId: user.userId });
                 const currentDate = new Date();
-                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptime);
+                const userDate = await userDates.findOne({ userId: user.userId });
+                const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptimer);
 
                 // If Kirby is still asleep, skip the care check
                 if (currentDate < awakeDate) {
@@ -33,7 +34,7 @@ module.exports = () => {
                 }
 
                 // Decrease hunger
-                if ((currentDate - userDate.lastFeed) > (minutes * milliConversion)) {
+                if ((currentDate - userDate.lastFeed) > timer) {
                     user.hunger -= randomNumber(10, 30);
                     if (user.hunger < min) {
                         user.hunger = min;
@@ -41,7 +42,7 @@ module.exports = () => {
                 }
 
                 // Decrease affection
-                if (((currentDate - userDate.lastPet) > (minutes * milliConversion)) || ((currentDate - userDate.lastPlay) > (minutes * milliConversion))) {
+                if (((currentDate - userDate.lastPet) > timer) || ((currentDate - userDate.lastPlay) > timer)) {
                     user.affection -= randomNumber(10, 30);
                     if (user.affection < min) {
                         user.affection = min;
@@ -85,5 +86,5 @@ module.exports = () => {
         } else {
             console.log('There are no active Kirbys!');
         }
-    }, (minutes * milliConversion));
+    }, timer);
 };

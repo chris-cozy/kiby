@@ -1,7 +1,7 @@
-const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder, AttachmentBuilder } = require('discord.js');
+const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
-const getMedia = require('../../utils/getMedia');
+const command = require('../../classes/command');
 
 module.exports = {
     name: 'adopt',
@@ -29,8 +29,9 @@ module.exports = {
             return;
         }
 
+        const adopt = new command();
+        const media = await adopt.get_media_attachment();
         const targetName = interaction.options.get('name').value;
-        const pink = '#FF69B4'
 
         // If user has a kirby, exit. If not, create it
         try {
@@ -55,21 +56,17 @@ module.exports = {
             await userKirby.save();
             await userDate.save();
 
-            // Attaching media file
-            const mediaFile = await getMedia('portrait');
-            const mediaAttach = new AttachmentBuilder(mediaFile.url);
-
             // Create embed to send
             const embed = new EmbedBuilder()
                 .setTitle(client.user.username)
-                .setColor(pink)
+                .setColor(adopt.pink)
                 .setDescription(`You have adopted a Kirby! **${targetName}** is a nice name for them.`)
                 .setThumbnail(client.user.displayAvatarURL())
-                .setImage('attachment://' + mediaFile.name)
+                .setImage(media.mediaString)
                 .setTimestamp()
                 .setFooter({ text: `${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}` });
 
-            interaction.editReply({ embeds: [embed], files: [mediaAttach] });
+            interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
         } catch (error) {
             console.log(`There was an error: $${error}`);
         }
