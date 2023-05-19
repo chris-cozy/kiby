@@ -1,4 +1,3 @@
-const media = require('../schemas/media');
 const random_number = require('./randomNumber');
 const path = require('path');
 const get_all_files = require('./getAllFiles');
