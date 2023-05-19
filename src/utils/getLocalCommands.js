@@ -1,5 +1,5 @@
 const path = require('path');
-const getAllFiles = require('./getAllFiles');
+const get_all_files = require('./getAllFiles');
 
 /**
  * @brief Grab local commands (in codebase)
@@ -10,13 +10,13 @@ module.exports = (exceptions = []) => {
     let localCommands = [];
 
     // Grab all subdirs of command directory
-    const commandCategories = getAllFiles(
+    const commandCategories = get_all_files(
         path.join(__dirname, '..', 'commands'),
         true
     )
 
     for (const commandCategory of commandCategories) {
-        const commandFiles = getAllFiles(commandCategory);
+        const commandFiles = get_all_files(commandCategory);
 
         // Create a require() object for each file in command category
         for (const commandFile of commandFiles) {
