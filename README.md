@@ -21,19 +21,17 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 - /feed - Feed your Kirby. This can be done once every 30 minutes. Grants hunger points.
 - /pet - Pet your Kirby. This can be done once every 5 minutes. Grants affection points.
 - /play - Play with your Kirby. This can be done once 10 minutes. Grants affection points.
-- /sleep - Put your Kirby to sleep for 8 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
+- /sleep - Put your Kirby to sleep for 12 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
 ### Miscellaneous Commands
 - /info - Display current stats on your Kirby
 - /leaderboard - Display the top ten Kirbys
 - /cooldowns - Display any current cooldowns on Kirby interactions
 - /ping - Show the bot's client and websocket ping
 ## Prerequisites
-Node.js
+- Discord server to invite into
 
 ## Installation and Use
-1. Download the code base.
-2. Open a terminal in the main directory
-3. Run the command: `npx nodemon index.js`
+1. [Invite Link](https://discord.com/api/oauth2/authorize?client_id=1095193298425094204&permissions=18015777713216&scope=bot)
 ## Contributing
 Issue Tracker: [discord-bot-js/issues](https://github.com/chris-cozy/discord-bot-js/issues "Issue tracker for the discord bot")
 ## License
