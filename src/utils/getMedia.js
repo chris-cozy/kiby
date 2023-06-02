@@ -19,7 +19,7 @@ module.exports = async (request) => {
     )
 
     for (const mediaCategory of mediaCategories) {
-        if (mediaCategory.substring(mediaCategory.lastIndexOf("\\") + 1) == keyword) {
+        if (mediaCategory.substring(mediaCategory.lastIndexOf("/") + 1) == keyword) {
             const mediaFiles = get_all_files(mediaCategory);
 
             for (const mediaFile of mediaFiles) {
@@ -34,7 +34,7 @@ module.exports = async (request) => {
     const chosen = mediaSelection[random_number(0, (mediaSelection.length - 1))];
 
     const media = {
-        name: chosen.substring(chosen.lastIndexOf("\\") + 1),
+        name: chosen.substring(chosen.lastIndexOf("/") + 1),
         url: chosen,
     }
 
