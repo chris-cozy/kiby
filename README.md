@@ -31,7 +31,7 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 - Discord server to invite into
 
 ## Installation and Use
-1. [Invite Link](https://discord.com/api/oauth2/authorize?client_id=1095193298425094204&permissions=18015777713216&scope=bot)
+1. [Invite Link](https://discord.com/api/oauth2/authorize?client_id=1095193298425094204&permissions=415068847168&scope=bot%20applications.commands)
 ## Contributing
 Issue Tracker: [discord-bot-js/issues](https://github.com/chris-cozy/discord-bot-js/issues "Issue tracker for the discord bot")
 ## License
