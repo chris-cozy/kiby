@@ -12,7 +12,7 @@ module.exports = async (client) => {
     try {
         // Get bot's commands
         const localCommands = get_local_commands();
-        const applicationCommands = await get_application_commands(client, testServer);
+        const applicationCommands = await get_application_commands(client);
 
         for (const localCommand of localCommands) {
             const { name, description, options } = localCommand;
