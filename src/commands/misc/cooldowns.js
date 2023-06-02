@@ -62,7 +62,7 @@ module.exports = {
                     if (cooldown.currentDate > (userDate.lastFeed.getTime() + feedWait)) {
                         feedCooldown = "CAN FEED";
                     } else {
-                        feedCooldown = new Date(userDate.lastFeed.getTime() + feedWait).toLocaleTimeString;
+                        feedCooldown = new Date(userDate.lastFeed.getTime() + feedWait).toLocaleTimeString();
                     }
                 }
 
