@@ -9,7 +9,7 @@ const randomNumber = require("../../utils/randomNumber");
 module.exports = () => {
 
     const milliConversion = 60000;
-    const timer = 60 * milliConversion
+    const timer = 120 * milliConversion
     const sleeptimer = 480 * milliConversion;
     const min = 0;
     const max = 100;
