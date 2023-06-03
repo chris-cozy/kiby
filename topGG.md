@@ -6,6 +6,7 @@ The Kirbys are a species of lovable pink puffballs with big hearts and even bigg
 Add some extra cuteness and fun to your day with your very own Kirby companion! This virtual pink ball of joy will come to life on your device, ready for you to adopt, nurture, and interact with. From feeding them treats to chatting with them in their unique language, this charming Tamagotchi-style bot will quickly become your new best friend.
 
 ## Features
+Psst, between you and me, you can perform all the cool tricks Kiby has to offer in their private messages! Just don't forget, the conversation feature is currently exclusively for use in servers! 💬😉
 ### Conversation
 Want to chat with your Kirby pal? Just mention the bot and say hi! Your virtual ball of fluff will respond in their own special way, using their natural language that might take a little decoding. But even if you don't understand everything they're saying, you'll still feel the warmth of that pink puffball's friendship all the same!
 ### Config Commands
