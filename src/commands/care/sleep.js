@@ -16,7 +16,7 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        const sleep = new command(480);
+        const sleep = new command(540);
         const media = await sleep.get_media_attachment('sleep');
         const awakeDate = new Date(sleep.currentDate.getTime() + (sleep.interactionCooldown));
 

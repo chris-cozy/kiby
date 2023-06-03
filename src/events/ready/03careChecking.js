@@ -10,7 +10,7 @@ module.exports = () => {
 
     const milliConversion = 60000;
     const timer = 120 * milliConversion
-    const sleeptimer = 480 * milliConversion;
+    const sleeptimer = 540 * milliConversion;
     const min = 0;
     const max = 100;
 
