@@ -2,6 +2,7 @@ const { Client, Interaction, EmbedBuilder } = require('discord.js');
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
 const command = require('../../classes/command');
+const convert_countdown = require('../../utils/convertCountdown');
 
 module.exports = {
     name: 'cooldowns',
@@ -28,7 +29,7 @@ module.exports = {
         const cooldown = new command();
         const playWait = 10 * cooldown.milliConversion;
         const petWait = 5 * cooldown.milliConversion;
-        const feedWait = 30 * cooldown.milliConversion;
+        const feedWait = 10 * cooldown.milliConversion;
 
         let sleepCooldown;
         let petCooldown;
@@ -46,9 +47,9 @@ module.exports = {
                 // If Kirby is still asleep, set cooldowns to wake time. Else, check individual times
                 if (cooldown.currentDate < awakeDate) {
                     asleep = "YES";
-                    sleepCooldown = awakeDate.toLocaleString();
-                    playCooldown = awakeDate.toLocaleString();
-                    feedCooldown = awakeDate.toLocaleString();
+                    sleepCooldown = convert_countdown(awakeDate.getTime() - cooldown.currentDate.getTime());
+                    playCooldown = sleepCooldown;
+                    feedCooldown = sleepCooldown;
                 } else {
                     asleep = "NO";
                     sleepCooldown = `${userKirby.kirbyName} is awake`;
@@ -56,20 +57,20 @@ module.exports = {
                     if (cooldown.currentDate > (userDate.lastPlay.getTime() + playWait)) {
                         playCooldown = "CAN PLAY";
                     } else {
-                        playCooldown = new Date(userDate.lastPlay.getTime() + playWait).toLocaleTimeString();
+                        playCooldown = convert_countdown((userDate.lastPlay.getTime() + playWait) - (cooldown.currentDate.getTime()));
                     }
 
                     if (cooldown.currentDate > (userDate.lastFeed.getTime() + feedWait)) {
                         feedCooldown = "CAN FEED";
                     } else {
-                        feedCooldown = new Date(userDate.lastFeed.getTime() + feedWait).toLocaleTimeString();
+                        feedCooldown = convert_countdown((userDate.lastFeed.getTime() + feedWait) - (cooldown.currentDate.getTime()));
                     }
                 }
 
                 if (cooldown.currentDate > (userDate.lastPet.getTime() + petWait)) {
                     petCooldown = "CAN PET";
                 } else {
-                    petCooldown = new Date(userDate.lastPet.getTime() + petWait).toLocaleTimeString();
+                    petCooldown = convert_countdown((userDate.lastPet.getTime() + petWait) - (cooldown.currentDate.getTime()));
                 }
 
                 const embed = new EmbedBuilder()
