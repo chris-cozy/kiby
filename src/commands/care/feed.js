@@ -19,7 +19,7 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        const feed = new command(30);
+        const feed = new command(10);
         const media = await feed.get_media_attachment('feed');
 
         if (interaction.inGuild()) {
@@ -56,7 +56,7 @@ module.exports = {
                 }
 
                 // Generate feed and xp amount
-                let feedGranted = randomNumber(10, 30);
+                let feedGranted = randomNumber(5, 10);
                 const xpGranted = randomNumber(5, 15);
 
                 if ((userKirby.hunger + feedGranted) > feed.max) {

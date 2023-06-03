@@ -18,10 +18,10 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 ### Config Commands
 - /adopt - Adopt and name a Kirby
 ### Care Commands
-- /feed - Feed your Kirby. This can be done once every 30 minutes. Grants hunger points.
+- /feed - Feed your Kirby. This can be done once every 10 minutes. Grants hunger points.
 - /pet - Pet your Kirby. This can be done once every 5 minutes. Grants affection points.
 - /play - Play with your Kirby. This can be done once 10 minutes. Grants affection points.
-- /sleep - Put your Kirby to sleep for 12 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
+- /sleep - Put your Kirby to sleep for 8 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
 ### Miscellaneous Commands
 - /info - Display current stats on your Kirby
 - /leaderboard - Display the top ten Kirbys

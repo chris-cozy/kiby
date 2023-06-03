@@ -13,10 +13,10 @@ Ready to join the ranks of Kirby owners? The first step is simple but oh-so-impo
 - /adopt - Adopt and name a Kirby
 ### Care Commands
 Snuggles, snacks, and playtime - that's all any Kirby really wants! Keep your virtual friend happy and healthy by feeding them treats, petting their fluffy pink fur, and playing games together. Just be sure not to neglect them for too long, or they might start feeling blue and losing hunger and affection points. And don't forget - if either of those scores hit zero, your Kirby's health is in jeopardy. Keep the love alive to ensure your Kirby lives a long, happy life by your side!
-- /feed - Feed your Kirby. This can be done once every 30 minutes. Grants hunger points.
+- /feed - Feed your Kirby. This can be done once every 10 minutes. Grants hunger points.
 - /pet - Pet your Kirby. This can be done once every 5 minutes. Grants affection points.
 - /play - Play with your Kirby. This can be done once 10 minutes. Grants affection points.
-- /sleep - Put your Kirby to sleep for 12 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
+- /sleep - Put your Kirby to sleep for 8 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
 ### Miscellaneous Commands
 - /info - Display current stats on your Kirby
 - /leaderboard - Display the top ten Kirbys
