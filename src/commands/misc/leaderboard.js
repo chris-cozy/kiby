@@ -46,7 +46,7 @@ module.exports = {
         try {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
-                .setTitle(`Kiby Leaderboard (${userCount} Kibys)`)
+                .setTitle(`Kiby's Elite Ten (${userCount} Kibys)`)
                 .setColor(leaderboard.pink)
                 .setDescription(topten)
                 .setURL('https://discord.js.org/#/')
