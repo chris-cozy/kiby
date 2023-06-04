@@ -35,7 +35,7 @@ module.exports = {
         let petCooldown;
         let playCooldown;
         let feedCooldown;
-        let asleep;
+        let status;
 
 
         // Check if user owns a kirby
@@ -46,13 +46,13 @@ module.exports = {
 
                 // If Kirby is still asleep, set cooldowns to wake time. Else, check individual times
                 if (cooldown.currentDate < awakeDate) {
-                    asleep = "YES";
+                    status = "ASLEEP";
                     sleepCooldown = convert_countdown(awakeDate.getTime() - cooldown.currentDate.getTime());
                     playCooldown = "--";
                     feedCooldown = "--";
                 } else {
-                    asleep = "NO";
-                    sleepCooldown = `${userKirby.kirbyName} is awake`;
+                    status = "AWAKE";
+                    sleepCooldown = `--`;
 
                     if (cooldown.currentDate > (userDate.lastPlay.getTime() + playWait)) {
                         playCooldown = "CAN PLAY";
@@ -83,8 +83,8 @@ module.exports = {
                     .setDescription(`The times when you can interact with **${userKirby.kirbyName}**!`)
                     .addFields(
                         {
-                            name: 'Asleep',
-                            value: `${asleep}`,
+                            name: 'Status',
+                            value: `${status}`,
                             inline: true
                         },
                         {
