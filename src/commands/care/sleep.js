@@ -2,6 +2,7 @@ const { Client, Interaction, EmbedBuilder } = require("discord.js");
 const userStats = require('../../schemas/stats');
 const userDates = require('../../schemas/dates');
 const command = require('../../classes/command');
+const convert_countdown = require('../../utils/convertCountdown');
 
 module.exports = {
     name: 'sleep',
@@ -18,7 +19,6 @@ module.exports = {
     callback: async (client, interaction) => {
         const sleep = new command(540);
         const media = await sleep.get_media_attachment('sleep');
-        const awakeDate = new Date(sleep.currentDate.getTime() + (sleep.interactionCooldown));
 
         if (interaction.inGuild()) {
             await interaction.deferReply({ ephemeral: true });
@@ -41,10 +41,11 @@ module.exports = {
                 // Change sleep date
                 userDate.lastSleep = sleep.currentDate;
 
+
                 const embed = new EmbedBuilder()
                     .setTitle('**SLEEPING**')
                     .setColor(sleep.pink)
-                    .setDescription(`**${userKirby.kirbyName}** is sleeping until ${awakeDate.toLocaleString()}!`)
+                    .setDescription(`**${userKirby.kirbyName}** is sleeping for ${convert_countdown(sleep.interactionCooldown)}!`)
                     .setImage(media.mediaString)
                     .setTimestamp()
                     .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
