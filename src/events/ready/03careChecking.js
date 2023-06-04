@@ -4,6 +4,7 @@ const userStats = require('../../schemas/stats');
 const random_number = require("../../utils/randomNumber");
 const hunger_notification = require("../../utils/hungerNotification");
 const affection_notification = require("../../utils/affectionNotification");
+const death_notification = require("../../utils/deathNotification");
 
 /**
  * @brief Periodically check the user's last care dates for kirby
@@ -81,6 +82,7 @@ module.exports = (client) => {
 
                 // Delete user data from database
                 if ((user.hp == min)) {
+                    death_notification(client, user);
                     try {
                         const res1 = await userStats.deleteOne({ userId: user.userId });
                         const res2 = await userDates.deleteOne({ userId: user.userId });
