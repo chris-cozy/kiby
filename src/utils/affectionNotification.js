@@ -11,7 +11,7 @@ const command = require('../classes/command');
 module.exports = async (client, userStats) => {
     const affectionNotification = new command();
     const media = await affectionNotification.get_media_attachment('affection');
-    const user = client.users.fetch(userStats.userId);
+    const user = await client.users.fetch(userStats.userId);
 
     if (user) {
         const embed = new EmbedBuilder()

@@ -11,7 +11,7 @@ const command = require('../classes/command');
 module.exports = async (client, userStats) => {
     const hungerNotification = new command();
     const media = await hungerNotification.get_media_attachment('hungry');
-    const user = client.users.fetch(userStats.userId);
+    const user = await client.users.fetch(userStats.userId);
 
     if (user) {
         const embed = new EmbedBuilder()

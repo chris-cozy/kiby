@@ -11,7 +11,7 @@ const command = require('../classes/command');
 module.exports = async (client, userStats) => {
     const deathNotification = new command();
     const media = await deathNotification.get_media_attachment('death');
-    const user = client.users.fetch(userStats.userId);
+    const user = await client.users.fetch(userStats.userId);
 
     if (user) {
         const embed = new EmbedBuilder()
