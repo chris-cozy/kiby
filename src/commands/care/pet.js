@@ -49,7 +49,7 @@ module.exports = {
                 }
 
                 // Generate affection and xp amount
-                let affectionGranted = randomNumber(5, 15);
+                let affectionGranted = randomNumber(2, 7);
                 const xpGranted = randomNumber(5, 15);
 
                 if ((userKirby.affection + affectionGranted) > pet.max) {

@@ -51,7 +51,7 @@ module.exports = {
                 }
 
                 // Generate affection and xp amount
-                let affectionGranted = randomNumber(10, 30);
+                let affectionGranted = randomNumber(5, 15);
                 const xpGranted = randomNumber(5, 15);
 
                 if ((userKirby.affection + affectionGranted) > play.max) {

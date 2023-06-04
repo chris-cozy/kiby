@@ -6,7 +6,7 @@ const convert_countdown = require('../../utils/convertCountdown');
 
 module.exports = {
     name: 'sleep',
-    description: 'Put your Kirby to sleep!',
+    description: 'Put your Kirby to sleep for 9 hours!',
     devonly: false,
     testOnly: false,
     deleted: false,

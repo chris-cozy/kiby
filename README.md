@@ -9,6 +9,8 @@
 ## Description
 This is a discord bot created using the discord.js library, as well as other capatible libraries. The purpose of this bot is to function as a digital tomagatchi, which users can take care of to maintain its life.
 Users feed, pet, and play with their Kirby to keep it happy and healthy. If they neglect their Kirby it will slowly lose hunger and affection points. If either hunger and affection reach 0, then the Kirby's health will begin to decrease over time. If the Kirby's health reaches 0 then the Kirby will die.
+
+The current minimum number of hours of neglect needed to kill a kiby is 11.
 ### Future Implications
 Coming soon is a slight overhaul and battle system, allowing users to battle other Kirby owners in pokemon-style, turn-based combat to gain battle stars and climb the BattleBoard.
 

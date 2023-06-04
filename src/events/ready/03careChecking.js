@@ -14,15 +14,15 @@ module.exports = (client) => {
 
     const milliConversion = 60000;
     const careCheckTimer = 30 * milliConversion;
-    const hpDrainMax = 10;
-    const hpDrainMin = 5;
+    const hpDrainMax = 7;
+    const hpDrainMin = 3;
     const hpGainMax = 4;
     const hpGainMin = 1;
     const neglectTimer = 60 * milliConversion
-    const hungerDrainMax = 10;
-    const hungerDrainMin = 5;
-    const affectionDrainMax = 10;
-    const affectionDrainMin = 5;
+    const hungerDrainMax = 25;
+    const hungerDrainMin = 10;
+    const affectionDrainMax = 25;
+    const affectionDrainMin = 10;
     const sleeptimer = 540 * milliConversion;
     const minPoints = 0;
     const maxPoints = 100;
