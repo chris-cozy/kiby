@@ -3,6 +3,7 @@ const userDates = require('../../schemas/dates');
 const userStats = require('../../schemas/stats');
 const random_number = require("../../utils/randomNumber");
 const hunger_notification = require("../../utils/hungerNotification");
+const affection_notification = require("../../utils/affectionNotification");
 
 /**
  * @brief Periodically check the user's last care dates for kirby
@@ -42,7 +43,7 @@ module.exports = (client) => {
                         user.hunger = min;
                     }
                     if (user.hunger < 50) {
-                        hunger_notification(user);
+                        hunger_notification(client, user);
                     }
                 }
 
@@ -51,6 +52,9 @@ module.exports = (client) => {
                     user.affection -= random_number(10, 30);
                     if (user.affection < min) {
                         user.affection = min;
+                    }
+                    if (user.affection < 50) {
+                        affection_notification(client, user);
                     }
                 }
 
