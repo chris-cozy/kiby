@@ -13,10 +13,19 @@ const death_notification = require("../../utils/deathNotification");
 module.exports = (client) => {
 
     const milliConversion = 60000;
-    const timer = 120 * milliConversion
+    const careCheckTimer = 30 * milliConversion;
+    const hpDrainMax = 10;
+    const hpDrainMin = 5;
+    const hpGainMax = 4;
+    const hpGainMin = 1;
+    const neglectTimer = 60 * milliConversion
+    const hungerDrainMax = 10;
+    const hungerDrainMin = 5;
+    const affectionDrainMax = 10;
+    const affectionDrainMin = 5;
     const sleeptimer = 540 * milliConversion;
-    const min = 0;
-    const max = 100;
+    const minPoints = 0;
+    const maxPoints = 100;
 
 
 
@@ -38,10 +47,10 @@ module.exports = (client) => {
                 }
 
                 // Decrease hunger
-                if ((currentDate - userDate.lastFeed) > timer) {
-                    user.hunger -= random_number(10, 30);
-                    if (user.hunger < min) {
-                        user.hunger = min;
+                if ((currentDate - userDate.lastFeed) > neglectTimer) {
+                    user.hunger -= random_number(hungerDrainMin, hungerDrainMax);
+                    if (user.hunger < minPoints) {
+                        user.hunger = minPoints;
                     }
                     if (user.hunger < 50) {
                         hunger_notification(client, user);
@@ -49,10 +58,10 @@ module.exports = (client) => {
                 }
 
                 // Decrease affection
-                if (((currentDate - userDate.lastPet) > timer) || ((currentDate - userDate.lastPlay) > timer)) {
-                    user.affection -= random_number(10, 30);
-                    if (user.affection < min) {
-                        user.affection = min;
+                if (((currentDate - userDate.lastPet) > neglectTimer) || ((currentDate - userDate.lastPlay) > neglectTimer)) {
+                    user.affection -= random_number(affectionDrainMin, affectionDrainMax);
+                    if (user.affection < minPoints) {
+                        user.affection = minPoints;
                     }
                     if (user.affection < 50) {
                         affection_notification(client, user);
@@ -60,18 +69,18 @@ module.exports = (client) => {
                 }
 
                 // Health decrease
-                if ((user.affection == min) || (user.hunger == min)) {
-                    user.hp -= random_number(10, 20);
-                    if (user.hp < min) {
-                        user.hp = min;
+                if ((user.affection == minPoints) || (user.hunger == minPoints)) {
+                    user.hp -= random_number(hpDrainMin, hpDrainMax);
+                    if (user.hp < minPoints) {
+                        user.hp = minPoints;
                     }
                 }
 
                 // Health increase
-                if ((user.affection == max) && (user.hunger == max)) {
-                    user.hp += random_number(10, 20);
-                    if (user.hp > max) {
-                        user.hp = max;
+                if ((user.affection == maxPoints) && (user.hunger == maxPoints)) {
+                    user.hp += random_number(hpGainMin, hpGainMax);
+                    if (user.hp > maxPoints) {
+                        user.hp = maxPoints;
                     }
                 }
 
@@ -81,7 +90,7 @@ module.exports = (client) => {
                 });
 
                 // Delete user data from database
-                if ((user.hp == min)) {
+                if ((user.hp == minPoints)) {
                     death_notification(client, user);
                     try {
                         const res1 = await userStats.deleteOne({ userId: user.userId });
@@ -97,5 +106,5 @@ module.exports = (client) => {
         } else {
             console.log('There are no active Kirbys!');
         }
-    }, timer);
+    }, careCheckTimer);
 };
