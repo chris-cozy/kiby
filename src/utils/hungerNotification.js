@@ -1,5 +1,5 @@
 const { Client } = require('discord.js');
-const userStats = require('../../schemas/stats');
+const userStats = require('../schemas/stats');
 const command = require('../classes/command');
 
 /**
