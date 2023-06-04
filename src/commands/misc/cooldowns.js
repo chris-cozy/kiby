@@ -61,7 +61,11 @@ module.exports = {
                     }
 
                     if (cooldown.currentDate > (userDate.lastFeed.getTime() + feedWait)) {
-                        feedCooldown = "CAN FEED";
+                        if (userKirby.hunger == 100) {
+                            feedCooldown = `${userKirby.kirbyName} is FULL`;
+                        } else {
+                            feedCooldown = "CAN FEED";
+                        }
                     } else {
                         feedCooldown = convert_countdown((userDate.lastFeed.getTime() + feedWait) - (cooldown.currentDate.getTime()));
                     }
