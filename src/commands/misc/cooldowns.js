@@ -48,8 +48,8 @@ module.exports = {
                 if (cooldown.currentDate < awakeDate) {
                     asleep = "YES";
                     sleepCooldown = convert_countdown(awakeDate.getTime() - cooldown.currentDate.getTime());
-                    playCooldown = sleepCooldown;
-                    feedCooldown = sleepCooldown;
+                    playCooldown = "--";
+                    feedCooldown = "--";
                 } else {
                     asleep = "NO";
                     sleepCooldown = `${userKirby.kirbyName} is awake`;
