@@ -38,7 +38,7 @@ module.exports = {
 
                 // If Kirby is still asleep, still the care check
                 if (play.currentDate < awakeDate) {
-                    interaction.editReply(`You can't play with ${userKirby.kirbyName} while they're asleep!`);
+                    interaction.editReply({ content: `You can't play with ${userKirby.kirbyName} while they're asleep!`, ephemeral: true });
                     return;
                 }
 
@@ -46,7 +46,7 @@ module.exports = {
 
                 // Check if it has been minimum time since last affection
                 if ((play.currentDate - userDate.lastPlay) < (play.interactionCooldown)) {
-                    interaction.editReply(`You can only play ${userKirby.kirbyName} every ${play.cooldownMins} minutes! They need personal time too!`);
+                    interaction.editReply({ content: `You can only play ${userKirby.kirbyName} every ${play.cooldownMins} minutes! They need personal time too!`, ephemeral: true });
                     return;
                 }
 

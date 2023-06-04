@@ -44,7 +44,7 @@ module.exports = {
 
                 // Check if it has been minimum time since last affection
                 if ((pet.currentDate - userDate.lastPet) < (pet.interactionCooldown)) {
-                    interaction.editReply(`You can only pet ${userKirby.kirbyName} every ${pet.cooldownMins} minutes! They need personal space too!`);
+                    interaction.editReply({ content: `You can only pet ${userKirby.kirbyName} every ${pet.cooldownMins} minutes! They need personal space too!`, ephemeral: true });
                     return;
                 }
 

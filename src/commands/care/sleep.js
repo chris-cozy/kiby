@@ -20,7 +20,11 @@ module.exports = {
         const media = await sleep.get_media_attachment('sleep');
         const awakeDate = new Date(sleep.currentDate.getTime() + (sleep.interactionCooldown));
 
-        await interaction.deferReply({ ephemeral: true });
+        if (interaction.inGuild()) {
+            await interaction.deferReply({ ephemeral: true });
+        } else {
+            await interaction.deferReply({ ephemeral: false });
+        }
 
         try {
             let userKirby = await userStats.findOne({ userId: interaction.user.id });
@@ -30,7 +34,7 @@ module.exports = {
             if (userDate) {
                 // Check if user has slept today
                 if (userDate.lastSleep.toDateString() === sleep.currentDate.toDateString()) {
-                    interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!` });
+                    interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!`, ephemeral: true });
                     return;
                 }
 

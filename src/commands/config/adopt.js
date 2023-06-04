@@ -24,11 +24,6 @@ module.exports = {
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: false });
 
-        if (!interaction.inGuild()) {
-            interaction.editReply("You can only run this command inside of a server.");
-            return;
-        }
-
         const adopt = new command();
         const media = await adopt.get_media_attachment();
         const targetName = interaction.options.get('name').value;

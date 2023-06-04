@@ -45,13 +45,13 @@ module.exports = {
 
                 // Check if kirby is hungry
                 if (userKirby.hunger == feed.max) {
-                    interaction.editReply(`**${userKirby.kirbyName}** is not hungry!`);
+                    interaction.editReply({ content: `**${userKirby.kirbyName}** is too full!`, ephemeral: true });
                     return;
                 }
 
                 // Check if it has been minimum time since last feed
                 if ((feed.currentDate - userDate.lastFeed) < (feed.interactionCooldown)) {
-                    interaction.editReply(`You can only feed ${userKirby.kirbyName} every ${feed.cooldownMins} minutes!`);
+                    interaction.editReply({ content: `You can only feed ${userKirby.kirbyName} every ${feed.cooldownMins} minutes!`, ephemeral: true });
                     return;
                 }
 
