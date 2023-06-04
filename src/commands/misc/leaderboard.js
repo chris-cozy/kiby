@@ -30,7 +30,8 @@ module.exports = {
         });
 
         // Limit length to top ten users
-        let length = allUsers.length;
+        const userCount = allUsers.length;
+        let length = userCount;
         if (length > 10) {
             length = 10;
         }
@@ -45,7 +46,7 @@ module.exports = {
         try {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
-                .setTitle('Kiby Leaderboard')
+                .setTitle(`Kiby Leaderboard (${userCount} Kibys)`)
                 .setColor(leaderboard.pink)
                 .setDescription(topten)
                 .setURL('https://discord.js.org/#/')
