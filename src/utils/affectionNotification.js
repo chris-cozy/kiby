@@ -11,7 +11,7 @@ const command = require('../classes/command');
 module.exports = async (client, userStats) => {
     const affectionNotification = new command();
     const media = await affectionNotification.get_media_attachment('affection');
-    const user = client.users.cache.get(userStats.userId);
+    const user = client.users.fetch(userStats.userId);
 
     if (user) {
         const embed = new EmbedBuilder()
@@ -22,7 +22,7 @@ module.exports = async (client, userStats) => {
             .setTimestamp()
             .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
-        user.send(embed)
+        user.send({ embeds: [embed], files: [media.mediaAttach] })
             .then(() => {
                 console.log('DM with embed sent successfully!');
             })
