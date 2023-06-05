@@ -37,7 +37,7 @@ module.exports = {
         let topten = '';
         for (let i = 0; i < length; i++) {
             let user = await client.users.fetch(allUsers[i].userId);
-            const userLine = `${i + 1}. ${allUser[i].kirbyName}(${user.discriminator})          Level: ${allUsers[i].level}\n`;
+            const userLine = `${i + 1}. ${allUsers[i].kirbyName}(${user.discriminator})          Level: ${allUsers[i].level}\n`;
 
             if (interaction.user.id === user.id) {
                 topten += `**${userLine}**`
