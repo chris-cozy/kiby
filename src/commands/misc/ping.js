@@ -12,11 +12,8 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        if (interaction.inGuild()) {
-            await interaction.deferReply({ ephemeral: true });
-        } else {
-            await interaction.deferReply({ ephemeral: false });
-        }
+        const deferOptions = { ephemeral: !interaction.inGuild() };
+        await interaction.deferReply(deferOptions);
 
         const reply = await interaction.fetchReply();
 
