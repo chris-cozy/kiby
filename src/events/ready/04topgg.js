@@ -7,6 +7,7 @@ const { AutoPoster } = require('topgg-autoposter');
  */
 module.exports = (client) => {
 
+    const milliConversion = 60000;
     const topggUpdateTimer = 5 * milliConversion;
 
     setInterval(async () => {
