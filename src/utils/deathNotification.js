@@ -17,7 +17,7 @@ module.exports = async (client, userStats) => {
         const embed = new EmbedBuilder()
             .setTitle('**DEATH**')
             .setColor(deathNotification.pink)
-            .setDescription(`**${userStats.kirbyName}** has died! They were left neglected for too long!`)
+            .setDescription(`**${userStats.kirbyName}** has died! They were left neglected for too long! They left one final message "I still love you.."`)
             .setImage(media.mediaString)
             .setTimestamp()
             .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });

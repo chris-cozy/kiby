@@ -1,6 +1,7 @@
 const { ActivityType, Client } = require('discord.js');
 const userDates = require('../../schemas/dates');
 const userStats = require('../../schemas/stats');
+const userDeaths = require('../../schemas/deaths');
 const random_number = require("../../utils/randomNumber");
 const hunger_notification = require("../../utils/hungerNotification");
 const affection_notification = require("../../utils/affectionNotification");
@@ -31,7 +32,7 @@ module.exports = (client) => {
 
     setInterval(async () => {
         // Grab all users
-        const allUsers = await userStats.find().select('userId hp hunger affection');
+        const allUsers = await userStats.find();
         console.log(allUsers);
 
         if (allUsers) {
@@ -92,12 +93,25 @@ module.exports = (client) => {
                 // Delete user data from database
                 if ((user.hp == minPoints)) {
                     death_notification(client, user);
+                    //Log Death
+
+                    death = new userDeaths({
+                        userId: user.userId,
+                        kirbyName: user.kirbyName,
+                        level: user.level,
+                        adoptDate: userDate.adoptDate,
+                        deathDate: new Date(),
+                    });
+
+
+
                     try {
                         const res1 = await userStats.deleteOne({ userId: user.userId });
                         const res2 = await userDates.deleteOne({ userId: user.userId });
 
                         await res1.save();
                         await res2.save();
+                        await death.save();
                     } catch (error) {
                         console.log(`There was an error: ${error}`);
                     }
