@@ -28,23 +28,20 @@ module.exports = (client) => {
     const minPoints = 0;
     const maxPoints = 100;
 
-
-
     setInterval(async () => {
         // Grab all users
         const allUsers = await userStats.find();
-        console.log(allUsers);
 
         if (allUsers) {
             // For each user, check difference between last care times
-            allUsers.forEach(async (user) => {
+            for (const user of allUsers) {
                 const currentDate = new Date();
                 const userDate = await userDates.findOne({ userId: user.userId });
                 const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptimer);
 
                 // If Kirby is still asleep, skip the care check
                 if (currentDate < awakeDate) {
-                    return;
+                    continue;
                 }
 
                 // Decrease hunger
@@ -70,7 +67,7 @@ module.exports = (client) => {
                 }
 
                 // Health decrease
-                if ((user.affection == minPoints) || (user.hunger == minPoints)) {
+                if ((user.affection === minPoints) || (user.hunger === minPoints)) {
                     user.hp -= random_number(hpDrainMin, hpDrainMax);
                     if (user.hp < minPoints) {
                         user.hp = minPoints;
@@ -78,7 +75,7 @@ module.exports = (client) => {
                 }
 
                 // Health increase
-                if ((user.affection == maxPoints) && (user.hunger == maxPoints)) {
+                if ((user.affection === maxPoints) && (user.hunger === maxPoints)) {
                     user.hp += random_number(hpGainMin, hpGainMax);
                     if (user.hp > maxPoints) {
                         user.hp = maxPoints;
@@ -91,11 +88,11 @@ module.exports = (client) => {
                 });
 
                 // Delete user data from database
-                if ((user.hp == minPoints)) {
+                if (user.hp === minPoints) {
                     death_notification(client, user);
-                    //Log Death
 
-                    death = new userDeaths({
+                    //Log Death
+                    const death = new userDeaths({
                         userId: user.userId,
                         kirbyName: user.kirbyName,
                         level: user.level,
@@ -106,17 +103,16 @@ module.exports = (client) => {
 
 
                     try {
-                        const res1 = await userStats.deleteOne({ userId: user.userId });
-                        const res2 = await userDates.deleteOne({ userId: user.userId });
-
-                        await res1.save();
-                        await res2.save();
-                        await death.save();
+                        await Promise.all([
+                            userStats.deleteOne({ userId: user.userId }),
+                            userDates.deleteOne({ userId: user.userId }),
+                            death.save(),
+                        ]);
                     } catch (error) {
                         console.log(`There was an error: ${error}`);
                     }
                 }
-            });
+            }
         } else {
             console.log('There are no active Kirbys!');
         }
