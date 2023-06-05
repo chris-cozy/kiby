@@ -55,10 +55,15 @@ module.exports = (client) => {
                     if (user.userId) {
                         try {
                             const targetUser = await client.users.fetch(user.userId);
-                            targetUser.send({
-                                content: construct_sentence(),
-                                ephemeral: false,
-                            });
+
+                            if (targetUser.presence.status !== 'offline' && targetUser.presence.status !== 'invisible') {
+                                targetUser.send({
+                                    content: construct_sentence(),
+                                    ephemeral: false,
+                                });
+                            } else {
+                                console.log('User has disabled direct messages:', user.userId);
+                            }
                         } catch (error) {
                             console.log('Error sending Kirby message:', error);
                         }

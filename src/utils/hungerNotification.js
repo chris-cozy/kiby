@@ -14,25 +14,26 @@ module.exports = async (client, userStats) => {
     const user = await client.users.fetch(userStats.userId);
 
     if (user) {
-        const embed = new EmbedBuilder()
-            .setTitle('**HUNGRY**')
-            .setColor(hungerNotification.pink)
-            .setDescription(`**${userStats.kirbyName}** is hungry!`)
-            .setImage(media.mediaString)
-            .setTimestamp()
-            .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
+        if (user.presence.status !== 'offline' && user.presence.status !== 'invisible') {
+            const embed = new EmbedBuilder()
+                .setTitle('**HUNGRY**')
+                .setColor(hungerNotification.pink)
+                .setDescription(`**${userStats.kirbyName}** is hungry!`)
+                .setImage(media.mediaString)
+                .setTimestamp()
+                .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
 
-        user.send({ embeds: [embed], files: [media.mediaAttach] })
-            .then(() => {
-                console.log('DM with embed sent successfully!');
-            })
-            .catch((error) => {
-                console.error('Error sending DM with embed:', error);
-            });
+            user.send({ embeds: [embed], files: [media.mediaAttach] })
+                .then(() => {
+                    console.log('DM with embed sent successfully!');
+                })
+                .catch((error) => {
+                    console.error('Error sending DM with embed:', error);
+                });
+        } else {
+            console.log('User has disabled direct messages:', user.userId);
+        }
     } else {
         console.error('User not found!');
     }
-
-
-
 }
