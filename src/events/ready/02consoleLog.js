@@ -7,18 +7,12 @@ const { ActivityType, Client } = require('discord.js');
 module.exports = (client) => {
     let status = [
         {
-            name: 'Lofi Girl',
-            type: ActivityType.Streaming,
-            url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk'
-        },
-        {
-            name: 'Lofi Boy',
-            type: ActivityType.Streaming,
-            url: 'https://www.youtube.com/watch?v=MVPTGNGiI-4'
+            name: '/help',
+            type: ActivityType.Watching
         }
     ]
 
-    const statusChangeMins = 10;
+    const statusChangeMins = 1;
     const milliConversion = 60000;
 
     console.log(`${client.user.tag} is online. Poyo!`);
