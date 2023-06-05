@@ -42,6 +42,13 @@ module.exports = (client) => {
                 const userDate = await userDates.findOne({ userId: user.userId });
                 const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptimer);
 
+
+
+                // If Kirby is still asleep, skip the care check
+                if (currentDate < awakeDate) {
+                    continue;
+                }
+
                 // 20% Chance to send random message to user
                 const choice = random_number(minRange, maxRange);
                 if (choice === minRange || maxRange) {
@@ -50,11 +57,6 @@ module.exports = (client) => {
                         content: construct_sentence(),
                         ephemeral: false,
                     });
-                }
-
-                // If Kirby is still asleep, skip the care check
-                if (currentDate < awakeDate) {
-                    continue;
                 }
 
                 // Decrease hunger
