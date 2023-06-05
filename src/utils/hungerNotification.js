@@ -13,8 +13,8 @@ module.exports = async (client, userStats) => {
     const media = await hungerNotification.get_media_attachment('hungry');
     const user = await client.users.fetch(userStats.userId);
 
-    if (user && user.presence) {
-        if (user.presence.status !== 'offline' && user.presence.status !== 'invisible') {
+    if (user) {
+        if (user.presence && user.presence.status !== 'offline' && user.presence.status !== 'invisible') {
             const embed = new EmbedBuilder()
                 .setTitle('**HUNGRY**')
                 .setColor(hungerNotification.pink)
