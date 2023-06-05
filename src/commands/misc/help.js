@@ -1,4 +1,5 @@
 const { Client, Interaction, EmbedBuilder } = require('discord.js');
+const command = require('../../classes/command');
 
 module.exports = {
     name: 'help',
@@ -14,13 +15,13 @@ module.exports = {
      */
     callback: async (client, interaction) => {
         await interaction.deferReply({ ephemeral: true });
-
+        const help = new command();
 
         try {
             const embed = new EmbedBuilder()
                 .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://top.gg/bot/1095193298425094204?s=06a5543cc78a4' })
                 .setTitle('Kiby Documentation')
-                .setColor(info.pink)
+                .setColor(help.pink)
                 .setDescription(`Click the title to travel to Kiby's documentation page! It contains useful bot background and command information.`)
                 .setURL('https://top.gg/bot/1095193298425094204?s=06a5543cc78a4')
                 .setTimestamp()
