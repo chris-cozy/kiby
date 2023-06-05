@@ -107,7 +107,7 @@ module.exports = (client) => {
                     death_notification(client, user);
 
                     //Log Death
-                    const death = new userDeaths({
+                    const userDeath = new userDeaths({
                         userId: user.userId,
                         kirbyName: user.kirbyName,
                         level: user.level,
@@ -119,9 +119,10 @@ module.exports = (client) => {
 
                     try {
                         await Promise.all([
+                            userDeath.save(),
                             userStats.deleteOne({ userId: user.userId }),
                             userDates.deleteOne({ userId: user.userId }),
-                            death.save(),
+
                         ]);
                     } catch (error) {
                         console.log(`There was an error: ${error}`);
