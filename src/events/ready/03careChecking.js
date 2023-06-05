@@ -58,7 +58,7 @@ module.exports = (client) => {
 
                             if (targetUser.presence.status !== 'offline' && targetUser.presence.status !== 'invisible') {
                                 targetUser.send({
-                                    content: construct_sentence(),
+                                    content: `**${user.kirbyName}**: ` + construct_sentence(),
                                     ephemeral: false,
                                 });
                             } else {
