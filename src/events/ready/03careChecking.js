@@ -56,7 +56,7 @@ module.exports = (client) => {
                         try {
                             const targetUser = await client.users.fetch(user.userId);
 
-                            if (targetUser.presence.status !== 'offline' && targetUser.presence.status !== 'invisible') {
+                            if (targetUser && targetUser.presence && targetUser.presence.status !== 'offline' && targetUser.presence.status !== 'invisible') {
                                 targetUser.send({
                                     content: `**${user.kirbyName}**: ` + construct_sentence(),
                                     ephemeral: false,
