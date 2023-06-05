@@ -10,7 +10,7 @@ module.exports = () => {
     const maxSentenceLength = 3;
     const minWordLength = 1;
     const minSentenceLength = 0;
-    const lexigraph = [
+    const lexicon = [
         'yo',
         'oy',
         'pu',
@@ -25,35 +25,28 @@ module.exports = () => {
         'wu',
     ];
 
-    const punctuation = [
-        '?',
-        '!',
-        '.',
-        '',
-    ]
+    const punctuation = ['?', '!', '.', '']
 
     let response = '';
 
-    while (response == '') {
 
-        const sentenceLength = random_number(minSentenceLength, maxSentenceLength);
+    const sentenceLength = random_number(minSentenceLength, maxSentenceLength);
 
-        // Cycle through and construct each word
-        for (let i = 0; i < sentenceLength; i++) {
+    // Cycle through and construct each word
+    for (let i = 0; i < sentenceLength; i++) {
 
-            const wordLength = random_number(minWordLength, maxWordLength);
+        const wordLength = random_number(minWordLength, maxWordLength);
 
-            for (let k = 0; k < wordLength; k++) {
-                const index = Math.floor(Math.random() * lexigraph.length);
-                response += lexigraph[index];
-            }
-
-            response += ' ';
+        for (let k = 0; k < wordLength; k++) {
+            const index = Math.floor(Math.random() * lexicon.length);
+            response += lexicon[index];
         }
 
-        const punctuationIndex = Math.floor(Math.random() * punctuation.length);
-        response += punctuation[punctuationIndex];
-
-        return response;
+        response += ' ';
     }
+
+    const punctuationIndex = Math.floor(Math.random() * punctuation.length);
+    response += punctuation[punctuationIndex];
+
+    return response;
 };
