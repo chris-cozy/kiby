@@ -23,5 +23,7 @@ Snuggles, snacks, and playtime - that's all any Kirby really wants! Keep your vi
 - /leaderboard - Display the top ten Kirbys
 - /cooldowns - Display any current cooldowns on Kirby interactions
 - /ping - Show the bot's client and websocket ping
+### Notifications
+When a Kirby's tum-tum is grumbling or their love meter is running low, they'll send a message to their beloved owner to let them know they need a little TLC. But if a Kirby sadly passes away, they'll send their faithful companion their final farewell message. So take good care of your Kirby, and they'll always be there to brighten up your day!
 ### Future Implications
 Get ready to put your Kirby to the test - soon you may be able to challenge other Kirby owners to epic battles using our exciting new turn-based combat system in development! With a style reminiscent of everyone's favorite pocket monsters, you'll battle your way to the top of the BattleBoard, earning stars and bragging rights along the way. And with a new overhaul also in the works, you can expect even more excitement, cuteness, and fun from your favorite virtual pet.

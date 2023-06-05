@@ -29,6 +29,8 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 - /leaderboard - Display the top ten Kirbys
 - /cooldowns - Display any current cooldowns on Kirby interactions
 - /ping - Show the bot's client and websocket ping
+### Notifications
+If a Kirby's hunger or affection points drop below 50, they'll send their owner a message letting them know. If a Kirby dies, it will send their user its final notification.
 ## Prerequisites
 - Discord server to invite into
 
