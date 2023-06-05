@@ -52,11 +52,20 @@ module.exports = (client) => {
                 // 20% Chance to send random message to user
                 const choice = random_number(minRange, maxRange);
                 if (choice === minRange || maxRange) {
-                    const targetUser = await client.users.fetch(user.userId);
-                    targetUser.send({
-                        content: construct_sentence(),
-                        ephemeral: false,
-                    });
+                    if (user.userId) {
+                        try {
+                            const targetUser = await client.users.fetch(user.userId);
+                            targetUser.send({
+                                content: construct_sentence(),
+                                ephemeral: false,
+                            });
+                        } catch (error) {
+                            console.log('Error sending Kirby message:', error);
+                        }
+                    } else {
+                        console.log('Invalid user ID:', userStats.userId);
+                    }
+
                 }
 
                 // Decrease hunger
