@@ -8,27 +8,43 @@ const userStats = require('../../schemas/stats');
  * @param {Message} message - The message which was sent
  */
 module.exports = async (client, message) => {
-    // Ignore message if author is a bot, or if the bot is not mentioned
-    if (message.author.bot || (!message.mentions.has(client.user.id))) {
+    // Ignore message if author is a bot
+    if (message.author.bot) {
         return;
     }
 
-    let userKirby = await userStats.findOne({ userId: message.author.id });
+    // Check if the message is sent in a server or DMs
+    const isDM = message.channel.type === 'DM';
 
-    if (userKirby) {
-        const kirbyName = userKirby.kirbyName;
+    // Ignore message if the bot is not mentioned in a server or a DM
+    if (!isDM && !message.mentions.has(client.user.id)) {
+        return;
+    }
 
-        // Give the illusion of bot typing
-        await message.channel.sendTyping();
+    let userKirby;
 
-        const response = construct_sentence();
+    if (isDM) {
+        userKirby = await userStats.findOne({ userId: message.author.id });
 
-        message.reply(`**${kirbyName}**: ` + response);
-
+        if (!userKirby) {
+            message.reply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
+            return;
+        }
     } else {
-        message.reply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
-        return;
+        userKirby = await userStats.findOne({ userId: message.author.id });
+
+        if (!userKirby) {
+            message.reply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
+            return;
+        }
     }
 
+    const kirbyName = userKirby.kirbyName;
 
+    // Give the illusion of bot typing
+    await message.channel.sendTyping();
+
+    const response = construct_sentence();
+
+    message.reply(`**${kirbyName}**: ` + response);
 };
