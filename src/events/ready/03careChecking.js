@@ -6,6 +6,7 @@ const random_number = require("../../utils/randomNumber");
 const hunger_notification = require("../../utils/hungerNotification");
 const affection_notification = require("../../utils/affectionNotification");
 const death_notification = require("../../utils/deathNotification");
+const construct_sentence = require("../../utils/constructSentence");
 
 /**
  * @brief Periodically check the user's last care dates for kirby
@@ -27,6 +28,8 @@ module.exports = (client) => {
     const sleeptimer = 540 * milliConversion;
     const minPoints = 0;
     const maxPoints = 100;
+    const minRange = 1;
+    const maxRange = 10;
 
     setInterval(async () => {
         // Grab all users
@@ -38,6 +41,16 @@ module.exports = (client) => {
                 const currentDate = new Date();
                 const userDate = await userDates.findOne({ userId: user.userId });
                 const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptimer);
+
+                // 20% Chance to send random message to user
+                const choice = random_number(minRange, maxRange);
+                if (choice === minRange || maxRange) {
+                    const user = await client.users.fetch(userStats.userId);
+                    user.send({
+                        content: construct_sentence(),
+                        ephemeral: false,
+                    });
+                }
 
                 // If Kirby is still asleep, skip the care check
                 if (currentDate < awakeDate) {
