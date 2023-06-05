@@ -28,30 +28,27 @@ module.exports = {
         const media = await adopt.get_media_attachment();
         const targetName = interaction.options.get('name').value;
 
-        // If user has a kirby, exit. If not, create it
         try {
             let userKirby = await userStats.findOne({ userId: interaction.user.id });
-            let userDate = await userDates.findOne({ userId: interaction.user.id });
 
             if (userKirby) {
                 interaction.editReply(`You already have **${userKirby.kirbyName}** to take care of!`);
                 return;
-            } else {
-                userKirby = new userStats({
-                    userId: interaction.user.id,
-                    kirbyName: targetName,
-                    adoptDate: new Date(),
-                });
-
-                userDate = new userDates({
-                    userId: interaction.user.id,
-                });
             }
+
+            const userDate = new userDates({
+                userId: interaction.user.id,
+            });
+
+            userKirby = new userStats({
+                userId: interaction.user.id,
+                kirbyName: targetName,
+                adoptDate: new Date(),
+            });
 
             await userKirby.save();
             await userDate.save();
 
-            // Create embed to send
             const embed = new EmbedBuilder()
                 .setTitle(client.user.username)
                 .setColor(adopt.pink)
@@ -66,4 +63,4 @@ module.exports = {
             console.log(`There was an error: $${error}`);
         }
     }
-}
+};
