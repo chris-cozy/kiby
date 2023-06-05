@@ -52,8 +52,8 @@ module.exports = (client) => {
                 // 20% Chance to send random message to user
                 const choice = random_number(minRange, maxRange);
                 if (choice === minRange || maxRange) {
-                    const user = await client.users.fetch(userStats.userId);
-                    user.send({
+                    const targetUser = await client.users.fetch(user.userId);
+                    targetUser.send({
                         content: construct_sentence(),
                         ephemeral: false,
                     });
