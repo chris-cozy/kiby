@@ -30,6 +30,7 @@ module.exports = async (client, message) => {
             message.reply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
             return;
         }
+        console.log('DM');
     } else {
         userKirby = await userStats.findOne({ userId: message.author.id });
 
