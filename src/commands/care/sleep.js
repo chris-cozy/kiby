@@ -20,7 +20,7 @@ module.exports = {
         const sleep = new command(540);
         const media = await sleep.get_media_attachment('sleep');
 
-        const deferOptions = { ephemeral: !interaction.inGuild() };
+        const deferOptions = { ephemeral: interaction.inGuild() };
         await interaction.deferReply(deferOptions);
 
         try {

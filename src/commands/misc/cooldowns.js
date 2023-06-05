@@ -17,7 +17,7 @@ module.exports = {
      * @param {Interaction} interaction 
      */
     callback: async (client, interaction) => {
-        const deferOptions = { ephemeral: !interaction.inGuild() };
+        const deferOptions = { ephemeral: interaction.inGuild() };
         await interaction.deferReply(deferOptions);
 
         const cooldown = new command();

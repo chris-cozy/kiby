@@ -22,7 +22,7 @@ module.exports = {
         const play = new command(10);
         const media = await play.get_media_attachment('play');
 
-        const deferOptions = { ephemeral: !interaction.inGuild() };
+        const deferOptions = { ephemeral: interaction.inGuild() };
         await interaction.deferReply(deferOptions);
 
         let userKirby = await userStats.findOne({ userId: interaction.user.id });

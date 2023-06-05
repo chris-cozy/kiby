@@ -21,7 +21,7 @@ module.exports = {
         const pet = new command(5);
         let media = await pet.get_media_attachment('play');
 
-        const deferOptions = { ephemeral: !interaction.inGuild() };
+        const deferOptions = { ephemeral: interaction.inGuild() };
         await interaction.deferReply(deferOptions);
 
         const userKirby = await userStats.findOne({ userId: interaction.user.id });
