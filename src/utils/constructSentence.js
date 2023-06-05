@@ -9,7 +9,7 @@ module.exports = () => {
     const maxWordLength = 3;
     const maxSentenceLength = 3;
     const minWordLength = 1;
-    const minSentenceLength = 0;
+    const minSentenceLength = 1;
     const lexicon = [
         'yo',
         'oy',
