@@ -19,8 +19,9 @@ module.exports = {
 
         const leaderboard = new command();
 
-        // Sort all users by level and xp
         let allUsers = await userStats.find();
+
+        // Sort all users by level and xp
         allUsers.sort((a, b) => {
             if (a.level === b.level) {
                 return b.xp - a.xp;
@@ -30,36 +31,37 @@ module.exports = {
         });
 
         // Limit length to top ten users
-        const userCount = allUsers.length;
-        let length = userCount;
-        if (length > 10) {
-            length = 10;
-        }
+        let length = Math.min(allUsers.length, 10);
 
         // Construct the leaderboard variable
         let topten = '';
         for (let i = 0; i < length; i++) {
-            let user = await client.users.fetch(allUsers[i].userId)
-            if (interaction.user.id === user.id) {
-                topten += `**${i + 1}.   ${allUsers[i].kirbyName}(${user.discriminator})        Level: ${allUsers[i].level}\n**`
-            } else {
-                topten += `${i + 1}.   ${allUsers[i].kirbyName}(${user.discriminator})        Level: ${allUsers[i].level}\n`
-            }
+            let user = await client.users.fetch(allUsers[i].userId);
+            const userLine = `${i + 1}. ${allUser[i].kirbyName}(${user.discriminator})          Level: ${allUsers[i].level}\n`;
 
+            if (interaction.user.id === user.id) {
+                topten += `**${userLine}**`
+            } else {
+                topten += userLine;
+            }
         }
 
         try {
             const embed = new EmbedBuilder()
-                .setAuthor({ name: `${client.user.username}`, iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org' })
-                .setTitle(`Kiby's Elite Ten (${userCount} Kibys)`)
+                .setAuthor({
+                    name: `${client.user.username}`,
+                    iconURL: `${client.user.displayAvatarURL()}`, url: 'https://discord.js.org'
+                })
+                .setTitle(`Kiby's Elite Ten (${allUsers.length} Kibys)`)
                 .setColor(leaderboard.pink)
                 .setDescription(topten)
                 .setURL('https://discord.js.org/#/')
                 .setTimestamp()
-                .setFooter({ text: `Requested by ${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}` });
+                .setFooter({
+                    text: `Requested by ${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}`
+                });
 
             interaction.editReply({ embeds: [embed] });
-
         } catch (error) {
             console.log(`There was an error: ${error}`);
         }
