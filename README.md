@@ -25,6 +25,7 @@ This bot has a detailed Kirby phonetic system, which was compiled by studying in
 - /play - Play with your Kirby. This can be done once 10 minutes. Grants affection points.
 - /sleep - Put your Kirby to sleep for 9 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
 ### Miscellaneous Commands
+- /help - Display an embed with links to documentation
 - /info - Display current stats on your Kirby
 - /leaderboard - Display the top ten Kirbys
 - /cooldowns - Display any current cooldowns on Kirby interactions
