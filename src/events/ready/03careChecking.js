@@ -111,7 +111,7 @@ module.exports = (client) => {
                         userId: user.userId,
                         kirbyName: user.kirbyName,
                         level: user.level,
-                        adoptDate: userDate.adoptDate,
+                        adoptDate: user.adoptDate,
                         deathDate: new Date(),
                     });
 
