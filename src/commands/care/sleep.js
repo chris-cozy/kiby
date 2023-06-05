@@ -20,46 +20,48 @@ module.exports = {
         const sleep = new command(540);
         const media = await sleep.get_media_attachment('sleep');
 
-        if (interaction.inGuild()) {
-            await interaction.deferReply({ ephemeral: true });
-        } else {
-            await interaction.deferReply({ ephemeral: false });
-        }
+        const deferOptions = { ephemeral: !interaction.inGuild() };
+        await interaction.deferReply(deferOptions);
 
         try {
             let userKirby = await userStats.findOne({ userId: interaction.user.id });
             let userDate = await userDates.findOne({ userId: interaction.user.id });
 
-            // If user exists, grab dates and check relevance, then update collect date. 
-            if (userDate) {
-                // Check if user has slept today
-                if (userDate.lastSleep.toDateString() === sleep.currentDate.toDateString()) {
-                    interaction.editReply({ content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!`, ephemeral: true });
-                    return;
-                }
-
-                // Change sleep date
-                userDate.lastSleep = sleep.currentDate;
-
-
-                const embed = new EmbedBuilder()
-                    .setTitle('**SLEEPING**')
-                    .setColor(sleep.pink)
-                    .setDescription(`**${userKirby.kirbyName}** is sleeping for ${convert_countdown(sleep.interactionCooldown)}!`)
-                    .setImage(media.mediaString)
-                    .setTimestamp()
-                    .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
-
-                // Update database
-                await userDate.save().catch((e) => {
-                    console.log(`There was an error saving: ${e}`);
-                });
-
-                interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
-            } else {
-                interaction.editReply(`You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`);
+            // If user doesn't exist, show an error message
+            if (!userKirby) {
+                interaction.editReply(
+                    "You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey."
+                );
                 return;
             }
+
+            // Check if user has already slept today
+            if (userDate.lastSleep.toDateString() === sleep.currentDate.toDateString()) {
+                interaction.editReply({
+                    content: `**${userKirby.kirbyName}** cannot sleep again until tomorrow!`,
+                    ephemeral: true,
+                });
+                return;
+            }
+
+            // Change sleep date
+            userDate.lastSleep = sleep.currentDate;
+
+
+            const embed = new EmbedBuilder()
+                .setTitle('**SLEEPING**')
+                .setColor(sleep.pink)
+                .setDescription(`**${userKirby.kirbyName}** is sleeping for ${convert_countdown(sleep.interactionCooldown)}!`)
+                .setImage(media.mediaString)
+                .setTimestamp()
+                .setFooter({ text: `${client.user.tag} `, iconURL: `${client.user.displayAvatarURL()}` });
+
+            // Update database
+            await userDate.save().catch((e) => {
+                console.log(`There was an error saving: ${e}`);
+            });
+
+            interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
         } catch (error) {
             console.log(`There was an error: $${error}`);
         }
