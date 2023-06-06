@@ -6,6 +6,7 @@
 const dotenv = require('dotenv');
 dotenv.config();
 const { Client, IntentsBitField } = require('discord.js');
+const { AutoPoster } = require('topgg-autoposter');
 const eventHandler = require('./handlers/eventHandler');
 const mongoose = require('mongoose');
 
@@ -28,6 +29,17 @@ const client = new Client({
 
         eventHandler(client);
         client.login(process.env.TOKEN);
+
+        // Handle Top.GG
+        const ap = AutoPoster(process.env.TOPGG_KEY, client);
+
+        ap.on('posted', () => {
+            console.log('Posted stats to top.gg!');
+        });
+
+        ap.on('error', () => {
+            console.log('There was an error posting stats to top.gg!');
+        })
     } catch (error) {
         console.log(`There was an error: ${error}`);
     }
