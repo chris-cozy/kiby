@@ -33,12 +33,12 @@ const client = new Client({
         // Handle Top.GG
         const ap = AutoPoster(process.env.TOPGG_KEY, client);
 
-        ap.on('posted', () => {
-            console.log('Posted stats to top.gg!');
+        ap.on('posted', (stats) => {
+            console.log(`Posted stats to top.gg! | ${stats.serverCount} servers`);
         });
 
-        ap.on('error', () => {
-            console.log('There was an error posting stats to top.gg!');
+        ap.on('error', (error) => {
+            console.log(`There was an error posting stats to top.gg: ${error}`);
         })
     } catch (error) {
         console.log(`There was an error: ${error}`);
