@@ -14,7 +14,7 @@ module.exports = async (client, userStats) => {
     const user = await client.users.fetch(userStats.userId);
 
     if (user) {
-        if (user.dmChannel) {
+        try {
             const embed = new EmbedBuilder()
                 .setTitle('**HUNGRY**')
                 .setColor(hungerNotification.pink)
@@ -30,7 +30,7 @@ module.exports = async (client, userStats) => {
                 .catch((error) => {
                     console.error('Error sending DM with embed:', error);
                 });
-        } else {
+        } catch (error) {
             console.log('User has disabled direct messages:', user.userId);
         }
     } else {

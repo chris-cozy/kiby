@@ -53,19 +53,16 @@ module.exports = (client) => {
                 const choice = random_number(minRange, maxRange);
                 if (choice === minRange || maxRange) {
                     if (user.userId) {
+                        const targetUser = await client.users.fetch(user.userId);
                         try {
-                            const targetUser = await client.users.fetch(user.userId);
-
-                            if (targetUser && targetUser.dmChannel) {
+                            if (targetUser) {
                                 targetUser.send({
                                     content: `**${user.kirbyName}**: ` + construct_sentence(),
                                     ephemeral: false,
                                 });
-                            } else {
-                                console.log('User has disabled direct messages:', user.userId);
                             }
                         } catch (error) {
-                            console.log('Error sending Kirby message:', error);
+                            console.log('User has disabled direct messages:', user.userId);
                         }
                     } else {
                         console.log('Invalid user ID:', userStats.userId);
