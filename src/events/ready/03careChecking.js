@@ -15,7 +15,7 @@ const construct_sentence = require("../../utils/constructSentence");
 module.exports = (client) => {
 
     const milliConversion = 60000;
-    const careCheckTimer = 30 * milliConversion;
+    const careCheckTimer = 1 * milliConversion;
     const hpDrainMax = 2;
     const hpDrainMin = 1;
     const hpGainMax = 4;
