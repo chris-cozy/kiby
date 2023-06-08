@@ -33,11 +33,14 @@ module.exports = {
         // Limit length to top ten users
         let length = Math.min(allUsers.length, 10);
 
+        // Find the length of the longest kiby name
+        let longestNameLength = allUsers.reduce((max, user) => Math.max(max, user.kirbyName.length), 0);
+
         // Construct the leaderboard variable
         let topten = '';
         for (let i = 0; i < length; i++) {
             let user = await client.users.fetch(allUsers[i].userId);
-            const userLine = `${i + 1}. ${allUsers[i].kirbyName}(${user.discriminator})          Level: ${allUsers[i].level}\n`;
+            const userLine = `${i + 1}. ${allUsers[i].kirbyName}(${user.discriminator})${levelSpacing}Level: ${allUsers[i].level}\n`;
 
             if (interaction.user.id === user.id) {
                 topten += `**${userLine}**`
