@@ -60,7 +60,7 @@ module.exports = {
                             ephemeral: false,
                         });
                     } else {
-                        console.log('User has disabled direct messages:', user.userId);
+                        console.log('User has disabled direct messages:', userKirby.userId);
                     }
 
                 } catch (error) {
