@@ -16,8 +16,8 @@ module.exports = (client) => {
 
     const milliConversion = 60000;
     const careCheckTimer = 30 * milliConversion;
-    const hpDrainMax = 5;
-    const hpDrainMin = 2;
+    const hpDrainMax = 2;
+    const hpDrainMin = 1;
     const hpGainMax = 4;
     const hpGainMin = 1;
     const neglectTimer = 60 * milliConversion
