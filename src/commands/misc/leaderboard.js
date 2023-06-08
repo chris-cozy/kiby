@@ -40,6 +40,7 @@ module.exports = {
         let topten = '';
         for (let i = 0; i < length; i++) {
             let user = await client.users.fetch(allUsers[i].userId);
+            const levelSpacing = ' '.repeat(longestNameLength - allUsers[i].kirbyName.length + 2);
             const userLine = `${i + 1}. ${allUsers[i].kirbyName}(${user.discriminator})${levelSpacing}Level: ${allUsers[i].level}\n`;
 
             if (interaction.user.id === user.id) {
