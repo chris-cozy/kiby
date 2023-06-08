@@ -13,7 +13,7 @@ module.exports = async (client, userStats) => {
     const media = await affectionNotification.get_media_attachment('affection');
     const user = await client.users.fetch(userStats.userId);
 
-    if (user) {
+    if (user && user.dmChannel) {
         try {
             const embed = new EmbedBuilder()
                 .setTitle('**AFFECTION**')

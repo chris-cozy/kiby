@@ -15,7 +15,7 @@ const construct_sentence = require("../../utils/constructSentence");
 module.exports = (client) => {
 
     const milliConversion = 60000;
-    const careCheckTimer = 1 * milliConversion;
+    const careCheckTimer = 30 * milliConversion;
     const hpDrainMax = 2;
     const hpDrainMin = 1;
     const hpGainMax = 4;
@@ -55,7 +55,7 @@ module.exports = (client) => {
                     if (user.userId) {
                         const targetUser = await client.users.fetch(user.userId);
                         try {
-                            if (targetUser) {
+                            if (targetUser && targetUser.dmChannel) {
                                 targetUser.send({
                                     content: `**${user.kirbyName}**: ` + construct_sentence(),
                                     ephemeral: false,
@@ -76,7 +76,7 @@ module.exports = (client) => {
                     if (user.hunger < minPoints) {
                         user.hunger = minPoints;
                     }
-                    if (user.hunger < 50) {
+                    if (user.hunger <= 50 && user.hunger >= 40) {
                         hunger_notification(client, user);
                     }
                 }
@@ -87,7 +87,7 @@ module.exports = (client) => {
                     if (user.affection < minPoints) {
                         user.affection = minPoints;
                     }
-                    if (user.affection < 50) {
+                    if (user.affection <= 50 && user.affection >= 40) {
                         affection_notification(client, user);
                     }
                 }

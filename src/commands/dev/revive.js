@@ -55,17 +55,18 @@ module.exports = {
                     const targetUser = await client.users.fetch(userKirby.userId);
 
                     if (targetUser) {
-                        try {
-                            targetUser.send({
-                                content: `Your Kirby ${userKirby.kirbyName} has been revived!`,
-                                ephemeral: false,
-                            });
-                        } catch (error) {
-                            console.log('User has disabled direct messages:', userKirby.userId);
-                            continue;
-                        }
+                        client.guilds.cache.forEach((guild) => {
+                            if (guild.members.cache.has(targetUser.id)) {
+                                const targetChannel = guild.systemChannel;
+                                if (targetChannel) {
+                                    targetChannel.send({
+                                        content: `${targetUser.toString()}: Your Kirby ${userKirby.kirbyName} has been revived!`,
+                                        ephemeral: true,
+                                    });
+                                }
+                            }
+                        });
                     }
-
                 } catch (error) {
                     console.log(`There was an error reviving the kirby: ${error}`);
                 }
