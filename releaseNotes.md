@@ -1,6 +1,12 @@
 Release Notes
 =============
 
+Version 3.10.0 - June 7, 2023
+----------------------------
+- Implemented revive dev command
+- Decreased hp losses to minimum
+- Added release notes
+
 Version 3.9.1 - June 6, 2023
 ----------------------------
 - Bug fixes
