@@ -52,6 +52,16 @@ module.exports = {
                     ]);
 
                     reviveNum++;
+                    const targetUser = await client.users.fetch(userKirby.userId);
+
+                    if (targetUser && targetUser.dmChannel) {
+                        targetUser.send({
+                            content: `Your Kirby ${userKirby.kirbyName} has been revived!`,
+                            ephemeral: false,
+                        });
+                    } else {
+                        console.log('User has disabled direct messages:', user.userId);
+                    }
 
                 } catch (error) {
                     console.log(`There was an error reviving the kirby: ${error}`);

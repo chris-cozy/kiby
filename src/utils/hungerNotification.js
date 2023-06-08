@@ -14,7 +14,7 @@ module.exports = async (client, userStats) => {
     const user = await client.users.fetch(userStats.userId);
 
     if (user) {
-        if (user.presence && user.presence.status !== 'offline' && user.presence.status !== 'invisible') {
+        if (user.dmChannel) {
             const embed = new EmbedBuilder()
                 .setTitle('**HUNGRY**')
                 .setColor(hungerNotification.pink)
