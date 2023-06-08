@@ -70,7 +70,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setTitle(client.user.username)
-                .setColor(adopt.pink)
+                .setColor(revive.pink)
                 .setDescription(`${reviveNum} Kirby's have been revived!`)
                 .setThumbnail(client.user.displayAvatarURL())
                 .setImage(media.mediaString)
