@@ -21,10 +21,10 @@ module.exports = (client) => {
     const hpGainMax = 4;
     const hpGainMin = 1;
     const neglectTimer = 60 * milliConversion
-    const hungerDrainMax = 10;
-    const hungerDrainMin = 5;
-    const affectionDrainMax = 10;
-    const affectionDrainMin = 5;
+    const hungerDrainMax = 5;
+    const hungerDrainMin = 2;
+    const affectionDrainMax = 5;
+    const affectionDrainMin = 2;
     const sleeptimer = 540 * milliConversion;
     const minPoints = 0;
     const maxPoints = 100;
