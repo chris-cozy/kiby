@@ -46,9 +46,9 @@ module.exports = {
       const levelSpacing = " ".repeat(
         longestNameLength - allUsers[i].kirbyName.length + 2
       );
-      const userLine = `${i + 1}. ${allUsers[i].kirbyName}(${
-        user.globalName
-      })${levelSpacing}Level: ${allUsers[i].level}\n`;
+      const userLine = `${i + 1}. ${
+        allUsers[i].kirbyName
+      }${levelSpacing}Level: ${allUsers[i].level}\n`;
 
       if (interaction.user.id === user.id) {
         topten += `**${userLine}**`;
