@@ -47,7 +47,7 @@ module.exports = {
         longestNameLength - allUsers[i].kirbyName.length + 2
       );
       const userLine = `${i + 1}. ${allUsers[i].kirbyName}(${
-        user.displayName
+        user.globalName
       })${levelSpacing}Level: ${allUsers[i].level}\n`;
 
       if (interaction.user.id === user.id) {
