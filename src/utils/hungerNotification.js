@@ -14,10 +14,10 @@ module.exports = async (client, userStats) => {
   const user = await client.users.fetch(userStats.userId);
 
   if (user) {
-    if (!user.dmChannel) {
-      await user.createDM();
-    }
     try {
+      if (!user.dmChannel) {
+        await user.createDM();
+      }
       const embed = new EmbedBuilder()
         .setTitle("**HUNGRY**")
         .setColor(hungerNotification.pink)
