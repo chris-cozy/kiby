@@ -15,9 +15,7 @@ module.exports = async (client, userStats) => {
 
   if (user) {
     try {
-      if (!user.dmChannel) {
-        await user.createDM();
-      }
+      const dmChannel = await user.createDM();
       const embed = new EmbedBuilder()
         .setTitle("**HUNGRY**")
         .setColor(hungerNotification.pink)
@@ -29,7 +27,7 @@ module.exports = async (client, userStats) => {
           iconURL: `${client.user.displayAvatarURL()}`,
         });
 
-      user
+      dmChannel
         .send({ embeds: [embed], files: [media.mediaAttach] })
         .then(() => {
           console.log("DM with embed sent successfully!");

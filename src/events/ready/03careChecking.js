@@ -53,10 +53,8 @@ module.exports = (client) => {
             const targetUser = await client.users.fetch(user.userId);
             try {
               if (targetUser) {
-                if (!targetUser.dmChannel) {
-                  await targetUser.createDM();
-                }
-                targetUser.send({
+                const dmChannel = await targetUser.createDM();
+                dmChannel.send({
                   content: `**${user.kirbyName}**: ` + construct_sentence(),
                   ephemeral: false,
                 });
