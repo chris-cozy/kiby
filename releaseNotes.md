@@ -1,5 +1,10 @@
 # Release Notes
 
+## Version 3.11.1 - July 28, 2023
+
+- Decreased random message send frequency
+- Error catching and handling for sending messages to users with DMs turned off.
+
 ## Version 3.11.0 - July 18, 2023
 
 - Altered depracated user tag in leaderboard to display name
