@@ -28,7 +28,7 @@ module.exports = (client) => {
   const minPoints = 0;
   const maxPoints = 100;
   const minRange = 1;
-  const maxRange = 20;
+  const maxRange = 100;
 
   setInterval(async () => {
     // Grab all users
@@ -48,7 +48,7 @@ module.exports = (client) => {
 
         // 10% Chance to send random message to user
         const choice = random_number(minRange, maxRange);
-        if (choice === minRange || maxRange) {
+        if (choice <= 5) {
           if (user.userId) {
             const targetUser = await client.users.fetch(user.userId);
             try {
