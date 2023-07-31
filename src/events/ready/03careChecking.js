@@ -3,9 +3,9 @@ const userDates = require("../../schemas/dates");
 const userStats = require("../../schemas/stats");
 const userDeaths = require("../../schemas/deaths");
 const random_number = require("../../utils/randomNumber");
-const hunger_notification = require("../../utils/hungerNotification");
-const affection_notification = require("../../utils/affectionNotification");
-const death_notification = require("../../utils/deathNotification");
+const hunger_notification = require("../../utils/notifications/hungerNotification");
+const affection_notification = require("../../utils/notifications/affectionNotification");
+const death_notification = require("../../utils/notifications/deathNotification");
 const construct_sentence = require("../../utils/constructSentence");
 
 /**
