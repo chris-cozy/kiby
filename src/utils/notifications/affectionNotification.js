@@ -1,6 +1,6 @@
 const { Client, EmbedBuilder } = require("discord.js");
-const userStats = require("../schemas/stats");
-const command = require("../classes/command");
+const userStats = require("../../schemas/stats");
+const command = require("../../classes/command");
 
 /**
  * @brief Send user a notification that the kirby needs attention

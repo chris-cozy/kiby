@@ -1,27 +1,25 @@
 const { Client, EmbedBuilder } = require("discord.js");
-const userStats = require("../schemas/stats");
-const command = require("../classes/command");
+const userStats = require("../../schemas/stats");
+const command = require("../../classes/command");
 
 /**
- * @brief Send user a notification that the kirby has died
+ * @brief Send user a notification that the kirby is hungry
  * @param {Client} client
  * @param {userStats} userStats
  * @return N/A
  */
 module.exports = async (client, userStats) => {
-  const deathNotification = new command();
-  const media = await deathNotification.get_media_attachment("death");
+  const hungerNotification = new command();
+  const media = await hungerNotification.get_media_attachment("hungry");
   const user = await client.users.fetch(userStats.userId);
 
   if (user) {
     try {
       const dmChannel = await user.createDM();
       const embed = new EmbedBuilder()
-        .setTitle("**DEATH**")
-        .setColor(deathNotification.pink)
-        .setDescription(
-          `**${userStats.kirbyName}** has died! They were left neglected for too long! They left one final message "I still love you.."`
-        )
+        .setTitle("**HUNGRY**")
+        .setColor(hungerNotification.pink)
+        .setDescription(`**${userStats.kirbyName}** is hungry!`)
         .setImage(media.mediaString)
         .setTimestamp()
         .setFooter({
