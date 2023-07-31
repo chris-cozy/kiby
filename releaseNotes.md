@@ -1,5 +1,10 @@
 # Release Notes
 
+## Version 3.11.2 - July 30, 2023
+
+- Reorganized files
+- Error catching and handling for sending message replies
+
 ## Version 3.11.1 - July 28, 2023
 
 - Decreased random message send frequency
