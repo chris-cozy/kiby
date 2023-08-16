@@ -1,15 +1,13 @@
 const { ActivityType, Client } = require("discord.js");
 
-const {
-  userDates,
-  userStats,
-  userDeaths,
-  random_number,
-  hunger_notification,
-  affection_notification,
-  death_notification,
-  construct_sentence,
-} = require("../../utils");
+const userDates = require("../../schemas/dates");
+const userStats = require("../../schemas/stats");
+const userDeaths = require("../../schemas/deaths");
+const random_number = require("../../utils/randomNumber");
+const hunger_notification = require("../../utils/notifications/hungerNotification");
+const affection_notification = require("../../utils/notifications/affectionNotification");
+const death_notification = require("../../utils/notifications/deathNotification");
+const construct_sentence = require("../../utils/constructSentence");
 
 /**
  * @brief Periodically check the user's last care dates for kirby
