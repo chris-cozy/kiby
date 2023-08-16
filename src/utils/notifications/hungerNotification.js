@@ -11,10 +11,10 @@ const command = require("../../classes/command");
 module.exports = async (client, userStats) => {
   const hungerNotification = new command();
   const media = await hungerNotification.get_media_attachment("hungry");
-  const user = await client.users.fetch(userStats.userId);
 
-  if (user) {
-    try {
+  try {
+    const user = await client.users.fetch(userStats.userId);
+    if (user) {
       const dmChannel = await user.createDM();
       const embed = new EmbedBuilder()
         .setTitle("**HUNGRY**")
@@ -23,7 +23,7 @@ module.exports = async (client, userStats) => {
         .setImage(media.mediaString)
         .setTimestamp()
         .setFooter({
-          text: `${client.user.tag} `,
+          text: `${client.user.username} `,
           iconURL: `${client.user.displayAvatarURL()}`,
         });
 
@@ -35,10 +35,10 @@ module.exports = async (client, userStats) => {
         .catch((error) => {
           console.error("Error sending DM with embed:", error);
         });
-    } catch (error) {
-      console.log("User has disabled direct messages:", user.userId);
+    } else {
+      console.error("User not found!");
     }
-  } else {
-    console.error("User not found!");
+  } catch (error) {
+    console.error("Error sending hunger notification:", error);
   }
 };
