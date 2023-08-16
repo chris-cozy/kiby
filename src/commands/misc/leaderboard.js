@@ -61,7 +61,8 @@ module.exports = {
         client,
         allUsers,
         interaction,
-        topten
+        topten,
+        leaderboard
       );
       interaction.editReply({ embeds: [embed] });
     } catch (error) {
@@ -70,7 +71,13 @@ module.exports = {
   },
 };
 
-function create_leaderboard_embed(client, allUsers, interaction, topten) {
+function create_leaderboard_embed(
+  client,
+  allUsers,
+  interaction,
+  topten,
+  leaderboard
+) {
   return new EmbedBuilder()
     .setAuthor({
       name: `${client.user.username}`,

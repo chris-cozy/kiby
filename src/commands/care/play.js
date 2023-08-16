@@ -84,7 +84,8 @@ module.exports = {
         client,
         userKirby,
         affectionGranted,
-        media.mediaString
+        media.mediaString,
+        play
       );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
@@ -94,7 +95,13 @@ module.exports = {
   },
 };
 
-function create_play_embed(client, userKirby, affectionGranted, mediaString) {
+function create_play_embed(
+  client,
+  userKirby,
+  affectionGranted,
+  mediaString,
+  play
+) {
   return new EmbedBuilder()
     .setTitle("**PLAYING**")
     .setColor(play.pink)
