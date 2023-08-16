@@ -52,7 +52,8 @@ module.exports = {
         currentRank,
         allUsers,
         media.mediaString,
-        info
+        info,
+        interaction
       );
       interaction.editReply({
         embeds: [embed],
@@ -70,7 +71,8 @@ function create_info_embed(
   currentRank,
   allUsers,
   mediaString,
-  info
+  info,
+  interaction
 ) {
   const div = "-------------------------------------------------------";
   const embed = new EmbedBuilder()
