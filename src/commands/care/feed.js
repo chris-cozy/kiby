@@ -93,7 +93,8 @@ module.exports = {
         userKirby,
         feedGranted,
         media.mediaString,
-        feed
+        feed,
+        interaction
       );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
@@ -103,7 +104,14 @@ module.exports = {
   },
 };
 
-function create_feed_embed(client, userKirby, feedGranted, mediaString, feed) {
+function create_feed_embed(
+  client,
+  userKirby,
+  feedGranted,
+  mediaString,
+  feed,
+  interaction
+) {
   return new EmbedBuilder()
     .setTitle("**FEEDING**")
     .setColor(feed.pink)

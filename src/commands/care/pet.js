@@ -82,7 +82,8 @@ module.exports = {
         userKirby,
         affectionGranted,
         media.mediaString,
-        pet
+        pet,
+        interaction
       );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
@@ -97,7 +98,8 @@ function create_pet_embed(
   userKirby,
   affectionGranted,
   mediaString,
-  pet
+  pet,
+  interaction
 ) {
   return new EmbedBuilder()
     .setTitle("**PETTING**")

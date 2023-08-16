@@ -85,7 +85,8 @@ module.exports = {
         userKirby,
         affectionGranted,
         media.mediaString,
-        play
+        play,
+        interaction
       );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
@@ -100,7 +101,8 @@ function create_play_embed(
   userKirby,
   affectionGranted,
   mediaString,
-  play
+  play,
+  interaction
 ) {
   return new EmbedBuilder()
     .setTitle("**PLAYING**")
