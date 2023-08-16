@@ -81,7 +81,8 @@ module.exports = {
         client,
         userKirby,
         affectionGranted,
-        media.mediaString
+        media.mediaString,
+        pet
       );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
@@ -91,7 +92,13 @@ module.exports = {
   },
 };
 
-function create_pet_embed(client, userKirby, affectionGranted, mediaString) {
+function create_pet_embed(
+  client,
+  userKirby,
+  affectionGranted,
+  mediaString,
+  pet
+) {
   return new EmbedBuilder()
     .setTitle("**PETTING**")
     .setColor(pet.pink)

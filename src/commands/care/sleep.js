@@ -49,7 +49,12 @@ module.exports = {
       userDate.lastSleep = sleep.currentDate;
 
       await userDate.save();
-      const embed = create_sleep_embed(client, userKirby, media.mediaString);
+      const embed = create_sleep_embed(
+        client,
+        userKirby,
+        media.mediaString,
+        sleep
+      );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
     } catch (error) {
@@ -58,7 +63,7 @@ module.exports = {
   },
 };
 
-function create_sleep_embed(client, userKirby, mediaString) {
+function create_sleep_embed(client, userKirby, mediaString, sleep) {
   return new EmbedBuilder()
     .setTitle("**SLEEPING**")
     .setColor(sleep.pink)
@@ -67,7 +72,7 @@ function create_sleep_embed(client, userKirby, mediaString) {
         sleep.interactionCooldown
       )}!`
     )
-    .setImage(media.mediaString)
+    .setImage(mediaString)
     .setTimestamp()
     .setFooter({
       text: `${client.user.username} `,
