@@ -94,7 +94,8 @@ module.exports = {
         feedGranted,
         media.mediaString,
         feed,
-        interaction
+        interaction,
+        xpGranted
       );
 
       interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
@@ -110,7 +111,8 @@ function create_feed_embed(
   feedGranted,
   mediaString,
   feed,
-  interaction
+  interaction,
+  xpGranted
 ) {
   return new EmbedBuilder()
     .setTitle("**FEEDING**")
