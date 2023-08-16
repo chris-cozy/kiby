@@ -35,116 +35,119 @@ module.exports = (client) => {
 
   setInterval(async () => {
     // Grab all users
-    const allUsers = await userStats.find();
+    try {
+      const allUsers = await userStats.find();
 
-    if (allUsers) {
-      // For each user, check difference between last care times
-      for (const user of allUsers) {
-        const currentDate = new Date();
-        const { userId, kirbyName, level, adoptDate } = user;
-        const userDate = await userDates.findOne({ userId: userId });
-        const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptimer);
+      if (allUsers) {
+        // For each user, check difference between last care times
+        for (const user of allUsers) {
+          const currentDate = new Date();
+          const { userId, kirbyName, level, adoptDate } = user;
+          const userDate = await userDates.findOne({ userId: userId });
+          const awakeDate = new Date(userDate.lastSleep.getTime() + sleeptimer);
 
-        // If Kirby is still asleep, skip the care check
-        if (currentDate < awakeDate) {
-          continue;
-        }
+          // If Kirby is still asleep, skip the care check
+          if (currentDate < awakeDate) {
+            continue;
+          }
 
-        // 5% Chance to send random message to user
-        if (random_number(rangeFloor, rangeCeiling) <= 5) {
-          const targetUser = await client.users.fetch(userId);
-          if (targetUser) {
-            try {
-              const dmChannel = await targetUser.createDM();
-              dmChannel.send({
-                content: `**${kirbyName}**: ` + construct_sentence(),
-                ephemeral: false,
-              });
-            } catch (error) {
-              console.log("User has disabled direct messages:", userId);
+          // 5% Chance to send random message to user
+          if (random_number(rangeFloor, rangeCeiling) <= 5) {
+            const targetUser = await client.users.fetch(userId);
+            if (targetUser) {
+              try {
+                const dmChannel = await targetUser.createDM();
+                dmChannel.send({
+                  content: `**${kirbyName}**: ` + construct_sentence(),
+                  ephemeral: false,
+                });
+              } catch (error) {
+                console.error("Error sending message:", error);
+              }
             }
           }
-        }
 
-        const decrease_hunger = () => {
-          user.hunger -= random_number(hungerDrainMin, hungerDrainMax);
-          if (user.hunger < pointFloor) {
-            user.hunger = pointFloor;
+          const decrease_hunger = () => {
+            user.hunger -= random_number(hungerDrainMin, hungerDrainMax);
+            if (user.hunger < pointFloor) {
+              user.hunger = pointFloor;
+            }
+            if (user.hunger <= 50 && user.hunger >= 40) {
+              hunger_notification(client, user);
+            }
+          };
+
+          // Decrease affection
+          const decrease_affection = () => {
+            user.affection -= random_number(
+              affectionDrainMin,
+              affectionDrainMax
+            );
+            if (user.affection < pointFloor) {
+              user.affection = pointFloor;
+            }
+            if (user.affection <= 50 && user.affection >= 40) {
+              affection_notification(client, user);
+            }
+          };
+
+          if (currentDate - userDate.lastFeed > neglectTimer) {
+            decrease_hunger();
           }
-          if (user.hunger <= 50 && user.hunger >= 40) {
-            hunger_notification(client, user);
+
+          if (
+            currentDate - userDate.lastPet > neglectTimer ||
+            currentDate - userDate.lastPlay > neglectTimer
+          ) {
+            decrease_affection();
           }
-        };
 
-        // Decrease affection
-        const decrease_affection = () => {
-          user.affection -= random_number(affectionDrainMin, affectionDrainMax);
-          if (user.affection < pointFloor) {
-            user.affection = pointFloor;
+          // Health decrease
+          if (user.affection === pointFloor || user.hunger === pointFloor) {
+            user.hp -= random_number(hpDrainMin, hpDrainMax);
+            if (user.hp < pointFloor) {
+              user.hp = pointFloor;
+            }
           }
-          if (user.affection <= 50 && user.affection >= 40) {
-            affection_notification(client, user);
+
+          // Health increase
+          if (user.affection === pointCeiling && user.hunger === pointCeiling) {
+            user.hp += random_number(hpGainMin, hpGainMax);
+            if (user.hp > pointCeiling) {
+              user.hp = pointCeiling;
+            }
           }
-        };
 
-        if (currentDate - userDate.lastFeed > neglectTimer) {
-          decrease_hunger();
-        }
-
-        if (
-          currentDate - userDate.lastPet > neglectTimer ||
-          currentDate - userDate.lastPlay > neglectTimer
-        ) {
-          decrease_affection();
-        }
-
-        // Health decrease
-        if (user.affection === pointFloor || user.hunger === pointFloor) {
-          user.hp -= random_number(hpDrainMin, hpDrainMax);
-          if (user.hp < pointFloor) {
-            user.hp = pointFloor;
-          }
-        }
-
-        // Health increase
-        if (user.affection === pointCeiling && user.hunger === pointCeiling) {
-          user.hp += random_number(hpGainMin, hpGainMax);
-          if (user.hp > pointCeiling) {
-            user.hp = pointCeiling;
-          }
-        }
-
-        // Save database updates
-        await user.save().catch((e) => {
-          console.log(`There was an error saving: ${e}`);
-        });
-
-        // Delete user data from database
-        if (user.hp === pointFloor) {
-          death_notification(client, user);
-
-          //Log Death
-          const userDeath = new userDeaths({
-            userId: userId,
-            kirbyName: kirbyName,
-            level: level,
-            adoptDate: adoptDate,
-            deathDate: new Date(),
+          // Save database updates
+          await user.save().catch((e) => {
+            console.log(`There was an error saving: ${e}`);
           });
 
-          try {
+          // Delete user data from database
+          if (user.hp === pointFloor) {
+            death_notification(client, user);
+
+            //Log Death
+            const userDeath = new userDeaths({
+              userId: userId,
+              kirbyName: kirbyName,
+              level: level,
+              adoptDate: adoptDate,
+              deathDate: new Date(),
+            });
+
             await Promise.all([
               userDeath.save(),
               userStats.deleteOne({ userId: userId }),
               userDates.deleteOne({ userId: userId }),
             ]);
-          } catch (error) {
-            console.log(`There was an error: ${error}`);
           }
         }
+      } else {
+        console.log("There are no active Kirbys!");
       }
-    } else {
-      console.log("There are no active Kirbys!");
+    } catch (error) {
+      console.error(`Error in care checking: ${error}`);
     }
   }, careCheckTimer);
 };
