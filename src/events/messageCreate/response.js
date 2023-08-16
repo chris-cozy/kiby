@@ -13,18 +13,8 @@ module.exports = async (client, message) => {
     return;
   }
 
-  // Check if the message is sent in a server or DMs
-  const isDM = message.channel.type === "DM";
-
-  // Ignore message if the bot is not mentioned in a server or a DM
-  if (!isDM && !message.mentions.has(client.user.id)) {
-    return;
-  }
-
-  let userKirby;
-
-  if (isDM) {
-    userKirby = await userStats.findOne({ userId: message.author.id });
+  if (message.mentions.has(client.user.id)) {
+    const userKirby = await userStats.findOne({ userId: message.author.id });
 
     if (!userKirby) {
       message.reply(
@@ -32,28 +22,19 @@ module.exports = async (client, message) => {
       );
       return;
     }
-    console.log("DM");
-  } else {
-    userKirby = await userStats.findOne({ userId: message.author.id });
 
-    if (!userKirby) {
-      message.reply(
-        `You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`
+    // Give the illusion of bot typing
+    try {
+      await message.channel.sendTyping();
+
+      const kirbyName = userKirby.kirbyName;
+      const response = construct_sentence();
+
+      message.reply(`**${kirbyName}**: ` + response);
+    } catch (error) {
+      console.error(
+        `Could not send Kirby message reply due to error: ${error}`
       );
-      return;
     }
-  }
-
-  const kirbyName = userKirby.kirbyName;
-
-  // Give the illusion of bot typing
-  try {
-    await message.channel.sendTyping();
-
-    const response = construct_sentence();
-
-    message.reply(`**${kirbyName}**: ` + response);
-  } catch (error) {
-    print(`Could not send Kirby message reply due to error: ${error}`);
   }
 };
