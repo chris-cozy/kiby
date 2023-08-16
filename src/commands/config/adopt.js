@@ -1,66 +1,76 @@
-const { Client, Interaction, ApplicationCommandOptionType, EmbedBuilder } = require('discord.js');
-const userStats = require('../../schemas/stats');
-const userDates = require('../../schemas/dates');
-const command = require('../../classes/command');
+const {
+  Client,
+  Interaction,
+  ApplicationCommandOptionType,
+  EmbedBuilder,
+} = require("discord.js");
+const userStats = require("../../schemas/stats");
+const userDates = require("../../schemas/dates");
+const command = require("../../classes/command");
 
 module.exports = {
-    name: 'adopt',
-    description: "Adopt your kirby!",
-    deleted: false,
-    options: [
-        {
-            name: 'name',
-            description: "Choose your kirby's name.",
-            type: ApplicationCommandOptionType.String,
-            required: true,
-        }
-    ],
+  name: "adopt",
+  description: "Adopt your kirby!",
+  deleted: false,
+  options: [
+    {
+      name: "name",
+      description: "Choose your kirby's name.",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    },
+  ],
 
-    /**
-     * @brief Allow user to set up their kirby
-     * @param {Client} client 
-     * @param {Interaction} interaction 
-     */
-    callback: async (client, interaction) => {
-        await interaction.deferReply({ ephemeral: false });
+  /**
+   * @brief Allow user to set up their kirby
+   * @param {Client} client
+   * @param {Interaction} interaction
+   */
+  callback: async (client, interaction) => {
+    const adopt = new command();
+    const media = await adopt.get_media_attachment();
+    const targetName = interaction.options.get("name").value;
 
-        const adopt = new command();
-        const media = await adopt.get_media_attachment();
-        const targetName = interaction.options.get('name').value;
+    try {
+      const userKirby = await userStats.findOne({
+        userId: interaction.user.id,
+      });
 
-        try {
-            let userKirby = await userStats.findOne({ userId: interaction.user.id });
+      if (userKirby) {
+        return interaction.editReply(
+          `You already have **${userKirby.kirbyName}** to take care of!`
+        );
+      }
 
-            if (userKirby) {
-                interaction.editReply(`You already have **${userKirby.kirbyName}** to take care of!`);
-                return;
-            }
+      const userDate = new userDates({
+        userId: interaction.user.id,
+      });
 
-            const userDate = new userDates({
-                userId: interaction.user.id,
-            });
+      const newKirby = new userStats({
+        userId: interaction.user.id,
+        kirbyName: targetName,
+        adoptDate: new Date(),
+      });
 
-            userKirby = new userStats({
-                userId: interaction.user.id,
-                kirbyName: targetName,
-                adoptDate: new Date(),
-            });
+      await Promise.all([newKirby.save(), userDate.save()]);
 
-            await userKirby.save();
-            await userDate.save();
+      const embed = new EmbedBuilder()
+        .setTitle(client.user.username)
+        .setColor(adopt.pink)
+        .setDescription(
+          `You have adopted a Kirby! **${targetName}** is a nice name for them.`
+        )
+        .setThumbnail(client.user.displayAvatarURL())
+        .setImage(media.mediaString)
+        .setTimestamp()
+        .setFooter({
+          text: `${interaction.user.username}`,
+          iconURL: `${interaction.user.displayAvatarURL()}`,
+        });
 
-            const embed = new EmbedBuilder()
-                .setTitle(client.user.username)
-                .setColor(adopt.pink)
-                .setDescription(`You have adopted a Kirby! **${targetName}** is a nice name for them.`)
-                .setThumbnail(client.user.displayAvatarURL())
-                .setImage(media.mediaString)
-                .setTimestamp()
-                .setFooter({ text: `${interaction.user.tag}`, iconURL: `${interaction.user.displayAvatarURL()}` });
-
-            interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
-        } catch (error) {
-            console.log(`There was an error: $${error}`);
-        }
+      interaction.reply({ embeds: [embed], files: [media.mediaAttach] });
+    } catch (error) {
+      console.error(`Error in adopt.js: $${error}`);
     }
+  },
 };

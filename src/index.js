@@ -38,9 +38,9 @@ const client = new Client({
     });
 
     ap.on("error", (error) => {
-      console.log(`There was an error posting stats to top.gg: ${error}`);
+      console.error(`There was an error posting stats to top.gg: ${error}`);
     });
   } catch (error) {
-    console.log(`There was an error: ${error}`);
+    console.error(`Error in index.js: ${error}`);
   }
 })();
