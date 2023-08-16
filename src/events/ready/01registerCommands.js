@@ -1,8 +1,6 @@
-const {
-  get_local_commands,
-  get_application_commands,
-  are_commands_different,
-} = require("../../utils");
+const get_local_commands = require("../../utils/getLocalCommands");
+const get_application_commands = require("../../utils/getApplicationCommands");
+const are_commands_different = require("../../utils/areCommandsDifferent");
 
 const { Client } = require("discord.js");
 
