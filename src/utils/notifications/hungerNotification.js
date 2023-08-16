@@ -14,30 +14,29 @@ module.exports = async (client, userStats) => {
 
   try {
     const user = await client.users.fetch(userStats.userId);
-    if (user) {
-      const dmChannel = await user.createDM();
-      const embed = new EmbedBuilder()
-        .setTitle("**HUNGRY**")
-        .setColor(hungerNotification.pink)
-        .setDescription(`**${userStats.kirbyName}** is hungry!`)
-        .setImage(media.mediaString)
-        .setTimestamp()
-        .setFooter({
-          text: `${client.user.username} `,
-          iconURL: `${client.user.displayAvatarURL()}`,
-        });
-
-      dmChannel
-        .send({ embeds: [embed], files: [media.mediaAttach] })
-        .then(() => {
-          console.log("DM with embed sent successfully!");
-        })
-        .catch((error) => {
-          console.error("Error sending DM with embed:", error);
-        });
-    } else {
+    if (!user) {
       console.error("User not found!");
     }
+    const dmChannel = await user.createDM();
+    const embed = new EmbedBuilder()
+      .setTitle("**HUNGRY**")
+      .setColor(hungerNotification.pink)
+      .setDescription(`**${userStats.kirbyName}** is hungry!`)
+      .setImage(media.mediaString)
+      .setTimestamp()
+      .setFooter({
+        text: `${client.user.username} `,
+        iconURL: `${client.user.displayAvatarURL()}`,
+      });
+
+    dmChannel
+      .send({ embeds: [embed], files: [media.mediaAttach] })
+      .then(() => {
+        console.log("DM with embed sent successfully!");
+      })
+      .catch((error) => {
+        console.error("Error sending DM with embed:", error);
+      });
   } catch (error) {
     console.error("Error sending hunger notification:", error);
   }
