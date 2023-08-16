@@ -128,7 +128,7 @@ function create_feed_embed(
       },
       {
         name: "Hunger",
-        value: `${userKirby.hunger} -> ${userKirby.hunger + feedGranted}`,
+        value: `${userKirby.hunger - feedGranted} -> ${userKirby.hunger}`,
         inline: true,
       },
       {

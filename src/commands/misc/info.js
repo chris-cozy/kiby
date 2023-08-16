@@ -74,7 +74,7 @@ function create_info_embed(
   info,
   interaction
 ) {
-  const div = "-------------------------------------------------------";
+  const div = "---------------------------";
   const embed = new EmbedBuilder()
     .setAuthor({
       name: `${client.user.username}`,
