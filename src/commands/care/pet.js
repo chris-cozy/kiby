@@ -117,8 +117,8 @@ function create_pet_embed(
       },
       {
         name: "Affection",
-        value: `${userKirby.affection} -> ${
-          userKirby.affection + affectionGranted
+        value: `${userKirby.affection - affectionGranted} -> ${
+          userKirby.affection
         }`,
         inline: true,
       },
