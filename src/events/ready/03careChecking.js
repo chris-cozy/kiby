@@ -32,6 +32,7 @@ module.exports = (client) => {
   const hungerDrainMin = 0.08 * 30;
   const affectionDrainMax = 0.06 * 30;
   const affectionDrainMin = 0.04 * 30;
+  const notificationThreshold = 30;
 
   setInterval(async () => {
     // Grab all users
@@ -76,23 +77,36 @@ module.exports = (client) => {
         }
 
         const decrease_hunger = () => {
-          user.hunger -= random_number(hungerDrainMin, hungerDrainMax);
+          const hungerLoss = random_number(hungerDrainMin, hungerDrainMax);
+          user.hunger -= hungerLoss;
+
+          if (user.hunger < notificationThreshold) {
+            if (user.hunger + hungerLoss > notificationThreshold) {
+              hunger_notification(client, user);
+            }
+          }
+
           if (user.hunger < pointFloor) {
             user.hunger = pointFloor;
-          }
-          if (user.hunger <= 50 && user.hunger >= 40) {
-            hunger_notification(client, user);
           }
         };
 
         // Decrease affection
         const decrease_affection = () => {
-          user.affection -= random_number(affectionDrainMin, affectionDrainMax);
+          const affectionLoss = random_number(
+            affectionDrainMin,
+            affectionDrainMax
+          );
+          user.affection -= affectionLoss;
+
+          if (user.affection < notificationThreshold) {
+            if (user.affection + affectionLoss > notificationThreshold) {
+              affection_notification(client, user);
+            }
+          }
+
           if (user.affection < pointFloor) {
             user.affection = pointFloor;
-          }
-          if (user.affection <= 50 && user.affection >= 40) {
-            affection_notification(client, user);
           }
         };
 
