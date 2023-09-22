@@ -4,7 +4,7 @@
   "description": "This is a kirby pet discord bot. It functions as a digital tomagatchi, which users will have to take care of to maintain its life.",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/app.js"
   },
   "keywords": [],
   "author": "",
