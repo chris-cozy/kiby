@@ -61,7 +61,7 @@ module.exports = (client) => {
         if (random_number(rangeFloor, rangeCeiling) <= 5) {
           const targetUser = await client.users.fetch(userId);
           if (targetUser) {
-            const dmChannel = await user.createDM();
+            const dmChannel = await targetUser.createDM();
             dmChannel
               .send({
                 content: `**${kirbyName}**: ` + construct_sentence(),
