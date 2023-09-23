@@ -78,31 +78,38 @@ module.exports = {
 
       userList = [...new Set(userList)];
 
-      console.log(userList.length);
+      console.log(`Target user count: ${userList.length}`);
+
+      let successCount = 0;
 
       for (const userId of userList) {
-        try {
-          const targetUser = await client.users.fetch(userId);
-          if (targetUser) {
-            const dmChannel = await targetUser.createDM();
-            dmChannel
-              .send({
-                embeds: [embed],
-                ephemeral: false,
-              })
-              .then((message) =>
-                console.log(`Sent system message to ${targetUser.username}`)
-              )
-              .catch(console.error);
-          }
-        } catch (error) {
-          console.error(`Error sending message to user: ${error}`);
+        const targetUser = await client.users.fetch(userId);
+        if (targetUser) {
+          const dmChannel = await targetUser.createDM();
+          dmChannel
+            .send({
+              embeds: [embed],
+              ephemeral: false,
+            })
+            .then((message) => {
+              successCount += 1;
+              console.log(
+                `${successCount} Sent system message to ${targetUser.username}`
+              );
+            })
+            .catch((error) => {
+              console.error(
+                `Error sending message to ${targetUser.username}: ${error.rawError.message}`
+              );
+            });
+        } else {
+          console.log("There is no user for this ID.");
         }
       }
-
-      interaction.reply({ embeds: [embed] });
+      console.log(`Successful message count: ${successCount}`);
+      interaction.reply({ embeds: [embed], ephemeral: true });
     } catch (error) {
-      console.error(`Error sending system message: $${error}`);
+      console.error(`Error mass-sending system message: $${error}`);
     }
   },
 };

@@ -15,7 +15,8 @@ module.exports = async (client, userStats) => {
   try {
     const user = await client.users.fetch(userStats.userId);
     if (!user) {
-      console.error("User not found!");
+      console.error(`User not found for ID: ${userStats.userId}`);
+      return;
     }
 
     const dmChannel = await user.createDM();
@@ -35,12 +36,15 @@ module.exports = async (client, userStats) => {
     dmChannel
       .send({ embeds: [embed], files: [media.mediaAttach] })
       .then(() => {
-        console.log("DM with embed sent successfully!");
+        console.log(`Death notification successfully sent to ${user.username}`);
       })
       .catch((error) => {
-        console.error("Error sending DM with embed:", error);
+        console.error(
+          "Error sending death notification:",
+          error.rawError.message
+        );
       });
   } catch (error) {
-    console.error("Error sending death notification:", error);
+    console.error("Error sending death notification:", error.rawError.message);
   }
 };
