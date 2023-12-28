@@ -4,7 +4,7 @@ const command = require("../../classes/command");
 
 module.exports = {
   name: "leaderboard",
-  description: "Kiby Leaderboard!",
+  description: "Kibbi Leaderboard!",
   devonly: false,
   testOnly: false,
   deleted: false,
@@ -84,7 +84,7 @@ function create_leaderboard_embed(
       iconURL: `${client.user.displayAvatarURL()}`,
       url: "https://discord.js.org",
     })
-    .setTitle(`Kiby's Elite Ten (${allUsers.length} Kibys)`)
+    .setTitle(`Kibbi's Top Ten (${allUsers.length} Kibbis)`)
     .setColor(leaderboard.pink)
     .setDescription(topten)
     .setURL("https://discord.js.org/#/")
