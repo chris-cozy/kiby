@@ -1,23 +1,20 @@
-const { Client, Interaction } = require('discord.js');
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
-    name: 'ping',
-    description: 'ping pong - client and websocket ping',
-    devonly: true,
-    testOnly: true,
+  name: "ping",
+  description: "Check bot latency.",
+  deleted: false,
+  devOnly: false,
+  testOnly: false,
 
-    /**
-     * @brief Send the client and websocket ping
-     * @param {Client} client 
-     * @param {Interaction} interaction 
-     */
-    callback: async (client, interaction) => {
-        const deferOptions = { ephemeral: !interaction.inGuild() };
-        await interaction.deferReply(deferOptions);
+  callback: async (client, interaction) => {
+    await safeDefer(interaction, { ephemeral: true });
+    const reply = await interaction.fetchReply();
+    const apiPing = reply.createdTimestamp - interaction.createdTimestamp;
 
-        const reply = await interaction.fetchReply();
-
-        const ping = reply.createdTimestamp - interaction.createdTimestamp;
-        interaction.editReply(`pong! poyoyo **${ping}ms**, poyo poy **${client.ws.ping}ms**`);
-    },
-}
+    await safeReply(interaction, {
+      content: `pong! api **${apiPing}ms**, websocket **${client.ws.ping}ms**`,
+      ephemeral: true,
+    });
+  },
+};

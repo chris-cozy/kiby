@@ -1,46 +1,39 @@
-const get_local_commands = require("../../utils/getLocalCommands");
-const get_application_commands = require("../../utils/getApplicationCommands");
-const are_commands_different = require("../../utils/areCommandsDifferent");
+const getLocalCommands = require("../../utils/getLocalCommands");
+const getApplicationCommands = require("../../utils/getApplicationCommands");
+const areCommandsDifferent = require("../../utils/areCommandsDifferent");
+const env = require("../../config/env");
+const logger = require("../../utils/logger");
 
-const { Client } = require("discord.js");
-
-/**
- * @brief Register local commands on bot
- * @param {Client} client
- */
 module.exports = async (client) => {
   try {
-    const localCommands = get_local_commands();
-    const applicationCommands = await get_application_commands(client);
+    const localCommands = getLocalCommands.refresh();
+    const syncCommands = async (applicationCommands, scope) => {
+      for (const localCommand of localCommands) {
+        const { name, description, options, deleted } = localCommand;
+        const existingCommand = applicationCommands.cache.find(
+          (command) => command.name === name
+        );
 
-    for (const localCommand of localCommands) {
-      const { name, description, options, deleted } = localCommand;
+        if (existingCommand) {
+          if (deleted) {
+            await applicationCommands.delete(existingCommand.id);
+            logger.info("Deleted command", { name, scope });
+            continue;
+          }
 
-      // Checking if command exists on the bot
-      const existingCommand = await applicationCommands.cache.find(
-        (cmd) => cmd.name === name
-      );
-
-      // If command exist, edit accordingly. If not, add new command
-      if (existingCommand) {
-        if (deleted) {
-          await applicationCommands.delete(existingCommand.id);
-          console.log(`Deleted command "${name}".`);
+          if (areCommandsDifferent(existingCommand, localCommand)) {
+            await applicationCommands.edit(existingCommand.id, {
+              name,
+              description,
+              options,
+            });
+            logger.info("Updated command", { name, scope });
+          }
           continue;
         }
 
-        if (are_commands_different(existingCommand, localCommand)) {
-          await applicationCommands.edit(existingCommand.id, {
-            description,
-            options,
-          });
-          console.log(`Edited command "${name}".`);
-        }
-      } else {
         if (deleted) {
-          console.log(
-            `Skipping registering command "${name}" as it's currently set to delete.`
-          );
+          logger.info("Skipped deleted command", { name, scope });
           continue;
         }
 
@@ -49,11 +42,18 @@ module.exports = async (client) => {
           description,
           options,
         });
-
-        console.log(`Registered command "${name}".`);
+        logger.info("Registered command", { name, scope });
       }
+    };
+
+    const globalCommands = await getApplicationCommands(client, null);
+    await syncCommands(globalCommands, "global");
+
+    if (env.testGuildId) {
+      const guildCommands = await getApplicationCommands(client, env.testGuildId);
+      await syncCommands(guildCommands, `guild:${env.testGuildId}`);
     }
   } catch (error) {
-    console.log(`There was an error: ${error}`);
+    logger.error("Failed to register commands", { error: error.message });
   }
 };

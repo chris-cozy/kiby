@@ -1,115 +1,77 @@
 const {
-  Client,
-  Interaction,
   ApplicationCommandOptionType,
   EmbedBuilder,
 } = require("discord.js");
-
-const userStats = require("../../schemas/stats");
-const userDeaths = require("../../schemas/deaths");
+const env = require("../../config/env");
+const playerRepository = require("../../repositories/playerRepository");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const logger = require("../../utils/logger");
 
 module.exports = {
   name: "system",
-  description: "send a system message to all users",
+  description: "Send a system message to all active players.",
   deleted: false,
+  devOnly: true,
   options: [
     {
       name: "subject",
-      description: "Set the subject of the message",
+      description: "Message subject",
       type: ApplicationCommandOptionType.String,
       required: true,
     },
     {
       name: "body",
-      description: "Set the body of the message",
+      description: "Message body",
       type: ApplicationCommandOptionType.String,
       required: true,
     },
   ],
 
-  /**
-   * @brief Allow developer to send messages to all Kirby Companion users
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    if (interaction.user.id != "407943427616145409") {
-      interaction.reply("You do not have permission to use this command");
+    await safeDefer(interaction, { ephemeral: true });
+
+    if (!env.devUserIds.includes(interaction.user.id)) {
+      await safeReply(interaction, {
+        content: "You do not have permission to use this command.",
+        ephemeral: true,
+      });
       return;
     }
 
-    const subject = interaction.options.get("subject").value;
-    let body = interaction.options.get("body").value;
-    body = body.replace(/\\n/g, "\n");
-    const pink = "#FF69B4";
+    const subject = interaction.options.getString("subject", true);
+    const body = interaction.options.getString("body", true).replace(/\\n/g, "\n");
 
-    try {
-      const embed = new EmbedBuilder()
-        .setTitle(subject)
-        .setColor(pink)
-        .setDescription(body)
-        .setThumbnail(client.user.displayAvatarURL())
-        .setTimestamp()
-        .setFooter({
-          text: `Developer Cozy`,
-        });
+    const embed = new EmbedBuilder()
+      .setTitle(subject)
+      .setColor("#FF69B4")
+      .setDescription(body)
+      .setFooter({ text: "Kiby System" })
+      .setTimestamp();
 
-      let userList = [];
+    const players = await playerRepository.listAllPlayers();
+    let sent = 0;
 
-      const allUsers = await userStats.find();
-      if (!allUsers) {
-        console.log("There are no active Kirbys!");
-        return;
-      }
-
-      const allDeaths = await userDeaths.find();
-      if (!allUsers) {
-        console.log("There are no dead Kirbys!");
-        return;
-      }
-
-      for (const user of allUsers) {
-        userList.push(user.userId);
-      }
-
-      for (const user of allDeaths) {
-        userList.push(user.userId);
-      }
-
-      userList = [...new Set(userList)];
-
-      console.log(`Target user count: ${userList.length}`);
-
-      let successCount = 0;
-
-      for (const userId of userList) {
-        const targetUser = await client.users.fetch(userId);
-        if (targetUser) {
-          const dmChannel = await targetUser.createDM();
-          dmChannel
-            .send({
-              embeds: [embed],
-              ephemeral: false,
-            })
-            .then((message) => {
-              successCount += 1;
-              console.log(
-                `${successCount} Sent system message to ${targetUser.username}`
-              );
-            })
-            .catch((error) => {
-              console.error(
-                `Error sending message to ${targetUser.username}: ${error.rawError.message}`
-              );
-            });
-        } else {
-          console.log("There is no user for this ID.");
+    for (const player of players) {
+      try {
+        const user = await client.users.fetch(player.userId);
+        if (!user) {
+          continue;
         }
+
+        const dm = await user.createDM();
+        await dm.send({ embeds: [embed] });
+        sent += 1;
+      } catch (error) {
+        logger.warn("Failed to send system message", {
+          userId: player.userId,
+          error: error.message,
+        });
       }
-      console.log(`Successful message count: ${successCount}`);
-      interaction.reply({ embeds: [embed], ephemeral: true });
-    } catch (error) {
-      console.error(`Error mass-sending system message: $${error}`);
     }
+
+    await safeReply(interaction, {
+      content: `System message delivered to ${sent}/${players.length} active players.`,
+      ephemeral: true,
+    });
   },
 };

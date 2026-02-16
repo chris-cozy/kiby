@@ -1,40 +1,52 @@
-const { Client, Interaction, EmbedBuilder } = require("discord.js");
-const command = require("../../classes/command");
+const { EmbedBuilder } = require("discord.js");
+const CommandContext = require("../../classes/command");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
   name: "help",
-  description: "Learn more about using Kiby!",
-  devonly: false,
-  testOnly: false,
+  description: "Learn how to use Kiby.",
   deleted: false,
 
-  /**
-   * @brief Send an embed with help information
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    await interaction.deferReply({ ephemeral: true });
-    const help = new command();
+    await safeDefer(interaction, { ephemeral: true });
+    const command = new CommandContext();
 
-    try {
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `${client.user.username}`,
-          iconURL: `${client.user.displayAvatarURL()}`,
-          url: "https://top.gg/bot/1095193298425094204?s=06a5543cc78a4",
-        })
-        .setTitle("Kiby Documentation")
-        .setColor(help.pink)
-        .setDescription(
-          `Click the title to travel to Kiby's documentation page! It contains useful bot background and command information.`
-        )
-        .setURL("https://top.gg/bot/1095193298425094204?s=06a5543cc78a4")
-        .setTimestamp();
+    const embed = new EmbedBuilder()
+      .setTitle("Kiby Help")
+      .setColor(command.pink)
+      .setDescription("Core commands for caring for your Kiby.")
+      .addFields(
+        {
+          name: "Adopt",
+          value: "`/adopt name:<name>`",
+        },
+        {
+          name: "Care",
+          value: "`/feed`, `/pet`, `/play`, `/revive`",
+        },
+        {
+          name: "Sleep",
+          value: "`/sleep schedule set/view/clear`",
+        },
+        {
+          name: "Stats",
+          value: "`/info`, `/cooldowns`, `/leaderboard`",
+        },
+        {
+          name: "Shop",
+          value: "`/shop buy`, `/shop list`, `/inventory`, `/use`",
+        },
+        {
+          name: "Quests",
+          value: "`/daily`, `/quests view`, `/quests claim`",
+        }
+      )
+      .setFooter({
+        text: client.user.username,
+        iconURL: client.user.displayAvatarURL(),
+      })
+      .setTimestamp();
 
-      interaction.editReply({ embeds: [embed] });
-    } catch (error) {
-      console.error(`Error in help.js: ${error}`);
-    }
+    await safeReply(interaction, { embeds: [embed], ephemeral: true });
   },
 };

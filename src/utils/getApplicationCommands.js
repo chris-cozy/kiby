@@ -1,24 +1,14 @@
-const { Client } = require('discord.js');
-
-/**
- * @brief Grab commands for the application.
- * @param {Client} client 
- * @param {Number} guildId 
- * @returns Array of commands
- */
 module.exports = async (client, guildId) => {
-    let applicationCommands;
+  let applicationCommands;
 
-    // If application in a discord server, grab those commands.
-    // If not, grab global commands
-    if (guildId) {
-        const guild = await client.guilds.fetch(guildId);
-        applicationCommands = guild.commands;
-    } else {
-        applicationCommands = await client.application.commands;
-    }
+  if (guildId) {
+    const guild = await client.guilds.fetch(guildId);
+    applicationCommands = guild.commands;
+  } else {
+    applicationCommands = client.application.commands;
+  }
 
-    await applicationCommands.fetch();
+  await applicationCommands.fetch();
 
-    return applicationCommands;
-}
+  return applicationCommands;
+};

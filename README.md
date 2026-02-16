@@ -1,4 +1,3 @@
-# Kiby (discord.js)
 <div id="header" align="center">
   <img src="src\media\gifs\kirby-cute.gif" width="500"/>
 </div>
@@ -6,42 +5,108 @@
 <img src="https://tenor.com/KPwY.gif" width="500"/>
 -->
 
-## Description
-This is a discord bot created using the discord.js library, as well as other capatible libraries. The purpose of this bot is to function as a digital tomagatchi, which users can take care of to maintain its life.
-Users feed, pet, and play with their Kirby to keep it happy and healthy. If they neglect their Kirby it will slowly lose hunger and affection points. If either hunger and affection reach 0, then the Kirby's health will begin to decrease over time. If the Kirby's health reaches 0 then the Kirby will die.
+# Kiby v2.0.0
 
-The current minimum number of hours of neglect needed to kill a kiby is 11.
-### Future Implications
-Coming soon is a slight overhaul and battle system, allowing users to battle other Kirby owners in pokemon-style, turn-based combat to gain battle stars and climb the BattleBoard.
+Kiby is a Discord virtual pet system where users adopt a Kirby, maintain its needs, and compete on a shared global leaderboard.
 
-## Features
-### Conversation
-This bot has a detailed Kirby phonetic system, which was compiled by studying instances of Kirby speaking. The user's Kirby can be conversed with by the user prefixing their message with a bot mention.
-### Config Commands
-- /adopt - Adopt and name a Kirby
-### Care Commands
-- /feed - Feed your Kirby. This can be done once every 10 minutes. Grants hunger points.
-- /pet - Pet your Kirby. This can be done once every 5 minutes. Grants affection points.
-- /play - Play with your Kirby. This can be done once 10 minutes. Grants affection points.
-- /sleep - Put your Kirby to sleep for 9 hours. While asleep, Kirby will not need affection or food, and only petting can be done. This can be done once a day.
-### Miscellaneous Commands
-- /help - Display an embed with links to documentation
-- /info - Display current stats on your Kirby
-- /leaderboard - Display the top ten Kirbys
-- /cooldowns - Display any current cooldowns on Kirby interactions
-- /ping - Show the bot's client and websocket ping
-### Notifications
-If a Kirby's hunger or affection points drop below 50, they'll send their owner a message letting them know. If a Kirby dies, it will send their user its final notification.
-## Prerequisites
-- Discord server to invite into
+v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a seeded social ecosystem via synthetic participants.
 
-## Installation and Use
-1. [Invite Link](https://discord.com/api/oauth2/authorize?client_id=1095193298425094204&permissions=415068847168&scope=bot%20applications.commands)
-## Contributing
-Issue Tracker: [discord-bot-js/issues](https://github.com/chris-cozy/discord-bot-js/issues "Issue tracker for the discord bot")
-## License
-Currently Not Applicable
-## Citation
-Currently Not Applicable
-## Contact
-For more information, contact <csande9@clemson.edu>
+## Highlights
+- Timezone-based sleep scheduling per player (`/sleep schedule set`)
+- Automatic care decay and health simulation loops
+- Mixed leaderboard with real players and baseline competitors
+- Deterministic NPC simulation tiers (casual, active, competitive)
+- Health endpoint, graceful shutdown, and container-first deployment
+- Domain/service oriented architecture to support future Discord + web surfaces
+
+## Commands
+### Configuration
+- `/adopt name:<name>`: Adopt a Kiby
+- `/revive`: Revive your most recent fallen Kiby
+- `/sleep schedule set timezone:<IANA> start:<HH:mm> duration_hours:<1-9>`
+- `/sleep schedule view`
+- `/sleep schedule clear`
+
+### Care
+- `/feed`: Increase hunger + XP
+- `/pet`: Increase affection + XP (allowed while asleep)
+- `/play`: Increase affection + XP
+
+### Information
+- `/info`: View your Kiby profile and rank
+- `/cooldowns`: View action cooldowns + current sleep state
+- `/leaderboard`: View mixed top leaderboard
+- `/help`: Command reference
+- `/ping`: Latency check
+
+### Economy And Progression
+- `/shop list|buy`: Purchase consumables
+- `/inventory`: View item inventory and Star Coin balance
+- `/use`: Consume an item to boost Kiby stats
+- `/daily`: Claim daily login reward
+- `/quests view|claim`: Track and claim daily care quests
+
+## Setup
+### Requirements
+- Node.js 20+
+- MongoDB 7+
+- Discord bot token and application
+
+### Install
+```bash
+npm install
+cp .env.production.example .env
+```
+
+Set required values in `.env`:
+- `TOKEN`
+- `MONGO_CONNECTION`
+
+### Run
+```bash
+npm start
+```
+
+### Dev
+```bash
+npm run dev
+npm run lint
+npm run test
+npm run seed:npcs:reset
+```
+
+## Deployment
+### Docker
+```bash
+docker build -t kiby:2.0.0 .
+docker run --env-file .env -p 8080:8080 kiby:2.0.0
+```
+
+### Docker Compose
+```bash
+docker compose up --build
+```
+
+Health check endpoint:
+- `GET /health` on `HEALTH_PORT`
+
+## Configuration
+Use `.env.production.example` for all supported variables, including:
+- Runtime/logging
+- Care simulation intervals
+- Default sleep schedule
+- NPC population and tick cadence
+
+## Architecture
+See:
+- `docs/architecture.md`
+- `docs/gameplay.md`
+- `docs/deployment.md`
+- `docs/policy.md`
+- `docs/commands.md`
+- `docs/testing.md`
+- `docs/roadmap-completion.md`
+
+## Notes
+- `src/media` is intentionally gitignored and required at runtime for embed assets.
+- This release is treated as a fresh production launch; no live migration path is assumed.

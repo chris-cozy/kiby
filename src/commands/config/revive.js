@@ -1,83 +1,77 @@
-const { Client, Interaction, EmbedBuilder } = require("discord.js");
-const userStats = require("../../schemas/stats");
-const userDates = require("../../schemas/dates");
-const userDeaths = require("../../schemas/deaths");
-const command = require("../../classes/command");
+const { EmbedBuilder } = require("discord.js");
+const CommandContext = require("../../classes/command");
+const playerRepository = require("../../repositories/playerRepository");
+const deathHistoryRepository = require("../../repositories/deathHistoryRepository");
+const sleepService = require("../../services/sleepService");
+const economyService = require("../../services/economyService");
+const progressionService = require("../../services/progressionService");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
   name: "revive",
-  description: "Revive your Kiby! (If you have not re-adopted)",
-  devonly: false,
-  testOnly: false,
+  description: "Revive your last Kiby if they passed away.",
   deleted: false,
+  devOnly: false,
+  testOnly: false,
 
-  /**
-   * @brief Revive the user's dead Kirby
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    const deferOptions = { ephemeral: interaction.inGuild() };
-    await interaction.deferReply(deferOptions);
+    await safeDefer(interaction, { ephemeral: false });
 
-    const revive = new command();
-    const media = await revive.get_media_attachment();
+    const existing = await playerRepository.findByUserId(interaction.user.id);
+    if (existing) {
+      await safeReply(interaction, {
+        content: `You already have **${existing.kirbyName}** to care for.`,
+        ephemeral: true,
+      });
+      return;
+    }
 
-    const userKirby = await userStats.findOne({
+    const latestDeath = await deathHistoryRepository.findLatestPlayerDeath(
+      interaction.user.id
+    );
+
+    if (!latestDeath) {
+      await safeReply(interaction, {
+        content: "You do not have a fallen Kiby to revive.",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const revived = await playerRepository.createPlayer({
       userId: interaction.user.id,
+      kirbyName: latestDeath.kirbyName,
+      adoptedAt: new Date(),
+      lastCare: {
+        feed: new Date(),
+        pet: new Date(),
+        play: new Date(),
+      },
     });
 
-    if (userKirby) {
-      return interaction.editReply(
-        `You already have **${userKirby.kirbyName}** to take care of!`
-      );
-    }
+    await sleepService.getScheduleForUser(interaction.user.id);
+    await Promise.all([
+      economyService.ensureEconomy(interaction.user.id),
+      progressionService.ensureProgress(interaction.user.id),
+    ]);
 
-    const deadKirby = await userDeaths.findOne({ userId: interaction.user.id });
+    const command = new CommandContext();
+    const media = await command.get_media_attachment("portrait");
 
-    if (!deadKirby) {
-      return interaction.editReply(
-        `You haven't let any Kirbys die! Don't get any ideas...`
-      );
-    }
-    // Handle case with multiple dead kirbys
+    const embed = new EmbedBuilder()
+      .setTitle("Revival Complete")
+      .setColor(command.pink)
+      .setDescription(`**${revived.kirbyName}** has returned. Protect them this time.`)
+      .setImage(media.mediaString)
+      .setFooter({
+        text: interaction.user.username,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setTimestamp();
 
-    if (deadKirby) {
-      try {
-        const userDate = new userDates({
-          userId: deadKirby.userId,
-        });
-
-        const userKirby = new userStats({
-          userId: deadKirby.userId,
-          kirbyName: deadKirby.kirbyName,
-          adoptDate: deadKirby.adoptDate,
-        });
-
-        await Promise.all([
-          userKirby.save(),
-          userDate.save(),
-          userDeaths.deleteOne({ userId: deadKirby.userId }),
-        ]);
-
-        const embed = new EmbedBuilder()
-          .setTitle(client.user.username)
-          .setColor(revive.pink)
-          .setDescription(
-            `${userKirby.kirbyName} has been revived! Be more careful next time!`
-          )
-          .setThumbnail(client.user.displayAvatarURL())
-          .setImage(media.mediaString)
-          .setTimestamp()
-          .setFooter({
-            text: `${interaction.user.tag}`,
-            iconURL: `${interaction.user.displayAvatarURL()}`,
-          });
-
-        interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
-      } catch (error) {
-        console.error(`There was an error reviving the kirby: ${error}`);
-      }
-    }
+    await safeReply(interaction, {
+      embeds: [embed],
+      files: [media.mediaAttach],
+    });
   },
 };

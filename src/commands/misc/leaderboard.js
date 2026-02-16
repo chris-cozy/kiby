@@ -1,96 +1,40 @@
-const { Client, Interaction, EmbedBuilder } = require("discord.js");
-const userStats = require("../../schemas/stats");
-const command = require("../../classes/command");
+const { EmbedBuilder } = require("discord.js");
+const CommandContext = require("../../classes/command");
+const leaderboardService = require("../../services/leaderboardService");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
   name: "leaderboard",
-  description: "Kibbi Leaderboard!",
-  devonly: false,
-  testOnly: false,
+  description: "View the top Kibys.",
   deleted: false,
 
-  /**
-   * @brief Send an embed with bot leaderboard
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    await interaction.deferReply({ ephemeral: false });
+    await safeDefer(interaction, { ephemeral: false });
 
-    try {
-      const leaderboard = new command();
-      const allUsers = await userStats.find();
+    const board = await leaderboardService.getMixedLeaderboard(10);
+    const command = new CommandContext();
 
-      // Sort all users by level and xp
-      allUsers.sort((a, b) => {
-        if (a.level === b.level) {
-          return b.xp - a.xp;
-        } else {
-          return b.level - a.level;
-        }
-      });
+    let description = "";
+    board.top.forEach((entry, index) => {
+      const label = `${index + 1}. ${entry.kirbyName} | Lv.${entry.level} | XP ${entry.xp}`;
+      const highlighted = entry.type === "player" && entry.userId === interaction.user.id;
+      description += highlighted ? `**${label}**\n` : `${label}\n`;
+    });
 
-      // Limit length to top ten users
-      const length = Math.min(allUsers.length, 10);
-
-      // Find the length of the longest kiby name
-      const longestNameLength = allUsers.reduce(
-        (max, user) => Math.max(max, user.kirbyName.length),
-        0
-      );
-
-      // Construct the leaderboard variable
-      let topten = "";
-      for (let i = 0; i < length; i++) {
-        const user = await client.users.fetch(allUsers[i].userId);
-        const levelSpacing = " ".repeat(
-          longestNameLength - allUsers[i].kirbyName.length + 2
-        );
-        const userLine = `${i + 1}. ${
-          allUsers[i].kirbyName
-        }${levelSpacing}Level: ${allUsers[i].level}\n`;
-
-        if (interaction.user.id === user.id) {
-          topten += `**${userLine}**`;
-        } else {
-          topten += userLine;
-        }
-      }
-
-      const embed = create_leaderboard_embed(
-        client,
-        allUsers,
-        interaction,
-        topten,
-        leaderboard
-      );
-      interaction.editReply({ embeds: [embed] });
-    } catch (error) {
-      console.error(`Error in leaderboard.js: ${error}`);
+    if (!description) {
+      description = "No Kibys on the board yet.";
     }
+
+    const embed = new EmbedBuilder()
+      .setTitle(`Leaderboard (${board.total} total)`)
+      .setColor(command.pink)
+      .setDescription(description)
+      .setFooter({
+        text: `Requested by ${interaction.user.username}`,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setTimestamp();
+
+    await safeReply(interaction, { embeds: [embed] });
   },
 };
-
-function create_leaderboard_embed(
-  client,
-  allUsers,
-  interaction,
-  topten,
-  leaderboard
-) {
-  return new EmbedBuilder()
-    .setAuthor({
-      name: `${client.user.username}`,
-      iconURL: `${client.user.displayAvatarURL()}`,
-      url: "https://discord.js.org",
-    })
-    .setTitle(`Kibbi's Top Ten (${allUsers.length} Kibbis)`)
-    .setColor(leaderboard.pink)
-    .setDescription(topten)
-    .setURL("https://discord.js.org/#/")
-    .setTimestamp()
-    .setFooter({
-      text: `Requested by ${interaction.user.username}`,
-      iconURL: `${interaction.user.displayAvatarURL()}`,
-    });
-}

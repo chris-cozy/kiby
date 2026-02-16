@@ -1,0 +1,124 @@
+const env = require("../config/env");
+const careService = require("./careService");
+const npcService = require("./npcService");
+const eventService = require("./eventService");
+const notificationService = require("./notificationService");
+const logger = require("../utils/logger");
+
+function createScheduler(client) {
+  const timers = [];
+
+  async function runCareTick() {
+    const result = await careService.runPlayerDecayTick(new Date());
+
+    for (const notice of result.notifications) {
+      await notificationService.sendNeedNotification(
+        client,
+        notice.type,
+        notice.userId,
+        notice.kirbyName
+      );
+    }
+
+    for (const death of result.deaths) {
+      await notificationService.sendNeedNotification(
+        client,
+        "death",
+        death.userId,
+        death.kirbyName
+      );
+    }
+
+    logger.info("Completed care tick", {
+      players: result.playerCount,
+      notifications: result.notifications.length,
+      deaths: result.deaths.length,
+    });
+  }
+
+  async function runNpcTick() {
+    const result = await npcService.runNpcTick(new Date());
+    logger.info("Completed npc tick", {
+      npcs: result.npcCount,
+      deaths: result.deaths,
+    });
+  }
+
+  async function runWorldEventTick() {
+    const result = await eventService.runWorldEventTick(
+      new Date(),
+      env.worldEventChancePercent / 100
+    );
+    if (!result.triggered) {
+      logger.debug("World event tick skipped", { reason: result.reason });
+      return;
+    }
+
+    await notificationService.sendWorldEventNotification(
+      client,
+      result.userId,
+      result.kirbyName,
+      {
+        title: result.event.title,
+        description: result.event.description,
+        delta: result.delta,
+      }
+    );
+
+    logger.info("World event triggered", {
+      userId: result.userId,
+      event: result.event.key,
+      delta: result.delta,
+    });
+  }
+
+  async function start() {
+    const seeded = await npcService.ensureNpcSeeded();
+    logger.info("NPC seed status", seeded);
+
+    await runCareTick().catch((error) => {
+      logger.error("Care tick failed during startup", { error: error.message });
+    });
+    await runNpcTick().catch((error) => {
+      logger.error("NPC tick failed during startup", { error: error.message });
+    });
+    await runWorldEventTick().catch((error) => {
+      logger.error("World event tick failed during startup", {
+        error: error.message,
+      });
+    });
+
+    timers.push(
+      setInterval(() => {
+        runCareTick().catch((error) => {
+          logger.error("Care tick failed", { error: error.message });
+        });
+      }, env.careTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runNpcTick().catch((error) => {
+          logger.error("NPC tick failed", { error: error.message });
+        });
+      }, env.npcTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runWorldEventTick().catch((error) => {
+          logger.error("World event tick failed", { error: error.message });
+        });
+      }, env.careTickMinutes * 60 * 1000)
+    );
+  }
+
+  function stop() {
+    for (const timer of timers) {
+      clearInterval(timer);
+    }
+  }
+
+  return {
+    start,
+    stop,
+  };
+}
+
+module.exports = {
+  createScheduler,
+};

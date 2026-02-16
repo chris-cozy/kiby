@@ -1,33 +1,37 @@
-const get_all_files = require("../utils/getAllFiles");
-const path = require('path');
-const { Client } = require('discord.js');
+const path = require("path");
+const getAllFiles = require("../utils/getAllFiles");
+const logger = require("../utils/logger");
 
-/**
- * @brief Handle files/directories in events directory
- * @param {Client} client - The bot
- */
 module.exports = (client) => {
-    // Targeting events directory, grabbing subdirs
-    const eventFolders = get_all_files(path.join(__dirname, '..', 'events'), true);
+  const eventFolders = getAllFiles(path.join(__dirname, "..", "events"), true)
+    .slice()
+    .sort((a, b) => a.localeCompare(b));
 
-    // Extract files from each subdir
-    for (const eventFolder of eventFolders) {
-        const eventFiles = get_all_files(eventFolder);
+  for (const eventFolder of eventFolders) {
+    const eventFiles = getAllFiles(eventFolder)
+      .slice()
+      .sort((a, b) => a.localeCompare(b));
+    const eventName = eventFolder.replace(/\\/g, "/").split("/").pop();
 
-        // Sort in alphabetical order
-        eventFiles.sort((a, b) => a > b);
+    const handler = async (arg) => {
+      for (const eventFile of eventFiles) {
+        try {
+          const eventFunction = require(eventFile);
+          await eventFunction(client, arg);
+        } catch (error) {
+          logger.error("Event handler failed", {
+            eventName,
+            eventFile,
+            error: error.message,
+          });
+        }
+      }
+    };
 
-        // Replace all \\ with / (windows OS), then remove them to get event name
-        const eventName = eventFolder.replace(/\\/g, '/').split('/').pop();
-
-        // Extract function/module from each file in event
-        client.on(eventName, async (arg) => {
-            for (const eventFile of eventFiles) {
-                const eventFunction = require(eventFile);
-
-                // Run function, passing in any necessary arguments
-                await eventFunction(client, arg)
-            }
-        })
+    if (eventName === "ready") {
+      client.once(eventName, handler);
+    } else {
+      client.on(eventName, handler);
     }
-}
+  }
+};

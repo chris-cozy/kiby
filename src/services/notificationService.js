@@ -1,0 +1,108 @@
+const { EmbedBuilder } = require("discord.js");
+const getMedia = require("../utils/getMedia");
+const logger = require("../utils/logger");
+
+async function sendDirectMessage(client, userId, payload) {
+  try {
+    const user = await client.users.fetch(userId);
+    if (!user) {
+      logger.warn("Could not locate Discord user for DM", { userId });
+      return false;
+    }
+
+    const dm = await user.createDM();
+    await dm.send(payload);
+    return true;
+  } catch (error) {
+    logger.warn("Failed to send DM", {
+      userId,
+      error: error.message,
+    });
+    return false;
+  }
+}
+
+async function buildNotificationEmbed(client, title, description, mediaKeyword) {
+  const media = await getMedia(mediaKeyword);
+  const attachmentName = media.name;
+
+  const embed = new EmbedBuilder()
+    .setTitle(title)
+    .setColor("#FF69B4")
+    .setDescription(description)
+    .setImage(`attachment://${attachmentName}`)
+    .setTimestamp()
+    .setFooter({
+      text: client.user.username,
+      iconURL: client.user.displayAvatarURL(),
+    });
+
+  return {
+    embed,
+    attachment: media.attachment,
+  };
+}
+
+async function sendNeedNotification(client, type, userId, kirbyName) {
+  const map = {
+    hunger: {
+      title: "HUNGRY",
+      description: `**${kirbyName}** is hungry and needs food soon.`,
+      media: "hungry",
+    },
+    affection: {
+      title: "AFFECTION",
+      description: `**${kirbyName}** wants some attention and care.`,
+      media: "affection",
+    },
+    death: {
+      title: "DEATH",
+      description: `**${kirbyName}** has died from neglect. You can adopt again anytime.`,
+      media: "death",
+    },
+  };
+
+  const entry = map[type];
+  if (!entry) {
+    return false;
+  }
+
+  const payload = await buildNotificationEmbed(
+    client,
+    entry.title,
+    entry.description,
+    entry.media
+  );
+
+  return sendDirectMessage(client, userId, {
+    embeds: [payload.embed],
+    files: [payload.attachment],
+  });
+}
+
+async function sendWorldEventNotification(client, userId, kirbyName, worldEvent) {
+  const title = `WORLD EVENT: ${worldEvent.title}`;
+  const changes = Object.entries(worldEvent.delta || {})
+    .map(([key, value]) => `${key}: ${value >= 0 ? "+" : ""}${value}`)
+    .join(", ");
+  const description = `**${kirbyName}** was affected by **${worldEvent.description}**${
+    changes ? `\n\nImpact: ${changes}` : ""
+  }`;
+
+  const payload = await buildNotificationEmbed(
+    client,
+    title,
+    description,
+    "portrait"
+  );
+
+  return sendDirectMessage(client, userId, {
+    embeds: [payload.embed],
+    files: [payload.attachment],
+  });
+}
+
+module.exports = {
+  sendNeedNotification,
+  sendWorldEventNotification,
+};

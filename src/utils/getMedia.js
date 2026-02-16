@@ -1,42 +1,36 @@
-const random_number = require('./randomNumber');
-const path = require('path');
-const get_all_files = require('./getAllFiles');
+const { AttachmentBuilder } = require("discord.js");
+const path = require("path");
+const getAllFiles = require("./getAllFiles");
 
-/**
- * @brief Grab a media based on the request
- * @param {String} request 
- * @returns A media url
- */
-module.exports = async (request) => {
-    const keyword = request;
+const mediaCache = new Map();
 
-    let mediaSelection = []
+function loadCategory(category) {
+  if (mediaCache.has(category)) {
+    return mediaCache.get(category);
+  }
 
-    // Grab all subdirs of media directory
-    const mediaCategories = get_all_files(
-        path.join(__dirname, '..', 'media'),
-        true
-    )
+  const mediaRoot = path.join(__dirname, "..", "media", category);
+  const files = getAllFiles(mediaRoot).map((filePath) => ({
+    name: path.basename(filePath),
+    path: filePath,
+  }));
 
-    for (const mediaCategory of mediaCategories) {
-        if (mediaCategory.substring(mediaCategory.lastIndexOf("/") + 1) == keyword) {
-            const mediaFiles = get_all_files(mediaCategory);
-
-            for (const mediaFile of mediaFiles) {
-                mediaSelection.push(mediaFile);
-            }
-        } else {
-            continue;
-        }
-
-    }
-
-    const chosen = mediaSelection[random_number(0, (mediaSelection.length - 1))];
-
-    const media = {
-        name: chosen.substring(chosen.lastIndexOf("/") + 1),
-        url: chosen,
-    }
-
-    return media;
+  mediaCache.set(category, files);
+  return files;
 }
+
+module.exports = async (category = "portrait") => {
+  const files = loadCategory(category);
+
+  if (!files.length) {
+    throw new Error(`No media files available for category: ${category}`);
+  }
+
+  const selected = files[Math.floor(Math.random() * files.length)];
+
+  return {
+    name: selected.name,
+    path: selected.path,
+    attachment: new AttachmentBuilder(selected.path),
+  };
+};

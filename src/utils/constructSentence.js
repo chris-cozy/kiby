@@ -11,23 +11,23 @@ module.exports = () => {
     const minWordLength = 1;
     const minSentenceLength = 1;
     const lexicon = [
-        'yo',
-        'oy',
-        'pu',
-        'pa',
-        'ga',
-        'bu',
-        'lo',
-        'la',
-        'ha',
-        'ya',
-        'by',
-        'wu',
+        "yo",
+        "oy",
+        "pu",
+        "pa",
+        "ga",
+        "bu",
+        "lo",
+        "la",
+        "ha",
+        "ya",
+        "by",
+        "wu",
     ];
 
-    const punctuation = ['?', '!', '.', '']
+    const punctuation = ["?", "!", ".", ""];
 
-    let response = '';
+    let response = "";
 
 
     const sentenceLength = random_number(minSentenceLength, maxSentenceLength);
@@ -42,7 +42,7 @@ module.exports = () => {
             response += lexicon[index];
         }
 
-        response += ' ';
+        response += " ";
     }
 
     const punctuationIndex = Math.floor(Math.random() * punctuation.length);
