@@ -10,6 +10,10 @@ Optional:
 - custom scheduler intervals
 - NPC configuration values
 - world event chance tuning (`WORLD_EVENT_CHANCE_PERCENT`)
+- global event tuning (`GLOBAL_EVENT_DURATION_HOURS`, `GLOBAL_EVENT_GOAL`)
+- season cadence (`SEASON_LENGTH_DAYS`: `7` or `14`)
+- revive/economy/social guardrails (`REVIVE_*`, `GIFT_*`)
+- ambient + adventure controls (`AMBIENT_*`, `ADVENTURE_*`)
 
 ## Local Docker
 ```bash

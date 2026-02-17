@@ -1,23 +1,33 @@
 <div id="header" align="center">
   <img src="src\media\gifs\kirby-cute.gif" width="500"/>
 </div>
-<!-- 
-<img src="https://tenor.com/KPwY.gif" width="500"/>
--->
 
 # Kiby v2.0.0
 
-Kiby is a Discord virtual pet system where users adopt a Kirby, maintain its needs, and compete on a shared global leaderboard.
-
+Kiby is a Discord virtual pet system where users adopt a Kiby, maintain core needs, and progress through competitive/social long-term loops.
 v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a seeded social ecosystem via synthetic participants.
 
 ## Highlights
-- Timezone-based sleep scheduling per player (`/sleep schedule set`)
+- Timezone-based sleep scheduling with autocomplete timezone input
 - Automatic care decay and health simulation loops
 - Mixed leaderboard with real players and baseline competitors
 - Deterministic NPC simulation tiers (casual, active, competitive)
 - Health endpoint, graceful shutdown, and container-first deployment
 - Domain/service oriented architecture to support future Discord + web surfaces
+- Expanded care kit: `/feed`, `/pet`, `/play`, `/cuddle`, `/train`, `/bathe`
+- New `social` stat + mood-driven conversation and ambient Kiby behaviors
+- Player-local daily reset, streak shield, 3-slot quest board + bonus quest + reroll
+- Expanded item economy with consumables, toys, and adventure support items
+- Coin/item gifting with anti-abuse caps and fees
+- Async adventures with fixed durations, checkpoint damage, and fail-threshold return flow
+- Dual event layer:
+  - personal random world events
+  - global campaign events with contribution rewards
+- Leaderboard modes:
+  - total
+  - season (weekly/bi-weekly cadence)
+  - players-only (developer-restricted)
+- Title unlock/equip system shown in leaderboard entries
 
 ## Commands
 ### Configuration
@@ -26,11 +36,29 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - `/sleep schedule set timezone:<IANA> start:<HH:mm> duration_hours:<1-9>`
 - `/sleep schedule view`
 - `/sleep schedule clear`
+- `/ambient view|set`
 
 ### Care
 - `/feed`: Increase hunger + XP
 - `/pet`: Increase affection + XP (allowed while asleep)
 - `/play`: Increase affection + XP
+- `/cuddle`: Increase affection + XP (allowed while asleep)
+- `/train`
+- `/bathe`
+
+### Economy And Progression
+- `/shop list|buy`: Purchase consumables
+- `/inventory`: View item inventory and Star Coin balance
+- `/use`: Consume an item to boost Kiby stats
+- `/gift coins|item`
+
+### Social + Progression
+- `/social play-with|interact|settings`
+- `/daily`
+- `/quests view|claim|reroll`
+- `/titles view|equip`
+- `/events view|claim`
+- `/adventure start|status|claim`
 
 ### Information
 - `/info`: View your Kiby profile and rank
@@ -38,13 +66,6 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - `/leaderboard`: View mixed top leaderboard
 - `/help`: Command reference
 - `/ping`: Latency check
-
-### Economy And Progression
-- `/shop list|buy`: Purchase consumables
-- `/inventory`: View item inventory and Star Coin balance
-- `/use`: Consume an item to boost Kiby stats
-- `/daily`: Claim daily login reward
-- `/quests view|claim`: Track and claim daily care quests
 
 ## Setup
 ### Requirements
@@ -97,8 +118,7 @@ Use `.env.production.example` for all supported variables, including:
 - Default sleep schedule
 - NPC population and tick cadence
 
-## Architecture
-See:
+## Architecture + Docs
 - `docs/architecture.md`
 - `docs/gameplay.md`
 - `docs/deployment.md`

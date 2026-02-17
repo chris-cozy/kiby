@@ -4,7 +4,6 @@ const {
 } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const economyService = require("../../services/economyService");
-const playerService = require("../../services/playerService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 const ITEM_CHOICES = economyService.listShopItems().map((item) => ({
@@ -49,15 +48,6 @@ module.exports = {
   callback: async (client, interaction) => {
     await safeDefer(interaction, { ephemeral: true });
 
-    const player = await playerService.getPlayerByUserId(interaction.user.id);
-    if (!player) {
-      await safeReply(interaction, {
-        content: "You need to adopt a Kiby first with `/adopt`.",
-        ephemeral: true,
-      });
-      return;
-    }
-
     const command = new CommandContext();
     const subcommand = interaction.options.getSubcommand();
 
@@ -72,7 +62,7 @@ module.exports = {
         .addFields(
           items.map((item) => ({
             name: `${item.label} (${item.cost})`,
-            value: item.description,
+            value: `${item.description}\nCategory: **${item.category}** | Use: **${item.useContexts.join(", ")}**`,
             inline: false,
           }))
         )

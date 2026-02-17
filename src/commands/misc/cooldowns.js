@@ -47,6 +47,15 @@ module.exports = {
     const playReady = summary.sleeping
       ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
       : getActionAvailability(nowMs, player.lastCare.play, getActionCooldownMs("play"));
+    const cuddleReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.cuddle, getActionCooldownMs("cuddle"));
+    const trainReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.train, getActionCooldownMs("train"));
+    const batheReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.bathe, getActionCooldownMs("bathe"));
 
     const command = new CommandContext();
     const embed = new EmbedBuilder()
@@ -74,6 +83,21 @@ module.exports = {
         {
           name: "Play",
           value: playReady,
+          inline: true,
+        },
+        {
+          name: "Cuddle",
+          value: cuddleReady,
+          inline: true,
+        },
+        {
+          name: "Train",
+          value: trainReady,
+          inline: true,
+        },
+        {
+          name: "Bathe",
+          value: batheReady,
           inline: true,
         }
       )

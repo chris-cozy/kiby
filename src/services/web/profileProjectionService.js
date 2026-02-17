@@ -11,6 +11,7 @@ function toWebProfile(player, sleepSummary) {
     hp: player.hp,
     hunger: player.hunger,
     affection: player.affection,
+    social: player.social,
     adoptedAt: player.adoptedAt,
     sleep: {
       timezone: sleepSummary.timezone,

@@ -74,6 +74,11 @@ module.exports = {
           inline: true,
         },
         {
+          name: "Social",
+          value: `${updates.socialGranted >= 0 ? "+" : ""}${updates.socialGranted} (now ${player.social}/100)`,
+          inline: true,
+        },
+        {
           name: "Level",
           value: `${player.level}`,
           inline: true,

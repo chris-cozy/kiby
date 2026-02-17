@@ -1,8 +1,16 @@
-const { EmbedBuilder } = require("discord.js");
+const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const careService = require("../../services/careService");
+const economyService = require("../../services/economyService");
+const progressionService = require("../../services/progressionService");
+const playerRepository = require("../../repositories/playerRepository");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+
+const TOY_CHOICES = economyService.listItemsByContext("play").map((item) => ({
+  name: item.label,
+  value: item.id,
+}));
 
 module.exports = {
   name: "play",
@@ -10,6 +18,15 @@ module.exports = {
   deleted: false,
   devOnly: false,
   testOnly: false,
+  options: [
+    {
+      name: "toy",
+      description: "Optional toy to enhance play effects.",
+      type: ApplicationCommandOptionType.String,
+      required: false,
+      choices: TOY_CHOICES,
+    },
+  ],
 
   callback: async (client, interaction) => {
     await safeDefer(interaction, { ephemeral: false });
@@ -46,6 +63,33 @@ module.exports = {
       }
     }
 
+    const toyId = interaction.options.getString("toy");
+
+    if (toyId) {
+      const toyUse = await economyService.useToyForPlay(
+        interaction.user.id,
+        toyId,
+        result.player,
+        new Date()
+      );
+
+      if (!toyUse.ok) {
+        result.toyError =
+          toyUse.reason === "missing-item"
+            ? `Toy not applied: you do not have **${toyUse.item.label}** in inventory.`
+            : "Toy not applied: invalid toy selection.";
+      } else {
+        result.updates.affectionGranted += toyUse.effects.affection;
+        result.updates.socialGranted += toyUse.effects.social;
+        result.updates.xpGranted += toyUse.effects.xp;
+        result.updates.leveledUp = result.updates.leveledUp || toyUse.effects.leveledUp;
+        result.updates.newLevel = toyUse.effects.newLevel;
+        await playerRepository.savePlayer(result.player);
+        await progressionService.recordItemUse(interaction.user.id, new Date());
+        result.toyUse = toyUse;
+      }
+    }
+
     const command = new CommandContext();
     const media = await command.get_media_attachment("play");
     const { player, updates } = result;
@@ -58,6 +102,11 @@ module.exports = {
         {
           name: "Affection",
           value: `+${updates.affectionGranted} (now ${player.affection}/100)`,
+          inline: true,
+        },
+        {
+          name: "Social",
+          value: `${updates.socialGranted >= 0 ? "+" : ""}${updates.socialGranted} (now ${player.social}/100)`,
           inline: true,
         },
         {
@@ -82,6 +131,24 @@ module.exports = {
       embed.addFields({
         name: "Level Up",
         value: `**${player.kirbyName}** reached level **${updates.newLevel}**!`,
+      });
+    }
+
+    if (result.toyUse) {
+      embed.addFields({
+        name: "Toy Bonus",
+        value: `Used **${result.toyUse.item.label}**${
+          result.toyUse.fatigueApplied ? " (fatigue reduced effectiveness)" : ""
+        }.`,
+        inline: false,
+      });
+    }
+
+    if (result.toyError) {
+      embed.addFields({
+        name: "Toy Result",
+        value: result.toyError,
+        inline: false,
       });
     }
 

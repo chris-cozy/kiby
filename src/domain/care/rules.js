@@ -7,24 +7,48 @@ const ACTION_CONFIG = {
   feed: {
     cooldownMinutes: 10,
     hungerRange: [8, 12],
+    socialRange: [1, 2],
     xpRange: [5, 15],
   },
   pet: {
     cooldownMinutes: 5,
     affectionRange: [4, 6],
-    xpRange: [5, 15],
+    socialRange: [2, 4],
+    xpRange: [5, 12],
   },
   play: {
     cooldownMinutes: 10,
     affectionRange: [6, 10],
+    socialRange: [4, 7],
     xpRange: [10, 20],
+  },
+  cuddle: {
+    cooldownMinutes: 8,
+    affectionRange: [7, 11],
+    socialRange: [5, 8],
+    xpRange: [8, 14],
+  },
+  train: {
+    cooldownMinutes: 15,
+    socialRange: [1, 3],
+    hungerCostRange: [4, 8],
+    affectionCostRange: [2, 4],
+    xpRange: [18, 28],
+  },
+  bathe: {
+    cooldownMinutes: 20,
+    hpRange: [6, 10],
+    affectionRange: [2, 4],
+    socialRange: [1, 3],
+    xpRange: [6, 10],
   },
 };
 
 const DECAY_RULES = {
   hungerLossRange: [2, 4],
   affectionLossRange: [1, 2],
-  hpDrainRange: [5, 7],
+  socialLossRange: [1, 3],
+  hpDrainRange: [5, 8],
   hpGainRange: [2, 3],
 };
 
@@ -45,6 +69,30 @@ function getActionCooldownMs(actionName) {
   }
 
   return action.cooldownMinutes * 60 * 1000;
+}
+
+function applyStatRange(profile, statKey, range, rng, updates, updateKey) {
+  if (!range) {
+    return;
+  }
+
+  const granted = rng(range[0], range[1]);
+  const before = profile[statKey] || 0;
+  const nextValue = clamp(before + granted);
+  profile[statKey] = nextValue;
+  updates[updateKey] = nextValue - before;
+}
+
+function applyStatCost(profile, statKey, range, rng, updates, updateKey) {
+  if (!range) {
+    return;
+  }
+
+  const consumed = rng(range[0], range[1]);
+  const before = profile[statKey] || 0;
+  const nextValue = clamp(before - consumed);
+  profile[statKey] = nextValue;
+  updates[updateKey] = nextValue - before;
 }
 
 function applyCareAction(profile, actionName, now = new Date(), rng = randomInt) {
@@ -78,27 +126,41 @@ function applyCareAction(profile, actionName, now = new Date(), rng = randomInt)
   const updates = {
     hungerGranted: 0,
     affectionGranted: 0,
+    socialGranted: 0,
+    hpGranted: 0,
     xpGranted: 0,
     leveledUp: false,
     newLevel: profile.level,
   };
 
-  if (actionConfig.hungerRange) {
-    const granted = rng(actionConfig.hungerRange[0], actionConfig.hungerRange[1]);
-    const nextValue = clamp(profile.hunger + granted);
-    updates.hungerGranted = nextValue - profile.hunger;
-    profile.hunger = nextValue;
-  }
+  applyStatRange(profile, "hunger", actionConfig.hungerRange, rng, updates, "hungerGranted");
+  applyStatRange(
+    profile,
+    "affection",
+    actionConfig.affectionRange,
+    rng,
+    updates,
+    "affectionGranted"
+  );
+  applyStatRange(profile, "social", actionConfig.socialRange, rng, updates, "socialGranted");
+  applyStatRange(profile, "hp", actionConfig.hpRange, rng, updates, "hpGranted");
 
-  if (actionConfig.affectionRange) {
-    const granted = rng(
-      actionConfig.affectionRange[0],
-      actionConfig.affectionRange[1]
-    );
-    const nextValue = clamp(profile.affection + granted);
-    updates.affectionGranted = nextValue - profile.affection;
-    profile.affection = nextValue;
-  }
+  applyStatCost(
+    profile,
+    "hunger",
+    actionConfig.hungerCostRange,
+    rng,
+    updates,
+    "hungerGranted"
+  );
+  applyStatCost(
+    profile,
+    "affection",
+    actionConfig.affectionCostRange,
+    rng,
+    updates,
+    "affectionGranted"
+  );
 
   const xpGranted = rng(actionConfig.xpRange[0], actionConfig.xpRange[1]);
   profile.xp += xpGranted;
@@ -128,6 +190,7 @@ function applyDecay(profile, options = {}) {
   const previous = {
     hunger: profile.hunger,
     affection: profile.affection,
+    social: profile.social,
     hp: profile.hp,
   };
 
@@ -142,6 +205,12 @@ function applyDecay(profile, options = {}) {
   const lastPlay = profile.lastCare?.play
     ? new Date(profile.lastCare.play).getTime()
     : 0;
+  const lastCuddle = profile.lastCare?.cuddle
+    ? new Date(profile.lastCare.cuddle).getTime()
+    : 0;
+  const lastSocialPlay = profile.lastCare?.socialPlay
+    ? new Date(profile.lastCare.socialPlay).getTime()
+    : 0;
 
   if (lastFeed && nowMs - lastFeed > thresholdMs) {
     profile.hunger = clamp(
@@ -149,20 +218,36 @@ function applyDecay(profile, options = {}) {
     );
   }
 
-  if ((lastPet && nowMs - lastPet > thresholdMs) || (lastPlay && nowMs - lastPlay > thresholdMs)) {
+  const affectionAnchor = Math.max(lastPet, lastPlay, lastCuddle);
+  if (affectionAnchor && nowMs - affectionAnchor > thresholdMs) {
     profile.affection = clamp(
       profile.affection -
         rng(DECAY_RULES.affectionLossRange[0], DECAY_RULES.affectionLossRange[1])
     );
   }
 
-  if (profile.hunger === STATS_MIN || profile.affection === STATS_MIN) {
+  const socialAnchor = Math.max(lastPlay, lastSocialPlay, lastCuddle);
+  if (socialAnchor && nowMs - socialAnchor > thresholdMs) {
+    profile.social = clamp(
+      profile.social - rng(DECAY_RULES.socialLossRange[0], DECAY_RULES.socialLossRange[1])
+    );
+  }
+
+  if (
+    profile.hunger === STATS_MIN ||
+    profile.affection === STATS_MIN ||
+    profile.social === STATS_MIN
+  ) {
     profile.hp = clamp(
       profile.hp - rng(DECAY_RULES.hpDrainRange[0], DECAY_RULES.hpDrainRange[1])
     );
   }
 
-  if (profile.hunger === STATS_MAX && profile.affection === STATS_MAX) {
+  if (
+    profile.hunger === STATS_MAX &&
+    profile.affection === STATS_MAX &&
+    profile.social === STATS_MAX
+  ) {
     profile.hp = clamp(profile.hp + rng(DECAY_RULES.hpGainRange[0], DECAY_RULES.hpGainRange[1]));
   }
 
@@ -172,6 +257,8 @@ function applyDecay(profile, options = {}) {
     affectionDroppedBelowThreshold:
       previous.affection >= notificationThreshold &&
       profile.affection < notificationThreshold,
+    socialDroppedBelowThreshold:
+      previous.social >= notificationThreshold && profile.social < notificationThreshold,
     hpChanged: previous.hp !== profile.hp,
     died: previous.hp > 0 && profile.hp === 0,
   };

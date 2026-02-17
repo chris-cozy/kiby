@@ -55,6 +55,11 @@ async function sendNeedNotification(client, type, userId, kirbyName) {
       description: `**${kirbyName}** wants some attention and care.`,
       media: "affection",
     },
+    social: {
+      title: "SOCIAL",
+      description: `**${kirbyName}** is feeling lonely and needs social play.`,
+      media: "affection",
+    },
     death: {
       title: "DEATH",
       description: `**${kirbyName}** has died from neglect. You can adopt again anytime.`,
@@ -102,7 +107,36 @@ async function sendWorldEventNotification(client, userId, kirbyName, worldEvent)
   });
 }
 
+async function sendAmbientBehaviorNotification(
+  client,
+  userId,
+  kirbyName,
+  mood,
+  phrase
+) {
+  const title = `Kiby Moment (${mood})`;
+  const description = `**${kirbyName}** ${phrase}`;
+  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+
+  return sendDirectMessage(client, userId, {
+    embeds: [payload.embed],
+    files: [payload.attachment],
+  });
+}
+
+async function sendGlobalEventCompletionNotification(client, userId, event) {
+  const title = `GLOBAL EVENT COMPLETE: ${event.title}`;
+  const description = `Dream Land reached the goal for **${event.title}**. Use \`/events claim\` to collect your reward if you contributed.`;
+  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  return sendDirectMessage(client, userId, {
+    embeds: [payload.embed],
+    files: [payload.attachment],
+  });
+}
+
 module.exports = {
+  sendAmbientBehaviorNotification,
+  sendGlobalEventCompletionNotification,
   sendNeedNotification,
   sendWorldEventNotification,
 };

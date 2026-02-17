@@ -19,6 +19,25 @@ const playerEconomySchema = new Schema(
       of: Number,
       default: {},
     },
+    lastToyUse: {
+      type: Map,
+      of: Date,
+      default: {},
+    },
+    gifting: {
+      dayKey: {
+        type: String,
+        default: "",
+      },
+      coinsSent: {
+        type: Number,
+        default: 0,
+      },
+      itemsSent: {
+        type: Number,
+        default: 0,
+      },
+    },
   },
   { timestamps: true }
 );

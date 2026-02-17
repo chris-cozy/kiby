@@ -1,7 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const economyService = require("../../services/economyService");
-const playerService = require("../../services/playerService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -11,15 +10,6 @@ module.exports = {
 
   callback: async (_client, interaction) => {
     await safeDefer(interaction, { ephemeral: true });
-
-    const player = await playerService.getPlayerByUserId(interaction.user.id);
-    if (!player) {
-      await safeReply(interaction, {
-        content: "You need to adopt a Kiby first with `/adopt`.",
-        ephemeral: true,
-      });
-      return;
-    }
 
     const economy = await economyService.getEconomy(interaction.user.id);
     const items = economyService.listShopItems();

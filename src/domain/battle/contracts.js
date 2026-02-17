@@ -11,6 +11,7 @@ function buildBattleProfile(entity) {
     hp: entity.hp,
     hunger: entity.hunger,
     affection: entity.affection,
+    social: entity.social || 0,
     battleRating: entity.level * 100 + entity.xp,
   };
 }

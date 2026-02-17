@@ -160,15 +160,15 @@ function readEnvironment() {
         min: 0,
         fieldName: "NPC_TOTAL",
       }),
-      npcCasual: parseInteger(process.env.NPC_CASUAL, 12, {
+      npcCasual: parseInteger(process.env.NPC_CASUAL, 18, {
         min: 0,
         fieldName: "NPC_CASUAL",
       }),
-      npcActive: parseInteger(process.env.NPC_ACTIVE, 16, {
+      npcActive: parseInteger(process.env.NPC_ACTIVE, 10, {
         min: 0,
         fieldName: "NPC_ACTIVE",
       }),
-      npcCompetitive: parseInteger(process.env.NPC_COMPETITIVE, 8, {
+      npcCompetitive: parseInteger(process.env.NPC_COMPETITIVE, 0, {
         min: 0,
         fieldName: "NPC_COMPETITIVE",
       }),
@@ -191,9 +191,91 @@ function readEnvironment() {
           fieldName: "WORLD_EVENT_CHANCE_PERCENT",
         }
       ),
+      globalEventDurationHours: parseInteger(
+        process.env.GLOBAL_EVENT_DURATION_HOURS,
+        24,
+        {
+          min: 1,
+          max: 168,
+          fieldName: "GLOBAL_EVENT_DURATION_HOURS",
+        }
+      ),
+      globalEventGoal: parseInteger(process.env.GLOBAL_EVENT_GOAL, 120, {
+        min: 10,
+        fieldName: "GLOBAL_EVENT_GOAL",
+      }),
+      seasonLengthDays: parseInteger(process.env.SEASON_LENGTH_DAYS, 7, {
+        min: 7,
+        max: 14,
+        fieldName: "SEASON_LENGTH_DAYS",
+      }),
+      reviveBaseCost: parseInteger(process.env.REVIVE_BASE_COST, 160, {
+        min: 0,
+        fieldName: "REVIVE_BASE_COST",
+      }),
+      reviveLevelMultiplier: parseInteger(
+        process.env.REVIVE_LEVEL_MULTIPLIER,
+        22,
+        {
+          min: 0,
+          fieldName: "REVIVE_LEVEL_MULTIPLIER",
+        }
+      ),
+      giftDailyCoinCap: parseInteger(process.env.GIFT_DAILY_COIN_CAP, 300, {
+        min: 1,
+        fieldName: "GIFT_DAILY_COIN_CAP",
+      }),
+      giftDailyItemCap: parseInteger(process.env.GIFT_DAILY_ITEM_CAP, 12, {
+        min: 1,
+        fieldName: "GIFT_DAILY_ITEM_CAP",
+      }),
+      giftTransferFeePercent: parseInteger(
+        process.env.GIFT_TRANSFER_FEE_PERCENT,
+        5,
+        {
+          min: 0,
+          max: 25,
+          fieldName: "GIFT_TRANSFER_FEE_PERCENT",
+        }
+      ),
+      ambientBehaviorChancePercent: parseInteger(
+        process.env.AMBIENT_BEHAVIOR_CHANCE_PERCENT,
+        10,
+        {
+          min: 0,
+          max: 100,
+          fieldName: "AMBIENT_BEHAVIOR_CHANCE_PERCENT",
+        }
+      ),
+      ambientBehaviorCooldownMinutes: parseInteger(
+        process.env.AMBIENT_BEHAVIOR_COOLDOWN_MINUTES,
+        360,
+        {
+          min: 1,
+          fieldName: "AMBIENT_BEHAVIOR_COOLDOWN_MINUTES",
+        }
+      ),
+      adventureFailThresholdHp: parseInteger(
+        process.env.ADVENTURE_FAIL_THRESHOLD_HP,
+        25,
+        {
+          min: 1,
+          max: 99,
+          fieldName: "ADVENTURE_FAIL_THRESHOLD_HP",
+        }
+      ),
+      adventureMinStartHp: parseInteger(process.env.ADVENTURE_MIN_START_HP, 60, {
+        min: 1,
+        max: 100,
+        fieldName: "ADVENTURE_MIN_START_HP",
+      }),
     };
   } catch (error) {
     errors.push(error.message);
+  }
+
+  if (config.seasonLengthDays !== 7 && config.seasonLengthDays !== 14) {
+    errors.push("SEASON_LENGTH_DAYS must be 7 or 14.");
   }
 
   if (errors.length) {

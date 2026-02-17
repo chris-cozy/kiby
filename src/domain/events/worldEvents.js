@@ -47,6 +47,30 @@ const EVENTS = [
       };
     },
   },
+  {
+    key: "cozy-campfire",
+    title: "Cozy Campfire",
+    description: "A cozy campfire helps everyone feel connected.",
+    apply(profile) {
+      const before = profile.social || 0;
+      profile.social = Math.min(100, (profile.social || 0) + 10);
+      return {
+        social: profile.social - before,
+      };
+    },
+  },
+  {
+    key: "lonely-echo",
+    title: "Lonely Echo",
+    description: "A lonely echo dampens social energy.",
+    apply(profile) {
+      const before = profile.social || 0;
+      profile.social = Math.max(0, (profile.social || 0) - 7);
+      return {
+        social: profile.social - before,
+      };
+    },
+  },
 ];
 
 module.exports = {

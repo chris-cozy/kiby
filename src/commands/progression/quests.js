@@ -21,6 +21,35 @@ module.exports = {
       name: "claim",
       description: "Claim completed quest reward.",
       type: ApplicationCommandOptionType.Subcommand,
+      options: [
+        {
+          name: "quest",
+          description: "Quest slot to claim (defaults to first completed).",
+          type: ApplicationCommandOptionType.String,
+          required: false,
+          choices: [
+            { name: "Quest 1", value: "slot-1" },
+            { name: "Quest 2", value: "slot-2" },
+            { name: "Quest 3", value: "slot-3" },
+            { name: "Bonus", value: "bonus" },
+          ],
+        },
+      ],
+    },
+    {
+      name: "reroll",
+      description: "Reroll one daily quest (1 free reroll per day).",
+      type: ApplicationCommandOptionType.Subcommand,
+      options: [
+        {
+          name: "slot",
+          description: "Quest slot to reroll",
+          type: ApplicationCommandOptionType.Integer,
+          required: true,
+          min_value: 1,
+          max_value: 3,
+        },
+      ],
     },
   ],
 
@@ -38,11 +67,18 @@ module.exports = {
 
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "claim") {
-      const claim = await progressionService.claimQuestReward(interaction.user.id);
+      const selector = interaction.options.getString("quest") || undefined;
+      const claim = await progressionService.claimQuestReward(
+        interaction.user.id,
+        selector,
+        new Date()
+      );
       if (!claim.ok) {
         await safeReply(interaction, {
           content:
-            claim.reason === "quest-incomplete"
+            claim.reason === "quest-not-found"
+              ? "That quest slot is not valid."
+              : claim.reason === "quest-incomplete"
               ? "Quest is not complete yet."
               : "Quest reward already claimed today.",
           ephemeral: true,
@@ -51,7 +87,32 @@ module.exports = {
       }
 
       await safeReply(interaction, {
-        content: `Quest reward claimed: **${claim.reward} Star Coins**.`,
+        content: `Quest reward claimed: **${claim.reward} Star Coins** from **${claim.quest.label}**.`,
+        ephemeral: true,
+      });
+      return;
+    }
+
+    if (subcommand === "reroll") {
+      const slot = interaction.options.getInteger("slot", true);
+      const reroll = await progressionService.rerollQuest(
+        interaction.user.id,
+        slot,
+        new Date()
+      );
+      if (!reroll.ok) {
+        await safeReply(interaction, {
+          content:
+            reroll.reason === "no-rerolls"
+              ? "You have no rerolls left today."
+              : "Invalid quest slot.",
+          ephemeral: true,
+        });
+        return;
+      }
+
+      await safeReply(interaction, {
+        content: `Rerolled slot **${reroll.slot}** into **${reroll.quest.label}** (${reroll.quest.goal} goal). Rerolls left: **${reroll.rerollsRemaining}**.`,
         ephemeral: true,
       });
       return;
@@ -60,36 +121,43 @@ module.exports = {
     const status = await progressionService.getQuestStatus(interaction.user.id);
     const command = new CommandContext();
 
+    const fields = [];
+    for (const quest of status.quests) {
+      fields.push({
+        name: `${quest.id.toUpperCase()} - ${quest.label}`,
+        value: `${quest.progress}/${quest.goal} | Reward: ${quest.rewardCoins} coins | ${
+          quest.claimed ? "CLAIMED" : quest.completed ? "COMPLETE" : "IN PROGRESS"
+        }`,
+        inline: false,
+      });
+    }
+    fields.push({
+      name: `BONUS - ${status.bonusQuest.label}`,
+      value: `${status.bonusQuest.progress}/${status.bonusQuest.goal} | Reward: ${status.bonusQuest.rewardCoins} coins | ${
+        status.bonusQuest.claimed
+          ? "CLAIMED"
+          : status.bonusQuest.completed
+          ? "COMPLETE"
+          : "IN PROGRESS"
+      }`,
+      inline: false,
+    });
+    fields.push({
+      name: "Reset",
+      value: `Local timezone: ${status.timezone}\nResets in: ${Math.max(
+        1,
+        Math.floor(status.resetInSeconds / 60)
+      )}m`,
+      inline: false,
+    });
+
     const embed = new EmbedBuilder()
       .setTitle("Daily Quests")
       .setColor(command.pink)
-      .setDescription(`Current streak: **${status.dailyStreak}** day(s).`)
-      .addFields(
-        {
-          name: "Quest",
-          value: `Use **${status.quest.key}** ${status.quest.goal} times`,
-          inline: false,
-        },
-        {
-          name: "Progress",
-          value: `${status.quest.progress}/${status.quest.goal}`,
-          inline: true,
-        },
-        {
-          name: "Reward",
-          value: `${status.quest.rewardCoins} Star Coins`,
-          inline: true,
-        },
-        {
-          name: "Status",
-          value: status.quest.claimed
-            ? "CLAIMED"
-            : status.quest.completed
-            ? "COMPLETE"
-            : "IN PROGRESS",
-          inline: true,
-        }
+      .setDescription(
+        `Current streak: **${status.dailyStreak}** day(s) | Streak Shield: **${status.streakShieldCharges}** | Rerolls left: **${status.rerollsRemaining}**`
       )
+      .addFields(fields)
       .setTimestamp();
 
     await safeReply(interaction, {

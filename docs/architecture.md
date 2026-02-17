@@ -7,60 +7,75 @@
 
 ## Layers
 ### Domain (`src/domain`)
-Pure rules and deterministic logic:
+Pure game logic:
 - `care/rules.js`
 - `sleep/schedule.js`
+- `mood/evaluateMood.js`
 - `progression/calculateXpForLevel.js`
+- `season/season.js`
 - `npc/simulator.js`
-- `battle/contracts.js` (future battle-ready profile projection scaffolding)
+- `events/worldEvents.js`
+- `events/globalEvents.js`
+- `battle/contracts.js`
 
 ### Repositories (`src/repositories`)
-Persistence abstraction over mongoose models:
-- `playerRepository`
-- `sleepScheduleRepository`
-- `npcRepository`
-- `deathHistoryRepository`
-- `playerEconomyRepository`
-- `playerProgressRepository`
+Persistence abstraction over Mongoose:
+- player/sleep/npc/death repositories
+- progression/economy repositories
+- season repositories (`seasonEntry`, `seasonState`, `seasonSnapshot`)
+- event repository (`globalEvent`)
+- adventure repository (`playerAdventure`)
 
 ### Services (`src/services`)
 Business orchestration:
-- `playerService`: adoption/profile fetch
-- `sleepService`: schedule validation and resolution
-- `careService`: action handling + decay tick
-- `npcService`: seed + simulation ticks
-- `eventService`: periodic world event execution
-- `leaderboardService`: mixed board assembly
-- `schedulerService`: periodic loop management
+- `playerService`: adoption/profile lifecycle
+- `sleepService`: schedule validation and sleep-state resolution
+- `careService`: care actions + decay tick
+- `npcService`: seed + deterministic NPC simulation
+- `eventService`: personal random world event tick
+- `globalEventService`: global campaign event lifecycle and rewards
+- `progressionService`: local daily reset, streak shields, quest board, lifetime counters
+- `economyService`: shop/inventory/use/gift/item-context effects
+- `socialService`: one-way and opt-in social interactions
+- `adventureService`: async PvE route runs, checkpoint damage, claim processing
+- `seasonService`: weekly/bi-weekly season context, seasonal XP entries, rollover snapshots
+- `titleService`: unlock/equip title management
+- `leaderboardService`: total/season/players leaderboard assembly
+- `ambientService`: autonomous mood-based ambient moments
 - `notificationService`: outbound DM notifications
-- `economyService`: shop/inventory/use item flows
-- `progressionService`: daily rewards, streaks, and quest progression
-- `web/profileProjectionService`: shared DTO shaping for future web client surfaces
+- `dialogueService`: mood/context-aware dialogue generation
+- `web/profileProjectionService`: shared DTO shaping for future web surfaces
+- `schedulerService`: periodic loop management
 
 ### Commands (`src/commands`)
-Thin Discord adapters that:
-1. Parse interaction input
-2. Call services
-3. Render embeds/responses
-
-## Data Flow
-1. User invokes slash command.
-2. `interactionCreate` routes to a command module.
-3. Command delegates to service methods.
-4. Service applies domain logic and persists via repository.
-5. Command renders resulting state to Discord.
+Discord adapters that:
+1. Parse interaction options.
+2. Delegate to services.
+3. Render embeds and responses.
 
 ## Scheduler Flow
-1. On ready, scheduler starts care + NPC intervals.
-2. Care interval:
-- loads players
-- skips sleeping users
-- applies decay
-- emits hunger/affection/death notifications
-3. NPC interval:
-- simulates each NPC by tier behavior
-- applies deterministic progression/decay
-- records NPC deaths
+On ready:
+1. Ensure NPC seed and season state.
+2. Start repeating loops:
+- care decay tick
+- NPC simulation tick
+- personal random world event tick
+- ambient behavior tick
+- global event completion monitor
+
+## Data Flow
+1. User invokes command.
+2. `interactionCreate` resolves command or autocomplete path.
+3. Command calls service orchestration.
+4. Services apply domain rules + persist via repositories.
+5. Command renders updated state.
+
+## Key Design Decisions
+- Player-local daily resets are timezone-based, not UTC-only.
+- Economy and progression outlive active Kiby death.
+- Seasonal leaderboard uses separate season entry records (archivable by season key).
+- Social play includes one-way no-notify interactions to avoid spam pressure.
+- Async adventures resolve with bounded risk and non-lethal HP floor.
 
 ## Extension Guidelines
 - Keep game rules in `src/domain` to remain reusable for Discord and future web surfaces.

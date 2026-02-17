@@ -4,18 +4,25 @@ const env = require("../../config/env");
 const logger = require("../../utils/logger");
 
 module.exports = async (_client, interaction) => {
-  if (!interaction.isChatInputCommand()) {
+  if (!interaction.isChatInputCommand() && !interaction.isAutocomplete()) {
     return;
   }
 
   const localCommands = getLocalCommands();
 
   try {
-    const commandObject = localCommands.find(
-      (cmd) => cmd.name === interaction.commandName
-    );
+    const commandObject = localCommands.find((cmd) => cmd.name === interaction.commandName);
 
     if (!commandObject) {
+      return;
+    }
+
+    if (interaction.isAutocomplete()) {
+      if (typeof commandObject.autocomplete === "function") {
+        await commandObject.autocomplete(interaction.client, interaction);
+      } else {
+        await interaction.respond([]);
+      }
       return;
     }
 

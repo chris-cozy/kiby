@@ -4,6 +4,41 @@ All notable changes to this project are documented in this file.
 
 ## [2.0.0] - 2026-02-15
 ### Added
+- New care interactions: `/cuddle`, `/train`, and `/bathe`.
+- New social systems:
+  - `social` core stat + decay support.
+  - `/social play-with` one-way interaction (no target notification/impact).
+  - `/social interact` direct positive interaction with target opt-in.
+  - `/social settings` opt-in toggle.
+- Mood + personality layer:
+  - mood evaluation rules used in profile and dialogue output.
+  - upgraded mention conversation generation via mood/context templates.
+  - autonomous ambient Kiby moments and `/ambient` settings command.
+- Expanded progression loop:
+  - player-local daily reset logic.
+  - streak shield charge system.
+  - 3-slot daily quest board + bonus quest.
+  - quest reroll support (`/quests reroll`).
+- Title progression system:
+  - unlockable titles with mixed requirements.
+  - `/titles view|equip`.
+  - equipped title rendering in leaderboard rows.
+- Expanded economy:
+  - larger shop item catalog (consumables, toys, support items).
+  - toy-use balancing and fatigue handling.
+  - persistent inventory/Star Coins after Kiby death.
+  - coin/item gifting (`/gift coins|item`) with transfer limits/fees.
+- Async adventure runtime:
+  - `/adventure start|status|claim`.
+  - fixed duration presets.
+  - checkpoint-based damage simulation.
+  - fail-threshold early return and wounded recovery loop.
+- Global campaign event layer (`/events view|claim`) running alongside existing random personal world events.
+- Seasonal leaderboard support with season cadence config (weekly/bi-weekly) and rollover snapshot persistence.
+- Leaderboard enhancements:
+  - mode selection (`total`, `season`, `players`).
+  - entry count options (`5/10/15/20`).
+  - developer-only gate for players-only mode.
 - Domain/service/repository architecture for care, sleep scheduling, progression, NPC simulation, and leaderboard composition.
 - Timezone-configurable automatic sleep schedules with `/sleep schedule set|view|clear` and a strict maximum of 9 hours per sleep window.
 - New data models: `PlayerProfile`, `SleepSchedule`, `NpcProfile`, `DeathHistory`, `PlayerEconomy`, and `PlayerProgress`.
@@ -22,6 +57,11 @@ All notable changes to this project are documented in this file.
 - Production environment template `.env.production.example` and expanded system docs.
 
 ### Changed
+- Revive flow now applies meaningful Star Coin cost with revive-token safety valve.
+- NPC defaults rebalanced toward casual/active composition with reduced competitive pressure.
+- `/sleep schedule set` now supports timezone autocomplete guidance while retaining strict validation.
+- `/info` now includes social stat, mood, title, and explicit sleep status.
+- `battle` profile projection includes social stat.
 - Slash command handling rewritten for safer lifecycle semantics (`defer/reply/edit`) and consistent permission enforcement.
 - Legacy manual sleep command semantics replaced by schedule-based automatic sleep evaluation.
 - Care tick logic refactored into domain rules and scheduler services.

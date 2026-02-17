@@ -1,8 +1,8 @@
 # Kiby
 
-Adopt a Kirby, keep it alive, and compete in a living social leaderboard.
+Adopt a Kiby, keep it thriving, make friends, and climb long-term living competitive leaderboards + social progression loops.
 
-Kiby is a virtual pet Discord app where each player raises a personal Kirby through care actions, progression systems, and daily engagement loops.
+Kiby is a Discord virtual pet app with where each player raises a personal Kirby through care actions, progression systems, and daily engagement loops. It has care management, economy systems, async adventures, mood-driven interactions, and seasonal leaderboard competition.
 
 ## Install Options
 
@@ -13,31 +13,36 @@ Kiby supports both install modes:
 ## Core Gameplay
 
 - **Adopt** your Kiby with `/adopt`.
-- Keep stats up with `/feed`, `/pet`, and `/play`.
+- Manage care stats with `/feed`, `/pet`, `/play`, `/cuddle`, `/train`, `/bathe`.
 - Configure automatic sleep by timezone with `/sleep schedule set`.
-- Track your profile with `/info` and `/cooldowns`.
+- Track profile, mood, title, and ranking via `/info` + `/cooldowns`.
 - Climb the global board with `/leaderboard`.
 
-## Progression and Economy
+## Progression + Economy
 
-- Claim daily rewards with `/daily`.
-- Complete daily objectives with `/quests`.
-- Buy and consume items with `/shop`, `/inventory`, and `/use`.
+- Claim local-time daily rewards with streak shields using `/daily`.
+- Complete rotating quest boards with `/quests view|claim|reroll`.
+- Buy and use item categories with `/shop`, `/inventory`, and `/use`:
+  - consumables
+  - play toys
+  - adventure support gear
+- Gift Star Coins or items using `/gift`.
 
-## Social Environment
+## Social + Events
 
-- Global leaderboard includes active ecosystem participants from launch.
-- Periodic world events affect active Kibys over time.
-- Optional DM notifications for hunger, affection, and critical status updates.
+- One-way social play with no notification spam via `/social play-with`.
+- Optional direct interactions through opt-in settings via `/social settings`.
+- Random personal world events continue to affect active Kibys over time.
+- Global campaign events run in parallel and reward contributors (`/events view|claim`).
 
-## Command Summary
+## Adventures + Seasons
 
-- Config: `/adopt`, `/revive`, `/sleep schedule set|view|clear`
-- Care: `/feed`, `/pet`, `/play`
-- Progression: `/daily`, `/quests`, `/shop`, `/inventory`, `/use`
-- Info: `/info`, `/cooldowns`, `/leaderboard`, `/help`, `/ping`
+- Launch async adventures with fixed duration options via `/adventure start`.
+- Manage risk with prep quality and support items.
+- Adventures can fail early if HP drops below threshold, returning Kiby wounded.
+- Compete in both total and seasonal leaderboards.
 
 ## Notes
 
-- DM access is recommended for personal reminders and private status checks.
-- Kiby is designed as an ongoing service with regular gameplay balancing and feature expansion.
+- DM access is recommended for reminders and ambient Kiby moments.
+- Kiby is designed as an evolving live service with frequent balancing and content updates.

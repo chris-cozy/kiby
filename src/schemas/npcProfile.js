@@ -63,6 +63,13 @@ const npcProfileSchema = new Schema(
       min: 0,
       max: 100,
     },
+    social: {
+      type: Number,
+      required: true,
+      default: 90,
+      min: 0,
+      max: 100,
+    },
     adoptedAt: {
       type: Date,
       required: true,
@@ -82,6 +89,22 @@ const npcProfileSchema = new Schema(
         default: Date.now,
       },
       play: {
+        type: Date,
+        default: Date.now,
+      },
+      cuddle: {
+        type: Date,
+        default: Date.now,
+      },
+      train: {
+        type: Date,
+        default: Date.now,
+      },
+      bathe: {
+        type: Date,
+        default: Date.now,
+      },
+      socialPlay: {
         type: Date,
         default: Date.now,
       },

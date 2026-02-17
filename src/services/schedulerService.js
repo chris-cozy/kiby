@@ -2,7 +2,10 @@ const env = require("../config/env");
 const careService = require("./careService");
 const npcService = require("./npcService");
 const eventService = require("./eventService");
+const globalEventService = require("./globalEventService");
 const notificationService = require("./notificationService");
+const ambientService = require("./ambientService");
+const seasonService = require("./seasonService");
 const logger = require("../utils/logger");
 
 function createScheduler(client) {
@@ -72,9 +75,52 @@ function createScheduler(client) {
     });
   }
 
+  async function runAmbientTick() {
+    const result = await ambientService.runAmbientTick(client, new Date());
+    logger.debug("Completed ambient tick", {
+      players: result.playerCount,
+      sent: result.sent,
+    });
+  }
+
+  async function runGlobalEventMonitorTick() {
+    const completedEvent = await globalEventService.getCompletedUnannouncedEvent(
+      new Date()
+    );
+    if (!completedEvent) {
+      return;
+    }
+
+    const contributionMap = completedEvent.contributions || {};
+    const contributorIds =
+      typeof contributionMap.keys === "function"
+        ? Array.from(contributionMap.keys())
+        : Object.keys(
+            typeof contributionMap.toJSON === "function"
+              ? contributionMap.toJSON()
+              : contributionMap
+          );
+    for (const userId of contributorIds) {
+      await notificationService.sendGlobalEventCompletionNotification(
+        client,
+        userId,
+        {
+          title: completedEvent.title,
+        }
+      );
+    }
+
+    await globalEventService.markEventCompletionAnnounced(completedEvent.eventId);
+    logger.info("Announced global event completion", {
+      eventId: completedEvent.eventId,
+      contributors: contributorIds.length,
+    });
+  }
+
   async function start() {
     const seeded = await npcService.ensureNpcSeeded();
     logger.info("NPC seed status", seeded);
+    await seasonService.ensureSeasonState(new Date());
 
     await runCareTick().catch((error) => {
       logger.error("Care tick failed during startup", { error: error.message });
@@ -84,6 +130,14 @@ function createScheduler(client) {
     });
     await runWorldEventTick().catch((error) => {
       logger.error("World event tick failed during startup", {
+        error: error.message,
+      });
+    });
+    await runAmbientTick().catch((error) => {
+      logger.error("Ambient tick failed during startup", { error: error.message });
+    });
+    await runGlobalEventMonitorTick().catch((error) => {
+      logger.error("Global event monitor failed during startup", {
         error: error.message,
       });
     });
@@ -102,6 +156,16 @@ function createScheduler(client) {
       setInterval(() => {
         runWorldEventTick().catch((error) => {
           logger.error("World event tick failed", { error: error.message });
+        });
+      }, env.careTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runAmbientTick().catch((error) => {
+          logger.error("Ambient tick failed", { error: error.message });
+        });
+      }, env.npcTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runGlobalEventMonitorTick().catch((error) => {
+          logger.error("Global event monitor failed", { error: error.message });
         });
       }, env.careTickMinutes * 60 * 1000)
     );

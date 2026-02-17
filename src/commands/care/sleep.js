@@ -7,6 +7,7 @@ const sleepService = require("../../services/sleepService");
 const playerService = require("../../services/playerService");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const { searchTimezones } = require("../../utils/timezones");
 
 module.exports = {
   name: "sleep",
@@ -27,9 +28,10 @@ module.exports = {
           options: [
             {
               name: "timezone",
-              description: "IANA timezone (e.g. America/New_York)",
+              description: "IANA timezone (Region/City, e.g. America/New_York)",
               type: ApplicationCommandOptionType.String,
               required: true,
+              autocomplete: true,
             },
             {
               name: "start",
@@ -60,6 +62,21 @@ module.exports = {
       ],
     },
   ],
+  autocomplete: async (_client, interaction) => {
+    const focused = interaction.options.getFocused(true);
+    if (!focused || focused.name !== "timezone") {
+      await interaction.respond([]);
+      return;
+    }
+
+    const matches = searchTimezones(focused.value || "");
+    await interaction.respond(
+      matches.map((timezone) => ({
+        name: timezone,
+        value: timezone,
+      }))
+    );
+  },
 
   callback: async (client, interaction) => {
     await safeDefer(interaction, { ephemeral: true });

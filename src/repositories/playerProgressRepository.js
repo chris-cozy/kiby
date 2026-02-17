@@ -21,8 +21,17 @@ async function saveProgress(progress) {
   return progress.save();
 }
 
+async function listByUserIds(userIds = []) {
+  if (!userIds.length) {
+    return [];
+  }
+
+  return PlayerProgress.find({ userId: { $in: userIds } });
+}
+
 module.exports = {
   findByUserId,
+  listByUserIds,
   saveProgress,
   upsertByUserId,
 };

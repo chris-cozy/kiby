@@ -2,21 +2,24 @@ const { applyCareAction, applyDecay } = require("../care/rules");
 
 const TIER_BEHAVIORS = {
   casual: {
-    feedChance: 0.35,
-    petChance: 0.35,
-    playChance: 0.2,
+    feedChance: 0.42,
+    petChance: 0.4,
+    playChance: 0.22,
+    cuddleChance: 0.15,
     passiveDecay: 2,
   },
   active: {
-    feedChance: 0.55,
-    petChance: 0.55,
-    playChance: 0.4,
+    feedChance: 0.58,
+    petChance: 0.58,
+    playChance: 0.42,
+    cuddleChance: 0.28,
     passiveDecay: 1,
   },
   competitive: {
-    feedChance: 0.8,
-    petChance: 0.8,
-    playChance: 0.7,
+    feedChance: 0.7,
+    petChance: 0.7,
+    playChance: 0.6,
+    cuddleChance: 0.4,
     passiveDecay: 0,
   },
 };
@@ -57,20 +60,38 @@ function simulateNpcTick(npcProfile, options = {}) {
   const behavior = TIER_BEHAVIORS[npcProfile.tier] || TIER_BEHAVIORS.casual;
 
   const actions = [];
+  let totalXpGranted = 0;
 
   if (rng.random() < behavior.feedChance) {
     const result = applyCareAction(npcProfile, "feed", now, rng.randomInt.bind(rng));
-    if (result.ok) actions.push("feed");
+    if (result.ok) {
+      actions.push("feed");
+      totalXpGranted += result.updates.xpGranted;
+    }
   }
 
   if (rng.random() < behavior.petChance) {
     const result = applyCareAction(npcProfile, "pet", now, rng.randomInt.bind(rng));
-    if (result.ok) actions.push("pet");
+    if (result.ok) {
+      actions.push("pet");
+      totalXpGranted += result.updates.xpGranted;
+    }
   }
 
   if (rng.random() < behavior.playChance) {
     const result = applyCareAction(npcProfile, "play", now, rng.randomInt.bind(rng));
-    if (result.ok) actions.push("play");
+    if (result.ok) {
+      actions.push("play");
+      totalXpGranted += result.updates.xpGranted;
+    }
+  }
+
+  if (rng.random() < behavior.cuddleChance) {
+    const result = applyCareAction(npcProfile, "cuddle", now, rng.randomInt.bind(rng));
+    if (result.ok) {
+      actions.push("cuddle");
+      totalXpGranted += result.updates.xpGranted;
+    }
   }
 
   if (actions.length === 0 && behavior.passiveDecay > 0) {
@@ -91,6 +112,7 @@ function simulateNpcTick(npcProfile, options = {}) {
     npcProfile.hp = 100;
     npcProfile.hunger = 90;
     npcProfile.affection = 90;
+    npcProfile.social = 90;
     npcProfile.adoptedAt = now;
   }
 
@@ -100,6 +122,7 @@ function simulateNpcTick(npcProfile, options = {}) {
   return {
     actions,
     died: decayResult.events.died,
+    totalXpGranted,
     seed: npcProfile.behaviorSeed,
   };
 }

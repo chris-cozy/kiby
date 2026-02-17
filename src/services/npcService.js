@@ -2,6 +2,7 @@ const env = require("../config/env");
 const npcRepository = require("../repositories/npcRepository");
 const deathHistoryRepository = require("../repositories/deathHistoryRepository");
 const { simulateNpcTick } = require("../domain/npc/simulator");
+const seasonService = require("./seasonService");
 
 const NAME_POOL = [
   "Nova", "Skipper", "Mallow", "Puffin", "Waddle", "Sprout", "Orbit", "Biscuit",
@@ -70,12 +71,17 @@ function buildNpcSeedData() {
         hp: 100,
         hunger: tier === "competitive" ? 95 : 90,
         affection: tier === "competitive" ? 95 : 90,
+        social: tier === "competitive" ? 95 : 90,
         adoptedAt: now,
         lastSimulatedAt: now,
         lastCare: {
           feed: now,
           pet: now,
           play: now,
+          cuddle: now,
+          train: now,
+          bathe: now,
+          socialPlay: now,
         },
       });
 
@@ -146,6 +152,16 @@ async function runNpcTick(now = new Date()) {
       now,
       neglectThresholdMs: env.neglectThresholdMinutes * 60 * 1000,
     });
+
+    if (simulation.totalXpGranted > 0) {
+      await seasonService.recordEntityProgress(
+        "npc",
+        npc.npcId,
+        npc.kirbyName,
+        simulation.totalXpGranted,
+        now
+      );
+    }
 
     if (simulation.died) {
       deaths += 1;

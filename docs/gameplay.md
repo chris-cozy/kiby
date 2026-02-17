@@ -3,13 +3,18 @@
 ## Core Stats
 - `hp`: health (0-100)
 - `hunger`: feeding need (0-100)
-- `affection`: social need (0-100)
+- `affection`: emotional care need (0-100)
+- `social`: social fulfillment need (0-100)
 - `level`, `xp`: progression
+- `mood`: derived state from current stats/sleep context (`Joyful`, `Calm`, `Hungry`, `Lonely`, `Sleepy`, `Worn Out`, `Exhausted`)
 
-## Actions
-- `feed`: +hunger, +xp, 10-minute cooldown
-- `pet`: +affection, +xp, 5-minute cooldown
-- `play`: +affection, +xp, 10-minute cooldown
+## Care Actions
+- `feed`: hunger + social + XP, 10-minute cooldown
+- `pet`: affection + social + XP, 5-minute cooldown
+- `play`: affection + social + XP, 10-minute cooldown, optional toy boost
+- `cuddle`: affection + social + XP, 8-minute cooldown
+- `train`: high XP, consumes hunger/affection, 15-minute cooldown
+- `bathe`: hp + affection + social + XP, 20-minute cooldown
 
 ## Sleep Scheduling
 Each player configures:
@@ -19,44 +24,86 @@ Each player configures:
 
 Behavior:
 - Sleep is evaluated against the player's local clock.
-- `feed` and `play` are blocked while asleep.
-- `pet` remains available while asleep.
+- All actions except `pet` are blocked while asleep.
+- `/sleep schedule set` supports timezone autocomplete suggestions and strict validation.
 
 ## Decay Rules
 On each care tick:
-- If neglected beyond threshold:
-  - hunger and/or affection decay
-- If hunger or affection hits 0:
-  - hp decays
-- If both hunger and affection are maxed:
-  - hp can recover slightly
+- Hunger decays after feed neglect threshold.
+- Affection decays after social-care neglect threshold.
+- Social decays after social-play neglect threshold.
+- If hunger, affection, or social reaches 0, HP drains.
+- If hunger, affection, and social are all maxed, HP can recover.
 
-## Death
-When `hp` reaches 0:
-- Death is recorded in `DeathHistory`
-- Active player profile is removed
-- User receives death notification
+## Death + Revival
+- On HP 0, player profile is removed and death is recorded.
+- Economy and progress state persist after death (coins/items are retained).
+- `/revive` restores your latest fallen Kiby with:
+  - significant Star Coin cost, or
+  - one-time revive token safety valve (if available).
 
-## NPC Tiers
-- `casual`: lighter upkeep, lower progression pressure
-- `active`: balanced and consistent activity
-- `competitive`: high interaction frequency and faster climb
+## Economy
+- `Star Coins` are the primary soft currency.
+- Shop categories:
+  - consumables (direct stat/XP boosts)
+  - toys (used during `/play`, includes fatigue balancing)
+  - support items (adventure-only)
+- Gifting:
+  - coin gifting with transfer fee and daily caps
+  - item gifting with daily caps and non-tradable protections
 
-NPCs are simulated on a scheduled tick with seeded deterministic behavior.
+## Daily Progression
+- Daily reset is player-local (based on configured timezone).
+- Daily streaks use a streak-shield system:
+  - 1 shield max
+  - refills every 7 days
+  - protects one missed day.
+- Quest board:
+  - 3 rotating daily quests
+  - 1 bonus quest
+  - 1 reroll per day.
 
-## Economy And Progression
-- `Star Coins`: primary soft currency
-- Inventory items can restore hunger/affection/hp or accelerate xp gain
-- Daily login rewards increase with streak progression
-- Daily quests rotate and reward Star Coins upon completion
+## Titles
+- Unlockable cosmetic titles from varied requirements (not only level-based).
+- One title can be equipped at a time.
+- Equipped title is displayed in leaderboard rows.
 
-## World Events
-- Periodic global events can affect active players
-- Events can boost or reduce specific stats
-- Event outcomes are persisted and surfaced through DM notifications
+## Social Systems
+- One-way social play:
+  - interact with another player's Kiby name target
+  - only your own Kiby gains social/affection
+  - no target notification or target stat changes
+  - diminishing returns per target/day.
+- Direct social interactions:
+  - positive-only
+  - target must opt in
+  - no forced cross-player disruption.
 
-## Leaderboard
-A single mixed leaderboard ranks both player and synthetic profiles by:
-1. Level (descending)
-2. XP (descending)
-3. Name (ascending)
+## Events
+Two layers run in parallel:
+- **Personal random events**: periodic stat impacts on active players.
+- **Global campaign events**:
+  - shared progress goal
+  - per-player contribution tracking
+  - claimable completion rewards for contributors.
+
+## Adventures (Async PvE)
+- Start adventures with preset durations only.
+- Route risk + preparedness + support items determine expected outcome.
+- Damage is applied by checkpoint simulation.
+- If HP would drop below fail threshold:
+  - adventure fails early
+  - Kiby returns wounded
+  - minimal-to-no rewards.
+- Adventures do not kill Kiby directly (HP floor is protected).
+
+## Leaderboards
+- `total`: all-time mixed board (players + NPCs)
+- `season`: current season board with 7/14-day cadence
+- `players` (developer-only): player-only board
+- Optional result count: `5/10/15/20`
+
+Sort order:
+1. Level (desc)
+2. XP (desc)
+3. Name (asc)

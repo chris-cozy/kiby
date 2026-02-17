@@ -22,11 +22,11 @@ module.exports = {
         },
         {
           name: "Care",
-          value: "`/feed`, `/pet`, `/play`, `/revive`",
+          value: "`/feed`, `/pet`, `/play`, `/cuddle`, `/train`, `/bathe`, `/revive`",
         },
         {
           name: "Sleep",
-          value: "`/sleep schedule set/view/clear`",
+          value: "`/sleep schedule set/view/clear`, `/ambient`",
         },
         {
           name: "Stats",
@@ -34,11 +34,15 @@ module.exports = {
         },
         {
           name: "Shop",
-          value: "`/shop buy`, `/shop list`, `/inventory`, `/use`",
+          value: "`/shop buy`, `/shop list`, `/inventory`, `/use`, `/gift`",
         },
         {
           name: "Quests",
-          value: "`/daily`, `/quests view`, `/quests claim`",
+          value: "`/daily`, `/quests view`, `/quests claim`, `/quests reroll`, `/titles`",
+        },
+        {
+          name: "Social & Events",
+          value: "`/social`, `/events`, `/adventure`",
         }
       )
       .setFooter({

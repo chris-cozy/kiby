@@ -28,6 +28,10 @@ async function adoptPlayer(userId, kirbyName) {
       feed: new Date(),
       pet: new Date(),
       play: new Date(),
+      cuddle: new Date(),
+      train: new Date(),
+      bathe: new Date(),
+      socialPlay: new Date(),
     },
   });
 

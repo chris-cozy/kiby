@@ -4,6 +4,8 @@ const playerService = require("../../services/playerService");
 const leaderboardService = require("../../services/leaderboardService");
 const sleepService = require("../../services/sleepService");
 const { calculateXpForLevel } = require("../../domain/progression/calculateXpForLevel");
+const { evaluateMood } = require("../../domain/mood/evaluateMood");
+const titleService = require("../../services/titleService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -23,9 +25,10 @@ module.exports = {
       return;
     }
 
-    const [leaderboard, schedule] = await Promise.all([
+    const [leaderboard, schedule, titleState] = await Promise.all([
       leaderboardService.getMixedLeaderboard(200),
       sleepService.getScheduleForUser(interaction.user.id),
+      titleService.ensureTitlesForUser(interaction.user.id),
     ]);
 
     const rankIndex = leaderboard.rows.findIndex(
@@ -36,6 +39,10 @@ module.exports = {
     const command = new CommandContext();
     const media = await command.get_media_attachment("portrait");
     const sleepSummary = sleepService.getSleepSummary(schedule, new Date());
+    const mood = evaluateMood(player, { sleeping: sleepSummary.sleeping });
+    const activeTitle = titleState.equipped
+      ? titleState.catalog.find((title) => title.id === titleState.equipped)?.label
+      : "";
 
     const embed = new EmbedBuilder()
       .setTitle(player.kirbyName)
@@ -69,6 +76,26 @@ module.exports = {
         {
           name: "Affection",
           value: `${player.affection}/100`,
+          inline: true,
+        },
+        {
+          name: "Social",
+          value: `${player.social}/100`,
+          inline: true,
+        },
+        {
+          name: "Mood",
+          value: mood,
+          inline: true,
+        },
+        {
+          name: "Sleep Status",
+          value: sleepSummary.sleeping ? "ASLEEP" : "AWAKE",
+          inline: true,
+        },
+        {
+          name: "Title",
+          value: activeTitle || "None equipped",
           inline: true,
         },
         {

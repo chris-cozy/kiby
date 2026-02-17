@@ -19,6 +19,10 @@ Current test suites cover:
 - Mixed leaderboard sorting behavior
 - NPC seed and tick execution stability
 - World event execution guardrails
+- Adventure lifecycle checks (start/status/claim + failure handling)
+- Global campaign event contribution and claim logic
+- Quest board progression, reroll, and streak-shield behavior
+- Economy transfer guardrails for gifting and non-tradable items
 
 ## CI
 

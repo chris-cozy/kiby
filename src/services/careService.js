@@ -5,6 +5,8 @@ const sleepScheduleRepository = require("../repositories/sleepScheduleRepository
 const sleepService = require("./sleepService");
 const progressionService = require("./progressionService");
 const deathHistoryRepository = require("../repositories/deathHistoryRepository");
+const seasonService = require("./seasonService");
+const globalEventService = require("./globalEventService");
 
 async function runActionForUser(userId, actionName, now = new Date()) {
   const player = await playerRepository.findByUserId(userId);
@@ -40,7 +42,17 @@ async function runActionForUser(userId, actionName, now = new Date()) {
   }
 
   await playerRepository.savePlayer(player);
-  await progressionService.recordCareAction(userId, actionName, now);
+  await Promise.all([
+    progressionService.recordCareAction(userId, actionName, now),
+    seasonService.recordEntityProgress(
+      "player",
+      userId,
+      player.kirbyName,
+      actionResult.updates.xpGranted,
+      now
+    ),
+    globalEventService.recordContribution(userId, 1, now),
+  ]);
 
   return {
     ok: true,
@@ -87,6 +99,14 @@ async function runPlayerDecayTick(now = new Date()) {
     if (decayResult.events.affectionDroppedBelowThreshold) {
       notifications.push({
         type: "affection",
+        userId: player.userId,
+        kirbyName: player.kirbyName,
+      });
+    }
+
+    if (decayResult.events.socialDroppedBelowThreshold) {
+      notifications.push({
+        type: "social",
         userId: player.userId,
         kirbyName: player.kirbyName,
       });
