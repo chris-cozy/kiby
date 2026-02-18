@@ -4,6 +4,8 @@ const {
 } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const globalEventService = require("../../services/globalEventService");
+const notificationService = require("../../services/notificationService");
+const logger = require("../../utils/logger");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 const EVENT_CHOICES = globalEventService.GLOBAL_EVENTS.map((event) => ({
@@ -57,6 +59,33 @@ module.exports = {
       return;
     }
 
+    let delivered = 0;
+    let failed = 0;
+    for (const userId of result.activeUserIds || []) {
+      const sent = await notificationService.sendGlobalEventStartNotification(
+        _client,
+        userId,
+        result.event
+      );
+      if (sent) {
+        delivered += 1;
+      } else {
+        failed += 1;
+      }
+    }
+
+    logger.info("Manual global event started", {
+      eventId: result.event.eventId,
+      key: result.event.key,
+      durationHours: result.durationHours,
+      goal: result.event.goal,
+      activeUsers: (result.activeUserIds || []).length,
+      notificationsDelivered: delivered,
+      notificationsFailed: failed,
+      nextEligibleAt: result.nextEligibleAt,
+      startedByUserId: interaction.user.id,
+    });
+
     const command = new CommandContext();
     const embed = new EmbedBuilder()
       .setTitle(`Global Event Started: ${result.event.title}`)
@@ -81,6 +110,16 @@ module.exports = {
         {
           name: "Ends",
           value: new Date(result.event.endsAt).toLocaleString("en-US"),
+          inline: false,
+        },
+        {
+          name: "Notifications",
+          value: `Delivered: ${delivered} | Failed: ${failed}`,
+          inline: false,
+        },
+        {
+          name: "Next Eligible Start",
+          value: new Date(result.nextEligibleAt).toLocaleString("en-US"),
           inline: false,
         }
       )

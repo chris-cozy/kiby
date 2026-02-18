@@ -24,6 +24,7 @@ Persistence abstraction over Mongoose:
 - progression/economy repositories
 - season repositories (`seasonEntry`, `seasonState`, `seasonSnapshot`)
 - event repository (`globalEvent`)
+- global event cycle repository (`globalEventCycleState`)
 - adventure repository (`playerAdventure`)
 
 ### Services (`src/services`)
@@ -63,6 +64,7 @@ On ready:
 - NPC simulation tick
 - personal random world event tick
 - ambient behavior tick
+- global event sporadic start tick
 - global event completion monitor
 - adventure completion notification monitor
 
@@ -78,6 +80,7 @@ On ready:
   - core needs and progression fields
   - `battlePower`
   - BP decay timestamp (`battlePowerUpdatedAt`)
+  - inbound social cooldown timestamp (`lastCare.socialReceived`)
 - `PlayerProgress`
   - daily/quest/lifetime counters
   - `lastActionAt` (active-player global event scaling input)
@@ -90,6 +93,10 @@ On ready:
   - shared progress and claims
   - scaling snapshot metadata
   - manual trigger metadata
+- `GlobalEventCycleState`
+  - singleton scheduler lifecycle state (`nextEligibleAt`, `lastStartedAt`, `lastEndedAt`)
+  - pacing metadata (`lastDurationHours`, `lastIdleGapHours`)
+  - random roll tracking (`lastRollAt`)
 
 ## Key Design Decisions
 - Player-local daily resets are timezone-based, not UTC-only.
@@ -97,9 +104,11 @@ On ready:
 - Seasonal leaderboard uses separate season entry records (archivable by season key).
 - Social play includes one-way no-notify interactions to avoid spam pressure.
 - Social gain is intentionally restricted to true social actions.
+- Direct cross-player interactions use receiver-side cooldown to prevent notification/care spam.
 - Async adventures resolve with bounded risk and non-lethal HP floor.
 - Adventure route access has no BP hard-gates; preparedness uses BP-dominant weighting.
 - Global event goals scale to active-player population.
+- Global event starts are scheduler-driven and sporadic, not auto-started by status/contribution calls.
 
 ## Extension Guidelines
 - Keep game rules in `src/domain` to remain reusable for Discord and future web surfaces.

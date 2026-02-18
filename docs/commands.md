@@ -37,6 +37,15 @@ Gifting behavior:
 - `/social interact user:<user> action:<cheer|encourage|wave>`: direct interaction (target opt-in required).
 - `/social settings opt_in:<true|false>`: Allow direct interactions from others.
 
+`/social interact` behavior:
+- applies sender gain + receiver Kiby gains on success.
+- sends a best-effort receiver DM notification on success.
+- enforces sender cooldown and receiver-side anti-spam cooldown.
+- returns `target-cooldown` with remaining wait when receiver recently got an inbound interaction.
+
+`/social play-with` behavior:
+- remains one-way/no-notify and does not apply receiver stat changes.
+
 ## Progression
 - `/daily`
 - `/quests view`
@@ -51,6 +60,11 @@ Gifting behavior:
 - `/adventure claim`
 - `/adventure locations`
 - `/language`
+
+Global event behavior:
+- `/events view` can return an idle state when no global campaign event is active.
+- idle-state payload includes next eligible window, duration range, idle-gap range, and start chance per tick.
+- `/events claim` can return `no-active-event` when no event is currently running.
 
 ## Information
 - `/info`

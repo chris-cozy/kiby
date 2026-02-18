@@ -32,6 +32,7 @@ async function adoptPlayer(userId, kirbyName) {
       train: new Date(),
       bathe: new Date(),
       socialPlay: new Date(),
+      socialReceived: null,
     },
   });
 

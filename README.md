@@ -33,6 +33,13 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - Global event enhancements:
   - active-player goal scaling (24h activity window)
   - developer manual event trigger (`/globalevent start`)
+  - scheduler-driven sporadic starts (eligibility + chance)
+  - random event durations (`24-72h`) and random idle gaps (`24-48h`)
+  - active-user start notifications (best-effort DM fanout)
+- Direct social interaction enhancements:
+  - `/social interact` notifies the receiving player
+  - receiver Kiby gets affection/social gains
+  - receiver-side anti-spam cooldown for inbound interactions
 - Kiby language progression (v1):
   - tokenized Kiby flavor text
   - per-player translation unlock by exposure
@@ -87,6 +94,11 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 ### Developer
 - `/system subject:<text> body:<text>`
 - `/globalevent start event:<event_key>`
+
+Behavior notes:
+- `/events view` now shows idle-state timing details when no global event is active.
+- `/events claim` can return no-active-event when no campaign is currently running.
+- `/social interact` may return receiver cooldown with remaining wait time.
 
 ## Setup
 ### Requirements
@@ -154,3 +166,4 @@ Use `.env.production.example` for all supported variables, including:
 ## Notes
 - `src/media` is intentionally gitignored and required at runtime for embed assets.
 - This release is treated as a fresh production launch; no live migration path is assumed.
+- Global campaign events are intentionally sporadic (non-daily deterministic cadence).

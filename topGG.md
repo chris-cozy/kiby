@@ -32,10 +32,13 @@ Kiby supports both install modes:
 
 - One-way social play with no notification spam via `/social play-with`.
 - Optional direct interactions through opt-in settings via `/social settings`.
+- `/social interact` now boosts both sides on success, notifies the receiver, and uses receiver-side anti-spam cooldown.
 - Social points are earned from true social actions (not solo care/item actions).
 - Random personal world events continue to affect active Kibys over time.
 - Global campaign events run in parallel and reward contributors (`/events view|claim`).
 - Developers can manually start global events with `/globalevent start`.
+- Global campaign events now start sporadically with random durations and quiet gaps.
+- Active users are notified by DM when a new global campaign event starts.
 
 ## Adventures + Seasons
 

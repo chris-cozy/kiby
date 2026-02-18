@@ -1,6 +1,8 @@
+const env = require("../config/env");
 const playerRepository = require("../repositories/playerRepository");
 const progressionService = require("./progressionService");
 const globalEventService = require("./globalEventService");
+const logger = require("../utils/logger");
 
 function clampStat(value) {
   return Math.min(100, Math.max(0, value));
@@ -159,6 +161,24 @@ async function interactWithPlayerKiby(userId, targetUserId, action = "cheer", no
     };
   }
 
+  const targetWaitMs = getRemainingCooldownMs(
+    target.lastCare?.socialReceived,
+    env.socialReceiveCooldownMinutes,
+    now
+  );
+  if (targetWaitMs > 0) {
+    logger.info("Social interact denied by receiver cooldown", {
+      senderUserId: userId,
+      targetUserId,
+      waitMs: targetWaitMs,
+    });
+    return {
+      ok: false,
+      reason: "target-cooldown",
+      waitMs: targetWaitMs,
+    };
+  }
+
   const actionEffects = {
     cheer: {
       senderSocial: 6,
@@ -184,6 +204,8 @@ async function interactWithPlayerKiby(userId, targetUserId, action = "cheer", no
 
   target.affection = clampStat((target.affection || 0) + selected.targetAffection);
   target.social = clampStat((target.social || 0) + selected.targetSocial);
+  target.lastCare = target.lastCare || {};
+  target.lastCare.socialReceived = now;
 
   await Promise.all([
     playerRepository.savePlayer(sender),
@@ -196,9 +218,13 @@ async function interactWithPlayerKiby(userId, targetUserId, action = "cheer", no
     ok: true,
     oneWay: false,
     action,
+    targetUserId,
     senderGain: selected.senderSocial,
+    senderSocialNow: sender.social,
     targetAffectionGain: selected.targetAffection,
+    targetAffectionNow: target.affection,
     targetSocialGain: selected.targetSocial,
+    targetSocialNow: target.social,
     targetKirbyName: target.kirbyName,
   };
 }

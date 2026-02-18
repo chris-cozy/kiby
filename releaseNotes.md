@@ -77,6 +77,33 @@
 - Added recipient DM notifications for gifted coins/items.
 - Updated configuration/documentation for all above changes under the v2.0.0 release line.
 
+## Version 2.0.0 - Event Cadence + Social Anti-Spam Update (February 18, 2026)
+
+- Refactored global campaign lifecycle to scheduler-driven sporadic starts:
+  - removed lazy auto-start side effects from status/contribution/claim paths
+  - random duration range: `24-72h`
+  - random post-event idle gap range: `24-48h`
+  - eligibility + chance start model (`35%` per tick once eligible).
+- Added active-user global event start notifications:
+  - audience: users active in last 24h (`lastActionAt`)
+  - best-effort DM fanout with delivery/failure logging.
+- Added new global event scheduler cycle state persistence (`GlobalEventCycleState`) for deterministic lifecycle tracking.
+- Updated event command behavior:
+  - `/events view` supports explicit idle state with next-eligible timing/cadence details
+  - `/events claim` now returns no-active-event when no campaign event is running.
+- Updated direct social interactions (`/social interact`):
+  - receiver-side anti-spam cooldown (default 45 minutes)
+  - successful interaction applies receiver stat gains
+  - successful interaction sends receiver notification DM (best effort, no rollback on DM failure).
+- Confirmed `/social play-with` remains one-way/no-notify with no receiver stat impact.
+- Added new environment knobs:
+  - `GLOBAL_EVENT_DURATION_MIN_HOURS`
+  - `GLOBAL_EVENT_DURATION_MAX_HOURS`
+  - `GLOBAL_EVENT_IDLE_GAP_MIN_HOURS`
+  - `GLOBAL_EVENT_IDLE_GAP_MAX_HOURS`
+  - `GLOBAL_EVENT_START_CHANCE_PER_TICK_PERCENT`
+  - `SOCIAL_RECEIVE_COOLDOWN_MINUTES`.
+
 ## Legacy Note
 
 All pre-2.0 historical release notes remain in `/CHANGELOG.md` under the `1.0.0` legacy baseline section.

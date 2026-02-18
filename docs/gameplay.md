@@ -111,7 +111,9 @@ On each care tick:
 - Direct social interactions:
   - positive-only
   - target must opt in
-  - no forced cross-player disruption.
+  - receiver Kiby gains affection/social from interaction effects
+  - receiver gets best-effort DM notification on successful interaction
+  - receiver-side anti-spam cooldown applies globally (default 45 minutes).
 
 ## Events
 Two parallel systems:
@@ -120,10 +122,21 @@ Two parallel systems:
   - shared objective
   - active-player goal scaling (24h activity window)
   - contributor claim rewards (`/events claim`)
-  - developer manual start control (`/globalevent start`).
+  - developer manual start control (`/globalevent start`)
+  - scheduler-driven sporadic starts (not continuous always-on)
+  - start notifications to active users (24h activity window, best-effort DM fanout).
 
 Global event goal formula:
 - `goal = clamp(ceil(activePlayers * 12 * goalMultiplier), min=24, max=2000)`
+
+Global event cadence defaults:
+- duration: random `24-72h`
+- post-event idle gap: random `24-48h`
+- start chance after eligibility: `35%` per scheduler tick.
+
+Status/claim behavior:
+- `/events view` supports explicit idle state when no event is active.
+- `/events claim` returns `no-active-event` if no campaign event is running.
 
 ## Language Progression
 - Kiby flavor text appears in Kiby-language tokens.
@@ -160,4 +173,3 @@ Sort order:
 1. Level (desc)
 2. XP (desc)
 3. Name (asc)
-

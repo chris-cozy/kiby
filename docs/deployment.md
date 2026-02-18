@@ -10,9 +10,9 @@ Optional:
 - custom scheduler intervals
 - NPC configuration values
 - world event chance tuning (`WORLD_EVENT_CHANCE_PERCENT`)
-- global event tuning (`GLOBAL_EVENT_DURATION_HOURS`, `GLOBAL_EVENT_GOAL`)
+- global event tuning (`GLOBAL_EVENT_DURATION_MIN_HOURS`, `GLOBAL_EVENT_DURATION_MAX_HOURS`, `GLOBAL_EVENT_IDLE_GAP_MIN_HOURS`, `GLOBAL_EVENT_IDLE_GAP_MAX_HOURS`, `GLOBAL_EVENT_START_CHANCE_PER_TICK_PERCENT`, `GLOBAL_EVENT_GOAL_MIN`, `GLOBAL_EVENT_GOAL_MAX`)
 - season cadence (`SEASON_LENGTH_DAYS`: `7` or `14`)
-- revive/economy/social guardrails (`REVIVE_*`, `GIFT_*`)
+- revive/economy/social guardrails (`REVIVE_*`, `GIFT_*`, `SOCIAL_RECEIVE_COOLDOWN_MINUTES`)
 - ambient + adventure controls (`AMBIENT_*`, `ADVENTURE_*`)
 
 ## Local Docker

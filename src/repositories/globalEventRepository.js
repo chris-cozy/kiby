@@ -15,6 +15,13 @@ async function findByEventId(eventId) {
   return GlobalEventState.findOne({ eventId });
 }
 
+async function findLatestCompletedUnannounced() {
+  return GlobalEventState.findOne({
+    completedAt: { $ne: null },
+    announcedCompletion: false,
+  }).sort({ completedAt: -1 });
+}
+
 async function createEvent(payload) {
   const event = new GlobalEventState(payload);
   return event.save();
@@ -28,6 +35,7 @@ module.exports = {
   createEvent,
   findActive,
   findByEventId,
+  findLatestCompletedUnannounced,
   findLatest,
   saveEvent,
 };

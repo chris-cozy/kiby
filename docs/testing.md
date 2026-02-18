@@ -21,11 +21,22 @@
 - dev can start selected global event when none is active
 - manual start blocked when active global event exists
 - global event goal scales correctly with active-player counts
+- global event does not auto-start from `/events view`, `/events claim`, or contribution code paths
+- scheduler start requires eligibility window + chance pass
+- duration always resolves within configured random range (`24-72h`)
+- idle gap always resolves within configured random range (`24-48h`)
+- active users (last 24h action) receive start notification fanout on event start
+- `/events view` shows no-active-event idle state and next eligible timestamp when idle
+- `/events claim` returns no-active-event when no global event is running
 
 ### Social policy
 - solo care actions do not increase social
 - toy/direct item use does not grant positive social
 - only `/social play-with` and `/social interact` grant positive social
+- `/social interact` enforces receiver inbound cooldown (default 45m)
+- `/social interact` applies sender + receiver stat gains on success
+- `/social interact` sends receiver DM notification best-effort (no rollback on DM failure)
+- `/social play-with` remains one-way/no-notify with no receiver stat mutation
 
 ### Battle power / adventures
 - `/train` increases battle power

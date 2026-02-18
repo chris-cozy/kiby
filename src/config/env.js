@@ -191,13 +191,22 @@ function readEnvironment() {
           fieldName: "WORLD_EVENT_CHANCE_PERCENT",
         }
       ),
-      globalEventDurationHours: parseInteger(
-        process.env.GLOBAL_EVENT_DURATION_HOURS,
+      globalEventDurationMinHours: parseInteger(
+        process.env.GLOBAL_EVENT_DURATION_MIN_HOURS,
         24,
         {
           min: 1,
           max: 168,
-          fieldName: "GLOBAL_EVENT_DURATION_HOURS",
+          fieldName: "GLOBAL_EVENT_DURATION_MIN_HOURS",
+        }
+      ),
+      globalEventDurationMaxHours: parseInteger(
+        process.env.GLOBAL_EVENT_DURATION_MAX_HOURS,
+        72,
+        {
+          min: 1,
+          max: 336,
+          fieldName: "GLOBAL_EVENT_DURATION_MAX_HOURS",
         }
       ),
       seasonLengthDays: parseInteger(process.env.SEASON_LENGTH_DAYS, 7, {
@@ -340,6 +349,42 @@ function readEnvironment() {
         min: 1,
         fieldName: "GLOBAL_EVENT_GOAL_MAX",
       }),
+      globalEventIdleGapMinHours: parseInteger(
+        process.env.GLOBAL_EVENT_IDLE_GAP_MIN_HOURS,
+        24,
+        {
+          min: 1,
+          max: 336,
+          fieldName: "GLOBAL_EVENT_IDLE_GAP_MIN_HOURS",
+        }
+      ),
+      globalEventIdleGapMaxHours: parseInteger(
+        process.env.GLOBAL_EVENT_IDLE_GAP_MAX_HOURS,
+        48,
+        {
+          min: 1,
+          max: 720,
+          fieldName: "GLOBAL_EVENT_IDLE_GAP_MAX_HOURS",
+        }
+      ),
+      globalEventStartChancePerTickPercent: parseInteger(
+        process.env.GLOBAL_EVENT_START_CHANCE_PER_TICK_PERCENT,
+        35,
+        {
+          min: 0,
+          max: 100,
+          fieldName: "GLOBAL_EVENT_START_CHANCE_PER_TICK_PERCENT",
+        }
+      ),
+      socialReceiveCooldownMinutes: parseInteger(
+        process.env.SOCIAL_RECEIVE_COOLDOWN_MINUTES,
+        45,
+        {
+          min: 1,
+          max: 720,
+          fieldName: "SOCIAL_RECEIVE_COOLDOWN_MINUTES",
+        }
+      ),
       languageExposurePerUnlock: parseInteger(
         process.env.LANGUAGE_EXPOSURE_PER_UNLOCK,
         4,
@@ -383,6 +428,18 @@ function readEnvironment() {
 
   if (config.globalEventGoalMax < config.globalEventGoalMin) {
     errors.push("GLOBAL_EVENT_GOAL_MAX must be >= GLOBAL_EVENT_GOAL_MIN.");
+  }
+
+  if (config.globalEventDurationMaxHours < config.globalEventDurationMinHours) {
+    errors.push(
+      "GLOBAL_EVENT_DURATION_MAX_HOURS must be >= GLOBAL_EVENT_DURATION_MIN_HOURS."
+    );
+  }
+
+  if (config.globalEventIdleGapMaxHours < config.globalEventIdleGapMinHours) {
+    errors.push(
+      "GLOBAL_EVENT_IDLE_GAP_MAX_HOURS must be >= GLOBAL_EVENT_IDLE_GAP_MIN_HOURS."
+    );
   }
 
   if (errors.length) {

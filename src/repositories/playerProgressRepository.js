@@ -35,9 +35,19 @@ async function countActiveSince(since) {
   });
 }
 
+async function listActiveSince(since) {
+  return PlayerProgress.find(
+    {
+      lastActionAt: { $gte: since },
+    },
+    { userId: 1, _id: 0 }
+  );
+}
+
 module.exports = {
   countActiveSince,
   findByUserId,
+  listActiveSince,
   listByUserIds,
   saveProgress,
   upsertByUserId,

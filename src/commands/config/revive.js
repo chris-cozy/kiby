@@ -67,6 +67,7 @@ module.exports = {
         train: new Date(),
         bathe: new Date(),
         socialPlay: new Date(),
+        socialReceived: null,
       },
     });
 

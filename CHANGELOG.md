@@ -77,6 +77,14 @@ All notable changes to this project are documented in this file.
   - New progression/activity data fields:
     - `lastActionAt`
     - language state (`xp`, `level`, discovered/exposure maps).
+  - Global event cadence and notification additions:
+    - singleton global lifecycle model (`GlobalEventCycleState`)
+    - active-user (24h) start notification DM fanout
+    - event scheduling metadata logging for duration/goal/audience delivery outcomes.
+  - Social anti-spam and inbound notification additions:
+    - receiver inbound cooldown timestamp (`lastCare.socialReceived`)
+    - `/social interact` receiver DM notification
+    - receiver-side interaction cooldown enforcement (`target-cooldown`).
 
 ### Changed
 - Revive flow now applies meaningful Star Coin cost with revive-token safety valve.
@@ -100,7 +108,17 @@ All notable changes to this project are documented in this file.
     - positive social points now come only from `/social play-with` and `/social interact`
     - solo care, item usage/toys, and passive event/adventure effects no longer grant positive social.
   - Global event goal computation now scales by 24h active players with clamp bounds.
+  - Global event lifecycle changed to sporadic scheduler-driven starts:
+    - no lazy auto-start from `/events view`, `/events claim`, or contribution paths
+    - random event duration range: `24-72h`
+    - random post-event idle gap range: `24-48h`
+    - chance-based starts once eligible (`35%` default).
+  - `/events view` now supports explicit no-active-event idle state output.
+  - `/events claim` now supports `no-active-event` response path.
   - Global event status surfaces now expose scaling context.
+  - `/social interact` now applies receiver stat gains and sender-side success messaging for both sides.
+  - `/social interact` now enforces receiver-side cooldown to reduce inbound spam pressure.
+  - `/social interact` now sends receiver notification embeds (best-effort, no rollback on DM failure).
   - Dialogue/ambient/event/adventure flavor now routes through Kiby-language rendering.
 
 ### Security

@@ -107,6 +107,10 @@ const playerProfileSchema = new Schema(
         type: Date,
         default: Date.now,
       },
+      socialReceived: {
+        type: Date,
+        default: null,
+      },
     },
   },
   { timestamps: true }

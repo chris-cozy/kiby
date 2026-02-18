@@ -4,7 +4,9 @@ const {
 } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const socialService = require("../../services/socialService");
+const notificationService = require("../../services/notificationService");
 const convertCountdown = require("../../utils/convertCountdown");
+const logger = require("../../utils/logger");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -27,7 +29,8 @@ module.exports = {
     },
     {
       name: "interact",
-      description: "Have your Kiby interact directly with another player's Kiby (opt-in required).",
+      description:
+        "Interact directly with another player's Kiby (opt-in, receiver cooldown, and notification).",
       type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
@@ -167,6 +170,9 @@ module.exports = {
         "missing-target": "That user does not have an active Kiby.",
         "target-opted-out": "That player has not opted in to direct social interactions.",
         cooldown: `You can interact again in ${convertCountdown(result.waitMs)}.`,
+        "target-cooldown": `That Kiby recently received a social interaction. Try again in ${convertCountdown(
+          result.waitMs
+        )}.`,
       };
       await safeReply(interaction, {
         content: map[result.reason] || "Social interaction failed.",
@@ -175,8 +181,55 @@ module.exports = {
       return;
     }
 
+    const notified = await notificationService.sendSocialInteractionReceivedNotification(
+      _client,
+      target.id,
+      {
+        senderName: interaction.user.username,
+        action,
+        targetAffectionGain: result.targetAffectionGain,
+        targetSocialGain: result.targetSocialGain,
+      }
+    );
+    if (!notified) {
+      logger.warn("Social interaction receiver notification failed", {
+        senderUserId: interaction.user.id,
+        targetUserId: target.id,
+        action,
+      });
+    }
+
+    const command = new CommandContext();
+    const media = await command.get_media_attachment("affection");
+    const embed = new EmbedBuilder()
+      .setTitle("Social Interaction")
+      .setColor(command.pink)
+      .setDescription(
+        `You used **${action}** on **${target.username}**'s Kiby.`
+      )
+      .addFields(
+        {
+          name: "Your Kiby Social",
+          value: `+${result.senderGain} (now ${result.senderSocialNow}/100)`,
+          inline: true,
+        },
+        {
+          name: "Target Affection",
+          value: `+${result.targetAffectionGain} (now ${result.targetAffectionNow}/100)`,
+          inline: true,
+        },
+        {
+          name: "Target Social",
+          value: `+${result.targetSocialGain} (now ${result.targetSocialNow}/100)`,
+          inline: true,
+        }
+      )
+      .setImage(media.mediaString)
+      .setTimestamp();
+
     await safeReply(interaction, {
-      content: `You used **${action}** on **${target.username}**'s Kiby. Your social stat increased by **${result.senderGain}**.`,
+      embeds: [embed],
+      files: [media.mediaAttach],
       ephemeral: true,
     });
   },

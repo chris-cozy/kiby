@@ -35,6 +35,8 @@ module.exports = {
       );
       if (!claim.ok) {
         const map = {
+          "no-active-event":
+            "No global event is active right now. Check back after the next event window opens.",
           "event-not-complete": "The event is still in progress.",
           "no-contribution":
             "You have not contributed to this event yet. Care, social, and adventure actions contribute.",
@@ -65,6 +67,44 @@ module.exports = {
       new Date()
     );
     const command = new CommandContext();
+    if (!status.active) {
+      const idleEmbed = new EmbedBuilder()
+        .setTitle("Global Event: Idle")
+        .setColor(command.pink)
+        .setDescription(
+          "No global event is currently active."
+        )
+        .addFields(
+          {
+            name: "Next Eligible Start",
+            value: new Date(status.nextEligibleAt).toLocaleString("en-US"),
+            inline: false,
+          },
+          {
+            name: "Cadence",
+            value: `Duration: ${status.durationRangeHours[0]}-${status.durationRangeHours[1]}h | Quiet Gap: ${status.idleGapRangeHours[0]}-${status.idleGapRangeHours[1]}h`,
+            inline: false,
+          },
+          {
+            name: "Start Chance Per Tick",
+            value: `${status.startChancePerTickPercent}%`,
+            inline: false,
+          },
+          {
+            name: "Kiby Signal",
+            value: flavor,
+            inline: false,
+          }
+        )
+        .setTimestamp();
+
+      await safeReply(interaction, {
+        embeds: [idleEmbed],
+        ephemeral: true,
+      });
+      return;
+    }
+
     const embed = new EmbedBuilder()
       .setTitle(`Global Event: ${status.title}`)
       .setColor(command.pink)

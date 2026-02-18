@@ -85,9 +85,7 @@ function createScheduler(client) {
   }
 
   async function runGlobalEventMonitorTick() {
-    const completedEvent = await globalEventService.getCompletedUnannouncedEvent(
-      new Date()
-    );
+    const completedEvent = await globalEventService.getCompletedUnannouncedEvent();
     if (!completedEvent) {
       return;
     }
@@ -115,6 +113,42 @@ function createScheduler(client) {
     logger.info("Announced global event completion", {
       eventId: completedEvent.eventId,
       contributors: contributorIds.length,
+    });
+  }
+
+  async function runGlobalEventStartTick() {
+    const result = await globalEventService.maybeStartScheduledGlobalEvent(new Date());
+    if (!result.started) {
+      logger.debug("Global event start tick skipped", {
+        reason: result.reason,
+      });
+      return;
+    }
+
+    let delivered = 0;
+    let failed = 0;
+    for (const userId of result.activeUserIds) {
+      const sent = await notificationService.sendGlobalEventStartNotification(
+        client,
+        userId,
+        result.event
+      );
+      if (sent) {
+        delivered += 1;
+      } else {
+        failed += 1;
+      }
+    }
+
+    logger.info("Global event started", {
+      eventId: result.event.eventId,
+      key: result.event.key,
+      durationHours: result.durationHours,
+      goal: result.event.goal,
+      activeUsers: result.activeUserIds.length,
+      notificationsDelivered: delivered,
+      notificationsFailed: failed,
+      nextEligibleAt: result.nextEligibleAt,
     });
   }
 
@@ -160,6 +194,11 @@ function createScheduler(client) {
     await runAmbientTick().catch((error) => {
       logger.error("Ambient tick failed during startup", { error: error.message });
     });
+    await runGlobalEventStartTick().catch((error) => {
+      logger.error("Global event start tick failed during startup", {
+        error: error.message,
+      });
+    });
     await runGlobalEventMonitorTick().catch((error) => {
       logger.error("Global event monitor failed during startup", {
         error: error.message,
@@ -192,6 +231,11 @@ function createScheduler(client) {
           logger.error("Ambient tick failed", { error: error.message });
         });
       }, env.npcTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runGlobalEventStartTick().catch((error) => {
+          logger.error("Global event start tick failed", { error: error.message });
+        });
+      }, env.careTickMinutes * 60 * 1000),
       setInterval(() => {
         runGlobalEventMonitorTick().catch((error) => {
           logger.error("Global event monitor failed", { error: error.message });
