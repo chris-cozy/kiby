@@ -12,6 +12,7 @@ describe("battle contracts", () => {
       hunger: 70,
       affection: 80,
       social: 65,
+      battlePower: 120,
     });
 
     expect(result).toEqual({
@@ -23,7 +24,8 @@ describe("battle contracts", () => {
       hunger: 70,
       affection: 80,
       social: 65,
-      battleRating: 410,
+      battlePower: 120,
+      battleRating: 650,
     });
   });
 });

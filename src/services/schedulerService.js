@@ -3,6 +3,7 @@ const careService = require("./careService");
 const npcService = require("./npcService");
 const eventService = require("./eventService");
 const globalEventService = require("./globalEventService");
+const adventureService = require("./adventureService");
 const notificationService = require("./notificationService");
 const ambientService = require("./ambientService");
 const seasonService = require("./seasonService");
@@ -117,6 +118,29 @@ function createScheduler(client) {
     });
   }
 
+  async function runAdventureMonitorTick() {
+    const notifications = await adventureService.pullReadyCompletionNotifications(
+      new Date()
+    );
+    if (!notifications.length) {
+      return;
+    }
+
+    for (const notice of notifications) {
+      await notificationService.sendAdventureReadyNotification(client, notice.userId, {
+        routeLabel: notice.routeLabel,
+        status: notice.status,
+        routeImageUrl:
+          adventureService.ROUTES.find((route) => route.id === notice.routeId)?.imageUrl ||
+          "",
+      });
+    }
+
+    logger.info("Adventure completion notifications sent", {
+      count: notifications.length,
+    });
+  }
+
   async function start() {
     const seeded = await npcService.ensureNpcSeeded();
     logger.info("NPC seed status", seeded);
@@ -138,6 +162,11 @@ function createScheduler(client) {
     });
     await runGlobalEventMonitorTick().catch((error) => {
       logger.error("Global event monitor failed during startup", {
+        error: error.message,
+      });
+    });
+    await runAdventureMonitorTick().catch((error) => {
+      logger.error("Adventure monitor failed during startup", {
         error: error.message,
       });
     });
@@ -166,6 +195,11 @@ function createScheduler(client) {
       setInterval(() => {
         runGlobalEventMonitorTick().catch((error) => {
           logger.error("Global event monitor failed", { error: error.message });
+        });
+      }, env.careTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runAdventureMonitorTick().catch((error) => {
+          logger.error("Adventure monitor failed", { error: error.message });
         });
       }, env.careTickMinutes * 60 * 1000)
     );

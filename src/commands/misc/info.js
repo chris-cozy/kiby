@@ -84,6 +84,11 @@ module.exports = {
           inline: true,
         },
         {
+          name: "Battle Power",
+          value: `${player.battlePower || 0}`,
+          inline: true,
+        },
+        {
           name: "Mood",
           value: mood,
           inline: true,

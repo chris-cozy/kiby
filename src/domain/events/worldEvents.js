@@ -50,12 +50,12 @@ const EVENTS = [
   {
     key: "cozy-campfire",
     title: "Cozy Campfire",
-    description: "A cozy campfire helps everyone feel connected.",
+    description: "A cozy campfire lifts everyone's spirits.",
     apply(profile) {
-      const before = profile.social || 0;
-      profile.social = Math.min(100, (profile.social || 0) + 10);
+      const before = profile.affection || 0;
+      profile.affection = Math.min(100, (profile.affection || 0) + 10);
       return {
-        social: profile.social - before,
+        affection: profile.affection - before,
       };
     },
   },

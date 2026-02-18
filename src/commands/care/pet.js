@@ -36,6 +36,14 @@ module.exports = {
         });
         return;
       }
+
+      if (result.reason === "adventuring") {
+        await safeReply(interaction, {
+          content: `**${result.player.kirbyName}** is currently on an adventure. Care actions are locked until they return.`,
+          ephemeral: true,
+        });
+        return;
+      }
     }
 
     const command = new CommandContext();
@@ -56,11 +64,6 @@ module.exports = {
         {
           name: "XP",
           value: `+${updates.xpGranted}`,
-          inline: true,
-        },
-        {
-          name: "Social",
-          value: `${updates.socialGranted >= 0 ? "+" : ""}${updates.socialGranted} (now ${player.social}/100)`,
           inline: true,
         },
         {

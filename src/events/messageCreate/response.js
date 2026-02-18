@@ -23,7 +23,12 @@ module.exports = async (client, message) => {
   try {
     const schedule = await sleepService.getScheduleForUser(message.author.id);
     const sleeping = sleepService.isSleepingNow(schedule, new Date());
-    const line = buildConversationLine(player, { sleeping });
+    const line = await buildConversationLine(
+      message.author.id,
+      player,
+      { sleeping },
+      new Date()
+    );
 
     await message.channel.sendTyping();
     await message.reply(`**${player.kirbyName}**: ${line}`);

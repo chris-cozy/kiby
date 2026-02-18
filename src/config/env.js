@@ -200,10 +200,6 @@ function readEnvironment() {
           fieldName: "GLOBAL_EVENT_DURATION_HOURS",
         }
       ),
-      globalEventGoal: parseInteger(process.env.GLOBAL_EVENT_GOAL, 120, {
-        min: 10,
-        fieldName: "GLOBAL_EVENT_GOAL",
-      }),
       seasonLengthDays: parseInteger(process.env.SEASON_LENGTH_DAYS, 7, {
         min: 7,
         max: 14,
@@ -264,10 +260,104 @@ function readEnvironment() {
           fieldName: "ADVENTURE_FAIL_THRESHOLD_HP",
         }
       ),
-      adventureMinStartHp: parseInteger(process.env.ADVENTURE_MIN_START_HP, 60, {
+      battlePowerTrainMinGain: parseInteger(
+        process.env.BATTLE_POWER_TRAIN_MIN_GAIN,
+        12,
+        {
+          min: 1,
+          max: 100,
+          fieldName: "BATTLE_POWER_TRAIN_MIN_GAIN",
+        }
+      ),
+      battlePowerTrainMaxGain: parseInteger(
+        process.env.BATTLE_POWER_TRAIN_MAX_GAIN,
+        18,
+        {
+          min: 1,
+          max: 100,
+          fieldName: "BATTLE_POWER_TRAIN_MAX_GAIN",
+        }
+      ),
+      battlePowerDecayPercentPerDay: parseInteger(
+        process.env.BATTLE_POWER_DECAY_PERCENT_PER_DAY,
+        3,
+        {
+          min: 0,
+          max: 25,
+          fieldName: "BATTLE_POWER_DECAY_PERCENT_PER_DAY",
+        }
+      ),
+      adventureBpWeightPercent: parseInteger(
+        process.env.ADVENTURE_BP_WEIGHT_PERCENT,
+        70,
+        {
+          min: 0,
+          max: 100,
+          fieldName: "ADVENTURE_BP_WEIGHT_PERCENT",
+        }
+      ),
+      adventureConditionWeightPercent: parseInteger(
+        process.env.ADVENTURE_CONDITION_WEIGHT_PERCENT,
+        30,
+        {
+          min: 0,
+          max: 100,
+          fieldName: "ADVENTURE_CONDITION_WEIGHT_PERCENT",
+        }
+      ),
+      adventureEtaVariancePercent: parseInteger(
+        process.env.ADVENTURE_ETA_VARIANCE_PERCENT,
+        25,
+        {
+          min: 0,
+          max: 50,
+          fieldName: "ADVENTURE_ETA_VARIANCE_PERCENT",
+        }
+      ),
+      globalEventActivePlayerWindowHours: parseInteger(
+        process.env.GLOBAL_EVENT_ACTIVE_PLAYER_WINDOW_HOURS,
+        24,
+        {
+          min: 1,
+          max: 168,
+          fieldName: "GLOBAL_EVENT_ACTIVE_PLAYER_WINDOW_HOURS",
+        }
+      ),
+      globalEventTargetPerActive: parseInteger(
+        process.env.GLOBAL_EVENT_TARGET_PER_ACTIVE,
+        12,
+        {
+          min: 1,
+          max: 100,
+          fieldName: "GLOBAL_EVENT_TARGET_PER_ACTIVE",
+        }
+      ),
+      globalEventGoalMin: parseInteger(process.env.GLOBAL_EVENT_GOAL_MIN, 24, {
         min: 1,
-        max: 100,
-        fieldName: "ADVENTURE_MIN_START_HP",
+        fieldName: "GLOBAL_EVENT_GOAL_MIN",
+      }),
+      globalEventGoalMax: parseInteger(process.env.GLOBAL_EVENT_GOAL_MAX, 2000, {
+        min: 1,
+        fieldName: "GLOBAL_EVENT_GOAL_MAX",
+      }),
+      languageExposurePerUnlock: parseInteger(
+        process.env.LANGUAGE_EXPOSURE_PER_UNLOCK,
+        4,
+        {
+          min: 1,
+          max: 20,
+          fieldName: "LANGUAGE_EXPOSURE_PER_UNLOCK",
+        }
+      ),
+      languageXpPerExposure: parseInteger(process.env.LANGUAGE_XP_PER_EXPOSURE, 2, {
+        min: 1,
+        max: 50,
+        fieldName: "LANGUAGE_XP_PER_EXPOSURE",
+      }),
+      languageXpPerLevel: parseInteger(process.env.LANGUAGE_XP_PER_LEVEL, 120, {
+        min: 10,
+        max: 1000,
+        fieldName: "LANGUAGE_XP_PER_LEVEL",
       }),
     };
   } catch (error) {
@@ -276,6 +366,23 @@ function readEnvironment() {
 
   if (config.seasonLengthDays !== 7 && config.seasonLengthDays !== 14) {
     errors.push("SEASON_LENGTH_DAYS must be 7 or 14.");
+  }
+
+  if (config.battlePowerTrainMaxGain < config.battlePowerTrainMinGain) {
+    errors.push("BATTLE_POWER_TRAIN_MAX_GAIN must be >= BATTLE_POWER_TRAIN_MIN_GAIN.");
+  }
+
+  if (
+    config.adventureBpWeightPercent + config.adventureConditionWeightPercent !==
+    100
+  ) {
+    errors.push(
+      "ADVENTURE_BP_WEIGHT_PERCENT + ADVENTURE_CONDITION_WEIGHT_PERCENT must equal 100."
+    );
+  }
+
+  if (config.globalEventGoalMax < config.globalEventGoalMin) {
+    errors.push("GLOBAL_EVENT_GOAL_MAX must be >= GLOBAL_EVENT_GOAL_MIN.");
   }
 
   if (errors.length) {

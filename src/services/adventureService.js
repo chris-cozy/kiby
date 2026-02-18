@@ -5,6 +5,7 @@ const economyService = require("./economyService");
 const progressionService = require("./progressionService");
 const seasonService = require("./seasonService");
 const globalEventService = require("./globalEventService");
+const battlePowerService = require("./battlePowerService");
 const { evaluateMood } = require("../domain/mood/evaluateMood");
 const { applyLevelProgression } = require("../domain/progression/calculateXpForLevel");
 
@@ -14,10 +15,13 @@ const ROUTES = [
   {
     id: "meadow_patrol",
     label: "Meadow Patrol",
-    risk: 0.9,
-    damageRange: [4, 10],
+    recommendedBattlePower: 0,
+    risk: 0.85,
+    damageRange: [4, 11],
     baseCoins: 35,
     baseXp: 22,
+    imageUrl:
+      "https://placehold.co/1200x675/5fbf74/0b1f12?text=Meadow+Patrol",
     dropTable: {
       food_pack: 0.25,
       toy_box: 0.15,
@@ -27,10 +31,13 @@ const ROUTES = [
   {
     id: "crystal_cavern",
     label: "Crystal Cavern",
-    risk: 1.15,
-    damageRange: [6, 14],
-    baseCoins: 52,
+    recommendedBattlePower: 90,
+    risk: 1.2,
+    damageRange: [7, 16],
+    baseCoins: 54,
     baseXp: 34,
+    imageUrl:
+      "https://placehold.co/1200x675/6ac5ff/0f1b2a?text=Crystal+Cavern",
     dropTable: {
       gourmet_meal: 0.18,
       sparkle_ball: 0.12,
@@ -41,15 +48,35 @@ const ROUTES = [
   {
     id: "starfall_ruins",
     label: "Starfall Ruins",
-    risk: 1.35,
-    damageRange: [8, 18],
-    baseCoins: 70,
-    baseXp: 48,
+    recommendedBattlePower: 180,
+    risk: 1.55,
+    damageRange: [9, 21],
+    baseCoins: 74,
+    baseXp: 50,
+    imageUrl:
+      "https://placehold.co/1200x675/4f6dff/eff3ff?text=Starfall+Ruins",
     dropTable: {
       nebula_kite: 0.09,
       deluxe_health_kit: 0.12,
       star_snack: 0.14,
       guardian_band: 0.03,
+    },
+  },
+  {
+    id: "obsidian_citadel",
+    label: "Obsidian Citadel",
+    recommendedBattlePower: 300,
+    risk: 1.9,
+    damageRange: [11, 26],
+    baseCoins: 95,
+    baseXp: 64,
+    imageUrl:
+      "https://placehold.co/1200x675/25232e/f5e9d4?text=Obsidian+Citadel",
+    dropTable: {
+      guardian_band: 0.08,
+      deluxe_health_kit: 0.2,
+      star_snack: 0.2,
+      travel_charm: 0.16,
     },
   },
 ];
@@ -101,17 +128,15 @@ function getRoute(routeId) {
   return ROUTES.find((route) => route.id === routeId) || null;
 }
 
-function getReadinessScore(player, mood) {
+function getConditionScore(player, mood) {
   const hpPart = (player.hp || 0) / 100;
   const hungerPart = (player.hunger || 0) / 100;
   const affectionPart = (player.affection || 0) / 100;
-  const socialPart = (player.social || 0) / 100;
 
-  let score =
-    hpPart * 0.35 + hungerPart * 0.2 + affectionPart * 0.2 + socialPart * 0.25;
+  let score = hpPart * 0.4 + hungerPart * 0.3 + affectionPart * 0.3;
 
   if (mood === "Joyful") {
-    score += 0.08;
+    score += 0.07;
   } else if (mood === "Calm") {
     score += 0.04;
   } else if (mood === "Sleepy") {
@@ -119,9 +144,9 @@ function getReadinessScore(player, mood) {
   } else if (mood === "Hungry") {
     score -= 0.1;
   } else if (mood === "Lonely") {
-    score -= 0.1;
+    score -= 0.08;
   } else if (mood === "Worn Out") {
-    score -= 0.15;
+    score -= 0.14;
   } else if (mood === "Exhausted") {
     score -= 0.2;
   }
@@ -129,11 +154,29 @@ function getReadinessScore(player, mood) {
   return clamp(score, 0.05, 0.95);
 }
 
+function getBattlePowerScore(player, route) {
+  const battlePower = clamp(player.battlePower || 0, 0, 1000);
+  if (route.recommendedBattlePower <= 0) {
+    return clamp((battlePower + 30) / 120, 0.2, 1);
+  }
+
+  return clamp(battlePower / route.recommendedBattlePower, 0.03, 1);
+}
+
+function getReadinessScore(player, route, mood) {
+  const bpWeight = env.adventureBpWeightPercent / 100;
+  const conditionWeight = env.adventureConditionWeightPercent / 100;
+  const bpScore = getBattlePowerScore(player, route);
+  const conditionScore = getConditionScore(player, mood);
+
+  return clamp(bpScore * bpWeight + conditionScore * conditionWeight, 0.03, 0.98);
+}
+
 function getRiskBand(score) {
-  if (score >= 0.68) {
+  if (score >= 0.72) {
     return "Low";
   }
-  if (score >= 0.45) {
+  if (score >= 0.48) {
     return "Medium";
   }
   return "High";
@@ -173,32 +216,55 @@ function toPlainRewards(rewardItems) {
   return { ...rewardItems };
 }
 
+function getEtaWindowMinutes(baselineMinutes, rng) {
+  const variance = env.adventureEtaVariancePercent / 100;
+  const earliest = Math.max(5, Math.round(baselineMinutes * (1 - variance)));
+  const latest = Math.max(earliest, Math.round(baselineMinutes * (1 + variance)));
+  const resolved = rng.between(earliest, latest);
+  return {
+    earliest,
+    latest,
+    resolved,
+  };
+}
+
 function calculateAdventureBlueprint(
   player,
   route,
-  durationMinutes,
+  baselineDurationMinutes,
   supportModifiers,
   now = new Date()
 ) {
   const mood = evaluateMood(player, { sleeping: false });
-  const readiness = getReadinessScore(player, mood);
+  const readiness = getReadinessScore(player, route, mood);
   const mitigation = clamp(supportModifiers?.mitigation || 0, 0, 0.5);
   const rewardBoost = clamp(supportModifiers?.rewardBoost || 0, 0, 0.5);
-  const riskScore = clamp(route.risk * (1.15 - readiness) * (1 - mitigation), 0.35, 2.2);
+  const riskScore = clamp(
+    route.risk * (1.35 - readiness) * (1 - mitigation * 0.85),
+    0.45,
+    3.2
+  );
 
   const seed = hashString(
-    `${player.userId}:${route.id}:${durationMinutes}:${now.toISOString().slice(0, 16)}`
+    `${player.userId}:${route.id}:${baselineDurationMinutes}:${now.toISOString().slice(0, 16)}`
   );
   const rng = createRng(seed);
+
+  const etaWindow = getEtaWindowMinutes(baselineDurationMinutes, rng);
+  const earliestResolveAt = new Date(now.getTime() + etaWindow.earliest * 60 * 1000);
+  const latestResolveAt = new Date(now.getTime() + etaWindow.latest * 60 * 1000);
+
   const checkpoints = [];
-  const segments = Math.max(1, Math.ceil(durationMinutes / 30));
+  const checkpointMinutes = 15;
+  const segments = Math.max(1, Math.ceil(etaWindow.resolved / checkpointMinutes));
   const hpFloor = env.adventureFailThresholdHp;
   let hpTrack = player.hp;
   let totalDamage = 0;
   let failureAt = null;
+  let failedMinuteMark = etaWindow.resolved;
 
   for (let index = 1; index <= segments; index += 1) {
-    const minuteMark = Math.min(durationMinutes, index * 30);
+    const minuteMark = Math.min(etaWindow.resolved, index * checkpointMinutes);
     const rolled = rng.between(route.damageRange[0], route.damageRange[1]);
     const segmentDamage = Math.max(1, Math.round(rolled * riskScore));
     totalDamage += segmentDamage;
@@ -210,23 +276,37 @@ function calculateAdventureBlueprint(
 
     if (!failureAt && hpTrack < hpFloor) {
       failureAt = new Date(now.getTime() + minuteMark * 60 * 1000);
+      failedMinuteMark = minuteMark;
       break;
     }
   }
 
   totalDamage = Math.min(totalDamage, Math.max(0, player.hp - 1));
 
-  const durationScale = durationMinutes / 60;
-  const outcomeMultiplier = Math.max(0.45, readiness + rewardBoost + rng.next() * 0.25);
-  const baseCoins = Math.round(route.baseCoins * durationScale * outcomeMultiplier);
-  const baseXp = Math.round(route.baseXp * durationScale * outcomeMultiplier);
-  const successItems = rollItemDrops(route.dropTable, rng, 1 + rewardBoost);
+  const bpRatio =
+    route.recommendedBattlePower <= 0
+      ? (player.battlePower || 0) / 90
+      : (player.battlePower || 0) / route.recommendedBattlePower;
+  const bpMultiplier = clamp(0.35 + bpRatio * 0.75, 0.2, 1.35);
+  const durationScale = Math.max(0.5, etaWindow.resolved / 60);
+  const rewardPotential = clamp(
+    readiness * 0.8 + bpMultiplier * 0.6 + rng.next() * 0.15 + rewardBoost,
+    0.15,
+    1.65
+  );
+  const baseCoins = Math.round(route.baseCoins * durationScale * rewardPotential);
+  const baseXp = Math.round(route.baseXp * durationScale * rewardPotential);
+  const successItems = rollItemDrops(
+    route.dropTable,
+    rng,
+    clamp(0.55 + rewardPotential * 0.35, 0.3, 1.6)
+  );
   const failed = Boolean(failureAt);
   const resolvedAt = failed
     ? failureAt
-    : new Date(now.getTime() + durationMinutes * 60 * 1000);
+    : new Date(now.getTime() + etaWindow.resolved * 60 * 1000);
 
-  const failureRewardScale = 0.08;
+  const failureRewardScale = 0.03;
   const rewardCoins = failed ? Math.round(baseCoins * failureRewardScale) : baseCoins;
   const rewardXp = failed ? Math.round(baseXp * failureRewardScale) : baseXp;
   const rewardItems = failed ? {} : successItems;
@@ -240,6 +320,9 @@ function calculateAdventureBlueprint(
     totalDamage,
     failureAt,
     resolvedAt,
+    resolvedDurationMinutes: failed ? failedMinuteMark : etaWindow.resolved,
+    earliestResolveAt,
+    latestResolveAt,
     rewardCoins,
     rewardXp,
     rewardItems,
@@ -256,14 +339,20 @@ function serializeRun(run, now = new Date()) {
     return null;
   }
 
+  const route = getRoute(run.routeId);
   const ready = isAdventureReady(run, now);
   const msRemaining = ready ? 0 : new Date(run.resolvedAt).getTime() - now.getTime();
   return {
     routeId: run.routeId,
     routeLabel: run.routeLabel,
+    routeImageUrl: route?.imageUrl || "",
+    recommendedBattlePower: route?.recommendedBattlePower ?? 0,
+    baselineDurationMinutes: run.baselineDurationMinutes || run.durationMinutes,
     durationMinutes: run.durationMinutes,
     startedAt: run.startedAt,
     endsAt: run.endsAt,
+    earliestResolveAt: run.earliestResolveAt || run.endsAt,
+    latestResolveAt: run.latestResolveAt || run.endsAt,
     resolvedAt: run.resolvedAt,
     status: ready ? (run.failureAt ? "failed" : "completed") : "active",
     riskBand: run.riskBand,
@@ -276,6 +365,7 @@ function serializeRun(run, now = new Date()) {
     rewardCoins: run.rewardCoins,
     rewardXp: run.rewardXp,
     rewardItems: toPlainRewards(run.rewardItems),
+    completionNotifiedAt: run.completionNotifiedAt || null,
     msRemaining,
   };
 }
@@ -310,25 +400,16 @@ async function startAdventure(
     };
   }
 
-  if ((player.hp || 0) < env.adventureMinStartHp) {
-    return {
-      ok: false,
-      reason: "low-hp",
-      minHp: env.adventureMinStartHp,
-      currentHp: player.hp,
-    };
-  }
+  const bpDecay = battlePowerService.applyLazyDecay(player, now, { touch: true });
 
   const record = await ensureAdventureRecord(userId);
   if (record.activeRun && !record.activeRun.claimedAt) {
     const ready = isAdventureReady(record.activeRun, now);
-    if (!ready) {
-      return {
-        ok: false,
-        reason: "already-active",
-        run: serializeRun(record.activeRun, now),
-      };
-    }
+    return {
+      ok: false,
+      reason: ready ? "claim-required" : "already-active",
+      run: serializeRun(record.activeRun, now),
+    };
   }
 
   const support = await economyService.consumeAdventureSupportItem(userId, supportItemId);
@@ -350,9 +431,12 @@ async function startAdventure(
   const run = {
     routeId: route.id,
     routeLabel: route.label,
-    durationMinutes: safeDuration,
+    baselineDurationMinutes: safeDuration,
+    durationMinutes: blueprint.resolvedDurationMinutes,
     startedAt: now,
     endsAt: new Date(now.getTime() + safeDuration * 60 * 1000),
+    earliestResolveAt: blueprint.earliestResolveAt,
+    latestResolveAt: blueprint.latestResolveAt,
     resolvedAt: blueprint.resolvedAt,
     status: "active",
     seed: blueprint.seed,
@@ -368,20 +452,26 @@ async function startAdventure(
     rewardCoins: blueprint.rewardCoins,
     rewardXp: blueprint.rewardXp,
     rewardItems: blueprint.rewardItems,
+    completionNotifiedAt: null,
     claimedAt: null,
   };
 
   record.activeRun = run;
-  await playerAdventureRepository.saveAdventure(record);
+  await Promise.all([
+    playerAdventureRepository.saveAdventure(record),
+    playerRepository.savePlayer(player),
+    progressionService.touchActivity(userId, now),
+  ]);
 
   return {
     ok: true,
     run: serializeRun(run, now),
     mood: blueprint.mood,
+    bpDecayApplied: bpDecay.decayed,
     preparationTips: [
-      "Higher HP, hunger, affection, and social reduce failure risk.",
-      "Support items reduce incoming adventure damage.",
-      "If HP drops too low, the adventure ends early.",
+      "Battle Power is the largest factor in route success.",
+      "High HP, hunger, affection, and mood still reduce risk.",
+      "Low BP can still start routes, but failure risk climbs sharply.",
     ],
   };
 }
@@ -393,6 +483,19 @@ async function getAdventureStatus(userId, now = new Date()) {
     run,
     history: record.history || [],
   };
+}
+
+async function listAdventureLocations(now = new Date()) {
+  const counts = await playerAdventureRepository.countActiveByRoute(now);
+  const countMap = new Map(counts.map((entry) => [entry.routeId, entry.count]));
+  return ROUTES.map((route) => ({
+    routeId: route.id,
+    routeLabel: route.label,
+    routeImageUrl: route.imageUrl,
+    recommendedBattlePower: route.recommendedBattlePower,
+    activeCount: countMap.get(route.id) || 0,
+    durationOptionsMinutes: DURATION_OPTIONS_MINUTES,
+  }));
 }
 
 async function claimAdventure(userId, now = new Date()) {
@@ -436,13 +539,13 @@ async function claimAdventure(userId, now = new Date()) {
   player.hp = clampStat(Math.max(1, (player.hp || 0) - damageTaken));
 
   if (failed) {
-    player.hunger = clampStat((player.hunger || 0) - 20);
-    player.affection = clampStat((player.affection || 0) - 18);
-    player.social = clampStat((player.social || 0) - 22);
+    player.hunger = clampStat((player.hunger || 0) - 24);
+    player.affection = clampStat((player.affection || 0) - 20);
+    player.social = clampStat((player.social || 0) - 18);
   } else {
-    player.hunger = clampStat((player.hunger || 0) - 10);
-    player.affection = clampStat((player.affection || 0) - 8);
-    player.social = clampStat((player.social || 0) - 10);
+    player.hunger = clampStat((player.hunger || 0) - 12);
+    player.affection = clampStat((player.affection || 0) - 9);
+    player.social = clampStat((player.social || 0) - 8);
   }
 
   const economy = await economyService.ensureEconomy(userId);
@@ -493,11 +596,15 @@ async function claimAdventure(userId, now = new Date()) {
     playerRepository.savePlayer(player),
     playerAdventureRepository.saveAdventure(record),
     economy.save(),
+    progressionService.touchActivity(userId, now),
   ]);
 
   return {
     ok: true,
     status: failed ? "failed" : "completed",
+    routeId: run.routeId,
+    routeLabel: run.routeLabel,
+    routeImageUrl: getRoute(run.routeId)?.imageUrl || "",
     rewardCoins: run.rewardCoins,
     rewardXp: run.rewardXp,
     rewardItems: toPlainRewards(run.rewardItems),
@@ -506,10 +613,34 @@ async function claimAdventure(userId, now = new Date()) {
   };
 }
 
+async function pullReadyCompletionNotifications(now = new Date()) {
+  const readyRuns = await playerAdventureRepository.listRunsReadyForNotification(now);
+  const notifications = [];
+
+  for (const record of readyRuns) {
+    if (!record.activeRun) {
+      continue;
+    }
+
+    record.activeRun.completionNotifiedAt = now;
+    await playerAdventureRepository.saveAdventure(record);
+    notifications.push({
+      userId: record.userId,
+      routeLabel: record.activeRun.routeLabel,
+      status: record.activeRun.failureAt ? "failed" : "completed",
+      routeId: record.activeRun.routeId,
+    });
+  }
+
+  return notifications;
+}
+
 module.exports = {
   DURATION_OPTIONS_MINUTES,
   ROUTES,
   claimAdventure,
   getAdventureStatus,
+  listAdventureLocations,
+  pullReadyCompletionNotifications,
   startAdventure,
 };

@@ -6,6 +6,8 @@ const CommandContext = require("../../classes/command");
 const economyService = require("../../services/economyService");
 const progressionService = require("../../services/progressionService");
 const playerService = require("../../services/playerService");
+const notificationService = require("../../services/notificationService");
+const logger = require("../../utils/logger");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 const ITEM_CHOICES = economyService.listShopItems().map((item) => ({
@@ -135,6 +137,23 @@ module.exports = {
         now
       );
 
+      const notified = await notificationService.sendGiftReceivedNotification(
+        _client,
+        target.id,
+        {
+          type: "coins",
+          amount: result.amount,
+          senderName: interaction.user.username,
+        }
+      );
+      if (!notified) {
+        logger.warn("Gift coin receiver notification failed", {
+          fromUserId: interaction.user.id,
+          toUserId: target.id,
+          amount: result.amount,
+        });
+      }
+
       await safeReply(interaction, {
         content: `Sent **${result.amount}** Star Coins to **${target.username}** (fee: **${result.fee}**).`,
         ephemeral: true,
@@ -172,6 +191,25 @@ module.exports = {
       { itemQuantity: quantity },
       now
     );
+
+    const notified = await notificationService.sendGiftReceivedNotification(
+      _client,
+      target.id,
+      {
+        type: "item",
+        quantity: result.quantity,
+        itemLabel: result.item.label,
+        senderName: interaction.user.username,
+      }
+    );
+    if (!notified) {
+      logger.warn("Gift item receiver notification failed", {
+        fromUserId: interaction.user.id,
+        toUserId: target.id,
+        itemId: result.item.id,
+        quantity: result.quantity,
+      });
+    }
 
     const command = new CommandContext();
     const embed = new EmbedBuilder()

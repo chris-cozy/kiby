@@ -239,6 +239,22 @@ function ensureLifetime(progress) {
   );
 }
 
+function ensureLanguage(progress) {
+  progress.language = progress.language || {};
+  progress.language.xp = ensureNumber(progress.language.xp, 0);
+  progress.language.level = Math.max(1, ensureNumber(progress.language.level, 1));
+
+  const rawDiscovered = progress.language.discovered;
+  if (!rawDiscovered || typeof rawDiscovered.get !== "function") {
+    progress.language.discovered = new Map(Object.entries(rawDiscovered || {}));
+  }
+
+  const rawExposure = progress.language.exposure;
+  if (!rawExposure || typeof rawExposure.get !== "function") {
+    progress.language.exposure = new Map(Object.entries(rawExposure || {}));
+  }
+}
+
 function ensureProgressShape(progress) {
   progress.dailyStreak = ensureNumber(progress.dailyStreak, 0);
   progress.streakShieldCharges = Math.min(
@@ -283,6 +299,9 @@ function ensureProgressShape(progress) {
   )
     ? progress.globalEvents.claimedEventIds
     : [];
+
+  progress.lastActionAt = progress.lastActionAt || new Date();
+  ensureLanguage(progress);
 }
 
 async function getUserTimeZone(userId) {
@@ -436,6 +455,13 @@ async function ensureProgress(userId, now = new Date()) {
       globalEvents: {
         claimedEventIds: [],
       },
+      lastActionAt: now,
+      language: {
+        xp: 0,
+        level: 1,
+        discovered: {},
+        exposure: {},
+      },
     });
   }
 
@@ -491,6 +517,7 @@ function updateQuestsForMetric(progress, metricKey) {
 async function recordMetric(userId, metricKey, amount = 1, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
   ensureLifetime(progress);
+  progress.lastActionAt = now;
 
   updateDailyMetric(progress, metricKey, amount);
   updateQuestsForMetric(progress, metricKey);
@@ -502,6 +529,7 @@ async function recordMetric(userId, metricKey, amount = 1, now = new Date()) {
 async function recordCareAction(userId, actionName, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
   ensureLifetime(progress);
+  progress.lastActionAt = now;
 
   updateDailyMetric(progress, actionName, 1);
   progress.lifetime.careActions += 1;
@@ -513,6 +541,7 @@ async function recordCareAction(userId, actionName, now = new Date()) {
 
 async function recordItemUse(userId, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
+  progress.lastActionAt = now;
   updateDailyMetric(progress, "useItem", 1);
   updateQuestsForMetric(progress, "useItem");
   await playerProgressRepository.saveProgress(progress);
@@ -526,6 +555,7 @@ async function recordGiftAction(
 ) {
   const { progress } = await ensureProgress(userId, now);
   ensureLifetime(progress);
+  progress.lastActionAt = now;
 
   if (coinsAmount > 0) {
     updateDailyMetric(progress, "coinsGifted", coinsAmount);
@@ -546,6 +576,7 @@ async function recordGiftAction(
 async function recordSocialAction(userId, amount = 1, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
   ensureLifetime(progress);
+  progress.lastActionAt = now;
 
   updateDailyMetric(progress, "socialPlay", amount);
   progress.lifetime.socialActions += amount;
@@ -558,6 +589,7 @@ async function recordSocialAction(userId, amount = 1, now = new Date()) {
 async function recordAdventureCompletion(userId, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
   ensureLifetime(progress);
+  progress.lastActionAt = now;
   progress.lifetime.adventuresCompleted += 1;
   await playerProgressRepository.saveProgress(progress);
   return progress;
@@ -566,6 +598,7 @@ async function recordAdventureCompletion(userId, now = new Date()) {
 async function recordWorldEventContribution(userId, amount = 1, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
   ensureLifetime(progress);
+  progress.lastActionAt = now;
   progress.lifetime.worldEventContributions += amount;
   await playerProgressRepository.saveProgress(progress);
   return progress;
@@ -827,6 +860,7 @@ function getOneWayTargetCount(progress, targetUserId, dayKey) {
 
 async function registerOneWaySocialTarget(userId, targetUserId, now = new Date()) {
   const { progress, timezone, dayKey } = await ensureProgress(userId, now);
+  progress.lastActionAt = now;
   const count = getOneWayTargetCount(progress, targetUserId, dayKey);
   progress.socialMemory.oneWayByTarget.set(targetUserId, count + 1);
   progress.socialMemory.lastTargetId = targetUserId;
@@ -862,9 +896,17 @@ async function consumeReviveToken(userId, now = new Date()) {
 
 async function registerRevive(userId, now = new Date()) {
   const { progress } = await ensureProgress(userId, now);
+  progress.lastActionAt = now;
   progress.revive.totalRevives += 1;
   await playerProgressRepository.saveProgress(progress);
   return progress.revive.totalRevives;
+}
+
+async function touchActivity(userId, now = new Date()) {
+  const { progress } = await ensureProgress(userId, now);
+  progress.lastActionAt = now;
+  await playerProgressRepository.saveProgress(progress);
+  return progress;
 }
 
 async function getProgress(userId, now = new Date()) {
@@ -892,4 +934,5 @@ module.exports = {
   recordSocialAction,
   recordWorldEventContribution,
   rerollQuest,
+  touchActivity,
 };

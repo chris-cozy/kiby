@@ -37,6 +37,14 @@ module.exports = {
         return;
       }
 
+      if (result.reason === "adventuring") {
+        await safeReply(interaction, {
+          content: `**${result.player.kirbyName}** is currently on an adventure. Care actions are locked until they return.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
       if (result.reason === "cooldown") {
         await safeReply(interaction, {
           content: `You can train again in ${convertCountdown(result.waitMs)}.`,
@@ -71,8 +79,8 @@ module.exports = {
           inline: true,
         },
         {
-          name: "Social",
-          value: `${updates.socialGranted >= 0 ? "+" : ""}${updates.socialGranted} (now ${player.social}/100)`,
+          name: "Battle Power",
+          value: `+${updates.battlePowerGain || 0} (now ${updates.battlePower})`,
           inline: true,
         }
       )
@@ -87,6 +95,14 @@ module.exports = {
       embed.addFields({
         name: "Level Up",
         value: `**${player.kirbyName}** reached level **${updates.newLevel}**!`,
+      });
+    }
+
+    if ((updates.battlePowerDecayed || 0) > 0) {
+      embed.addFields({
+        name: "BP Decay Applied",
+        value: `-${updates.battlePowerDecayed} battle power from inactivity.`,
+        inline: false,
       });
     }
 

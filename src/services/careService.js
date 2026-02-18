@@ -2,11 +2,13 @@ const env = require("../config/env");
 const { applyCareAction, applyDecay } = require("../domain/care/rules");
 const playerRepository = require("../repositories/playerRepository");
 const sleepScheduleRepository = require("../repositories/sleepScheduleRepository");
+const playerAdventureRepository = require("../repositories/playerAdventureRepository");
 const sleepService = require("./sleepService");
 const progressionService = require("./progressionService");
 const deathHistoryRepository = require("../repositories/deathHistoryRepository");
 const seasonService = require("./seasonService");
 const globalEventService = require("./globalEventService");
+const battlePowerService = require("./battlePowerService");
 
 async function runActionForUser(userId, actionName, now = new Date()) {
   const player = await playerRepository.findByUserId(userId);
@@ -17,10 +19,24 @@ async function runActionForUser(userId, actionName, now = new Date()) {
     };
   }
 
+  const adventureRecord = await playerAdventureRepository.findByUserId(userId);
+  if (
+    adventureRecord?.activeRun &&
+    !adventureRecord.activeRun.claimedAt &&
+    now.getTime() < new Date(adventureRecord.activeRun.resolvedAt).getTime()
+  ) {
+    return {
+      ok: false,
+      reason: "adventuring",
+      player,
+      run: adventureRecord.activeRun,
+    };
+  }
+
   const schedule = await sleepService.getScheduleForUser(userId);
   const sleeping = sleepService.isSleepingNow(schedule, now);
 
-  if (sleeping && actionName !== "pet") {
+  if (sleeping && !["pet", "cuddle"].includes(actionName)) {
     return {
       ok: false,
       reason: "asleep",
@@ -39,6 +55,18 @@ async function runActionForUser(userId, actionName, now = new Date()) {
       player,
       schedule,
     };
+  }
+
+  if (actionName === "train") {
+    const bpResult = battlePowerService.applyTrainingGain(player, now);
+    actionResult.updates.battlePower = bpResult.battlePower;
+    actionResult.updates.battlePowerGain = bpResult.gain;
+    actionResult.updates.battlePowerDecayed = bpResult.decayed;
+  } else {
+    const decayResult = battlePowerService.applyLazyDecay(player, now, { touch: false });
+    actionResult.updates.battlePower = player.battlePower || 0;
+    actionResult.updates.battlePowerDecayed = decayResult.decayed;
+    actionResult.updates.battlePowerGain = 0;
   }
 
   await playerRepository.savePlayer(player);

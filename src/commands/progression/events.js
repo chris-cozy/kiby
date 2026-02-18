@@ -4,6 +4,7 @@ const {
 } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const globalEventService = require("../../services/globalEventService");
+const languageService = require("../../services/languageService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -36,7 +37,7 @@ module.exports = {
         const map = {
           "event-not-complete": "The event is still in progress.",
           "no-contribution":
-            "You have not contributed to this event yet. Care actions and social actions contribute.",
+            "You have not contributed to this event yet. Care, social, and adventure actions contribute.",
           "already-claimed": "You already claimed this event reward.",
         };
         await safeReply(interaction, {
@@ -56,6 +57,10 @@ module.exports = {
     }
 
     const status = await globalEventService.getGlobalEventStatus(
+      interaction.user.id,
+      new Date()
+    );
+    const flavor = await languageService.buildGlobalEventLineForUser(
       interaction.user.id,
       new Date()
     );
@@ -84,9 +89,22 @@ module.exports = {
           name: "Ends",
           value: `${new Date(status.endsAt).toLocaleString("en-US")}`,
           inline: false,
+        },
+        {
+          name: "Kiby Signal",
+          value: flavor,
+          inline: false,
         }
       )
       .setTimestamp();
+
+    if (status.scalingSnapshot) {
+      embed.addFields({
+        name: "Scaled Goal",
+        value: `Active(24h): ${status.scalingSnapshot.activePlayers} | Target/Active: ${status.scalingSnapshot.targetPerActive} | Multiplier: ${status.scalingSnapshot.goalMultiplier}`,
+        inline: false,
+      });
+    }
 
     await safeReply(interaction, {
       embeds: [embed],

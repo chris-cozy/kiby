@@ -43,10 +43,9 @@ const SHOP_ITEMS = {
     useContexts: ["play"],
     effect: {
       affection: 7,
-      social: 4,
       xp: 4,
     },
-    description: "Use during /play for balanced affection and social gains.",
+    description: "Use during /play for balanced affection and XP gains.",
     tradable: true,
   },
   sparkle_ball: {
@@ -57,10 +56,9 @@ const SHOP_ITEMS = {
     useContexts: ["play"],
     effect: {
       affection: 10,
-      social: 7,
       xp: 6,
     },
-    description: "High affection toy with meaningful social payoff.",
+    description: "High affection toy with strong XP payoff.",
     tradable: true,
   },
   nebula_kite: {
@@ -71,10 +69,9 @@ const SHOP_ITEMS = {
     useContexts: ["play"],
     effect: {
       affection: 8,
-      social: 10,
       xp: 10,
     },
-    description: "Premium toy for social and XP-heavy play sessions.",
+    description: "Premium toy for XP-heavy play sessions.",
     tradable: true,
   },
   health_kit: {
@@ -97,9 +94,8 @@ const SHOP_ITEMS = {
     useContexts: ["direct"],
     effect: {
       hp: 35,
-      social: 4,
     },
-    description: "Strong HP recovery and a small social comfort boost.",
+    description: "Strong HP recovery.",
     tradable: true,
   },
   star_snack: {
@@ -122,9 +118,8 @@ const SHOP_ITEMS = {
     useContexts: ["direct"],
     effect: {
       affection: 15,
-      social: 12,
     },
-    description: "Boosts affection and social to stabilize mood.",
+    description: "Boosts affection to stabilize mood.",
     tradable: true,
   },
   travel_charm: {
@@ -246,7 +241,7 @@ function applyPlayerEffects(playerProfile, effect = {}, scale = 1) {
     effects.hp = playerProfile.hp - before;
   }
 
-  if (effect.social) {
+  if (effect.social && effect.social < 0) {
     const before = playerProfile.social || 0;
     playerProfile.social = clampStat((playerProfile.social || 0) + roundScaled(effect.social, scale));
     effects.social = playerProfile.social - before;

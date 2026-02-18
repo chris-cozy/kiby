@@ -1,6 +1,7 @@
 const { EmbedBuilder } = require("discord.js");
 const getMedia = require("../utils/getMedia");
 const logger = require("../utils/logger");
+const languageService = require("./languageService");
 
 async function sendDirectMessage(client, userId, payload) {
   try {
@@ -90,9 +91,10 @@ async function sendWorldEventNotification(client, userId, kirbyName, worldEvent)
   const changes = Object.entries(worldEvent.delta || {})
     .map(([key, value]) => `${key}: ${value >= 0 ? "+" : ""}${value}`)
     .join(", ");
+  const flavor = await languageService.buildWorldEventLineForUser(userId, new Date());
   const description = `**${kirbyName}** was affected by **${worldEvent.description}**${
     changes ? `\n\nImpact: ${changes}` : ""
-  }`;
+  }\n\n${kirbyName}: ${flavor}`;
 
   const payload = await buildNotificationEmbed(
     client,
@@ -126,7 +128,40 @@ async function sendAmbientBehaviorNotification(
 
 async function sendGlobalEventCompletionNotification(client, userId, event) {
   const title = `GLOBAL EVENT COMPLETE: ${event.title}`;
-  const description = `Dream Land reached the goal for **${event.title}**. Use \`/events claim\` to collect your reward if you contributed.`;
+  const flavor = await languageService.buildGlobalEventLineForUser(userId, new Date());
+  const description = `Dream Land reached the goal for **${event.title}**. Use \`/events claim\` to collect your reward if you contributed.\n\nKiby Signal: ${flavor}`;
+  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  return sendDirectMessage(client, userId, {
+    embeds: [payload.embed],
+    files: [payload.attachment],
+  });
+}
+
+async function sendAdventureReadyNotification(client, userId, payloadData) {
+  const title =
+    payloadData.status === "failed" ? "Adventure Ended Early" : "Adventure Complete";
+  const description =
+    payloadData.status === "failed"
+      ? `**${payloadData.routeLabel}** ended in failure. Use \`/adventure claim\` to resolve and recover your Kiby.`
+      : `**${payloadData.routeLabel}** is ready to claim. Use \`/adventure claim\` to collect rewards.`;
+
+  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  if (payloadData.routeImageUrl) {
+    payload.embed.setImage(payloadData.routeImageUrl);
+  }
+
+  return sendDirectMessage(client, userId, {
+    embeds: [payload.embed],
+    files: [payload.attachment],
+  });
+}
+
+async function sendGiftReceivedNotification(client, userId, gift) {
+  const title = "Gift Received";
+  const description =
+    gift.type === "coins"
+      ? `You received **${gift.amount} Star Coins** from **${gift.senderName}**.`
+      : `You received **${gift.quantity}x ${gift.itemLabel}** from **${gift.senderName}**.`;
   const payload = await buildNotificationEmbed(client, title, description, "portrait");
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
@@ -135,7 +170,10 @@ async function sendGlobalEventCompletionNotification(client, userId, event) {
 }
 
 module.exports = {
+  sendAdventureReadyNotification,
   sendAmbientBehaviorNotification,
+  sendDirectMessage,
+  sendGiftReceivedNotification,
   sendGlobalEventCompletionNotification,
   sendNeedNotification,
   sendWorldEventNotification,

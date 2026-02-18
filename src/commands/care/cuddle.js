@@ -29,17 +29,17 @@ module.exports = {
         return;
       }
 
-      if (result.reason === "asleep") {
+      if (result.reason === "cooldown") {
         await safeReply(interaction, {
-          content: `**${result.player.kirbyName}** is asleep right now.`,
+          content: `You can cuddle again in ${convertCountdown(result.waitMs)}.`,
           ephemeral: true,
         });
         return;
       }
 
-      if (result.reason === "cooldown") {
+      if (result.reason === "adventuring") {
         await safeReply(interaction, {
-          content: `You can cuddle again in ${convertCountdown(result.waitMs)}.`,
+          content: `**${result.player.kirbyName}** is currently on an adventure. Care actions are locked until they return.`,
           ephemeral: true,
         });
         return;
@@ -58,11 +58,6 @@ module.exports = {
         {
           name: "Affection",
           value: `${updates.affectionGranted >= 0 ? "+" : ""}${updates.affectionGranted} (now ${player.affection}/100)`,
-          inline: true,
-        },
-        {
-          name: "Social",
-          value: `${updates.socialGranted >= 0 ? "+" : ""}${updates.socialGranted} (now ${player.social}/100)`,
           inline: true,
         },
         {

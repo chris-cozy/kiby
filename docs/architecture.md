@@ -31,19 +31,21 @@ Business orchestration:
 - `playerService`: adoption/profile lifecycle
 - `sleepService`: schedule validation and sleep-state resolution
 - `careService`: care actions + decay tick
+- `battlePowerService`: Battle Power growth/decay lifecycle
 - `npcService`: seed + deterministic NPC simulation
 - `eventService`: personal random world event tick
 - `globalEventService`: global campaign event lifecycle and rewards
-- `progressionService`: local daily reset, streak shields, quest board, lifetime counters
+- `progressionService`: local daily reset, streak shields, quest board, lifetime counters, player activity tracking, language progression state
 - `economyService`: shop/inventory/use/gift/item-context effects
 - `socialService`: one-way and opt-in social interactions
-- `adventureService`: async PvE route runs, checkpoint damage, claim processing
+- `adventureService`: async PvE route runs, BP-weighted readiness, ETA-window scheduling, claim processing
 - `seasonService`: weekly/bi-weekly season context, seasonal XP entries, rollover snapshots
 - `titleService`: unlock/equip title management
 - `leaderboardService`: total/season/players leaderboard assembly
 - `ambientService`: autonomous mood-based ambient moments
 - `notificationService`: outbound DM notifications
 - `dialogueService`: mood/context-aware dialogue generation
+- `languageService`: Kiby token generation, exposure tracking, translation unlocks
 - `web/profileProjectionService`: shared DTO shaping for future web surfaces
 - `schedulerService`: periodic loop management
 
@@ -62,6 +64,7 @@ On ready:
 - personal random world event tick
 - ambient behavior tick
 - global event completion monitor
+- adventure completion notification monitor
 
 ## Data Flow
 1. User invokes command.
@@ -70,12 +73,33 @@ On ready:
 4. Services apply domain rules + persist via repositories.
 5. Command renders updated state.
 
+## Key Data Structures
+- `PlayerProfile`
+  - core needs and progression fields
+  - `battlePower`
+  - BP decay timestamp (`battlePowerUpdatedAt`)
+- `PlayerProgress`
+  - daily/quest/lifetime counters
+  - `lastActionAt` (active-player global event scaling input)
+  - language progression (`xp`, `level`, discovered/exposure maps)
+- `PlayerAdventure.activeRun`
+  - baseline duration and resolved duration
+  - ETA window (`earliestResolveAt`, `latestResolveAt`)
+  - one-time completion notify tracking (`completionNotifiedAt`)
+- `GlobalEventState`
+  - shared progress and claims
+  - scaling snapshot metadata
+  - manual trigger metadata
+
 ## Key Design Decisions
 - Player-local daily resets are timezone-based, not UTC-only.
 - Economy and progression outlive active Kiby death.
 - Seasonal leaderboard uses separate season entry records (archivable by season key).
 - Social play includes one-way no-notify interactions to avoid spam pressure.
+- Social gain is intentionally restricted to true social actions.
 - Async adventures resolve with bounded risk and non-lethal HP floor.
+- Adventure route access has no BP hard-gates; preparedness uses BP-dominant weighting.
+- Global event goals scale to active-player population.
 
 ## Extension Guidelines
 - Keep game rules in `src/domain` to remain reusable for Discord and future web surfaces.

@@ -53,6 +53,18 @@ const playerProfileSchema = new Schema(
       min: 0,
       max: 100,
     },
+    battlePower: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+      max: 1000,
+    },
+    battlePowerUpdatedAt: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
     socialOptIn: {
       type: Boolean,
       default: false,

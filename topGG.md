@@ -26,23 +26,35 @@ Kiby supports both install modes:
   - consumables
   - play toys
   - adventure support gear
-- Gift Star Coins or items using `/gift`.
+- Gift Star Coins or items using `/gift` (recipient gets a DM notification).
 
 ## Social + Events
 
 - One-way social play with no notification spam via `/social play-with`.
 - Optional direct interactions through opt-in settings via `/social settings`.
+- Social points are earned from true social actions (not solo care/item actions).
 - Random personal world events continue to affect active Kibys over time.
 - Global campaign events run in parallel and reward contributors (`/events view|claim`).
+- Developers can manually start global events with `/globalevent start`.
 
 ## Adventures + Seasons
 
-- Launch async adventures with fixed duration options via `/adventure start`.
-- Manage risk with prep quality and support items.
+- Launch async adventures with baseline duration options via `/adventure start`.
+- Manage risk with prep quality, Battle Power, and support items.
 - Adventures can fail early if HP drops below threshold, returning Kiby wounded.
+- Route recommendations: Meadow Patrol (0), Crystal Cavern (90), Starfall Ruins (180), Obsidian Citadel (300).
+- No hard BP route locks; low BP still increases failure risk significantly.
+- ETA is variable (adventures can finish earlier/later than baseline).
+- View route activity with `/adventure locations`.
 - Compete in both total and seasonal leaderboards.
+
+## Personality + Language
+
+- Mood-aware autonomous behavior and mention replies.
+- Kiby-language token system with progressive translation unlocks (`/language`).
+- Players can send feedback directly to developers with `/feedback`.
 
 ## Notes
 
-- DM access is recommended for reminders and ambient Kiby moments.
+- DM access is recommended for reminders, gift notifications, and ambient Kiby moments.
 - Kiby is designed as an evolving live service with frequent balancing and content updates.

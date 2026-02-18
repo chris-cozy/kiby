@@ -60,6 +60,46 @@ const globalEventStateSchema = new Schema(
       of: Boolean,
       default: {},
     },
+    scalingSnapshot: {
+      activePlayers: {
+        type: Number,
+        default: 0,
+      },
+      goalMultiplier: {
+        type: Number,
+        default: 1,
+      },
+      targetPerActive: {
+        type: Number,
+        default: 12,
+      },
+      minGoal: {
+        type: Number,
+        default: 24,
+      },
+      maxGoal: {
+        type: Number,
+        default: 2000,
+      },
+      windowHours: {
+        type: Number,
+        default: 24,
+      },
+      computedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+    manualTrigger: {
+      startedByUserId: {
+        type: String,
+        default: "",
+      },
+      startedAt: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   { timestamps: true }
 );

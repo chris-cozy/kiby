@@ -35,11 +35,15 @@ async function runAmbientTick(client, now = new Date()) {
 
     const schedule = await sleepService.getScheduleForUser(player.userId);
     const sleeping = sleepService.isSleepingNow(schedule, now);
-    const ambient = buildAmbientBehavior(player, { sleeping });
+    const ambient = await buildAmbientBehavior(
+      player.userId,
+      player,
+      { sleeping },
+      now
+    );
 
     if (!sleeping) {
       player.affection = clampStat((player.affection || 0) + 1);
-      player.social = clampStat((player.social || 0) + 1);
       await playerRepository.savePlayer(player);
     }
 

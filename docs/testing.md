@@ -1,29 +1,55 @@
-# Testing Guide
+# Testing Guide (v2.0.0)
 
 ## Automated Checks
-
 - `npm run lint`
 - `npm run test`
 
-Current test suites cover:
-- Sleep scheduling and timezone logic
-- Care rule cooldown and decay behavior
-- NPC deterministic simulation
-- Battle contract projection scaffold
-- Kirby name sanitization
+## Current Automated Coverage
+- Sleep schedule timezone behavior
+- Care cooldown/decay rules
+- Solo social-gain guardrails in care rules
+- Battle profile projection
+- Battle power decay/training helpers
+- Adventure route tier constants
+- NPC simulation stability
+- World event delta sanity
+- Kiby name sanitization
 
-## Validation Targets
+## Manual Validation Matrix
+### World events / global events
+- non-dev blocked from `/globalevent start`
+- dev can start selected global event when none is active
+- manual start blocked when active global event exists
+- global event goal scales correctly with active-player counts
 
-- Command lifecycle safety (`defer/reply/edit` behavior)
-- Sleep schedule max duration and format enforcement
-- Mixed leaderboard sorting behavior
-- NPC seed and tick execution stability
-- World event execution guardrails
-- Adventure lifecycle checks (start/status/claim + failure handling)
-- Global campaign event contribution and claim logic
-- Quest board progression, reroll, and streak-shield behavior
-- Economy transfer guardrails for gifting and non-tradable items
+### Social policy
+- solo care actions do not increase social
+- toy/direct item use does not grant positive social
+- only `/social play-with` and `/social interact` grant positive social
+
+### Battle power / adventures
+- `/train` increases battle power
+- BP decay is lazily applied after elapsed time
+- all routes start without BP hard-gates
+- low BP materially increases failure risk and reduces rewards
+- Obsidian Citadel route appears and runs
+- ETA windows display and resolve within variance bounds
+
+### Adventure lock / sleep
+- care commands block while active adventure is in progress
+- non-care commands remain available during adventure
+- asleep state allows only `pet` and `cuddle`
+- `cuddle` works while asleep
+
+### Language
+- mention/ambient/adventure/event surfaces emit Kiby tokens
+- repeated exposure unlocks translations
+- `/language` reflects discovered/unknown counts and sample glossary
+
+### Feedback / gifting
+- `/feedback` fans out to all configured developer IDs
+- gift receiver gets DM on successful coins/item transfer
+- sender success is preserved when receiver DM fails
 
 ## CI
-
-GitHub Actions workflow runs lint + tests on push and pull request.
+GitHub Actions runs lint + tests on push and pull requests.

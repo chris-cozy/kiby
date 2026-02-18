@@ -232,6 +232,33 @@ const playerProgressSchema = new Schema(
         default: [],
       },
     },
+    lastActionAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
+    language: {
+      xp: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      level: {
+        type: Number,
+        default: 1,
+        min: 1,
+      },
+      discovered: {
+        type: Map,
+        of: String,
+        default: {},
+      },
+      exposure: {
+        type: Map,
+        of: Number,
+        default: {},
+      },
+    },
   },
   { timestamps: true }
 );

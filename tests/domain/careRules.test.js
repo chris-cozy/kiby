@@ -48,4 +48,24 @@ describe("care rules", () => {
     expect(result.profile.affection).toBe(48);
     expect(result.events.affectionDroppedBelowThreshold).toBe(true);
   });
+
+  it("does not grant positive social from solo care actions", () => {
+    const now = new Date("2026-02-01T12:00:00.000Z");
+    const profile = {
+      level: 1,
+      xp: 0,
+      hp: 100,
+      hunger: 60,
+      affection: 60,
+      social: 40,
+      lastCare: {
+        play: new Date(now.getTime() - 60 * 60 * 1000),
+      },
+    };
+
+    const result = applyCareAction(profile, "play", now, () => 8);
+    expect(result.ok).toBe(true);
+    expect(result.updates.socialGranted).toBe(0);
+    expect(profile.social).toBe(40);
+  });
 });

@@ -7,30 +7,25 @@ const ACTION_CONFIG = {
   feed: {
     cooldownMinutes: 10,
     hungerRange: [8, 12],
-    socialRange: [1, 2],
     xpRange: [5, 15],
   },
   pet: {
     cooldownMinutes: 5,
     affectionRange: [4, 6],
-    socialRange: [2, 4],
     xpRange: [5, 12],
   },
   play: {
     cooldownMinutes: 10,
     affectionRange: [6, 10],
-    socialRange: [4, 7],
     xpRange: [10, 20],
   },
   cuddle: {
     cooldownMinutes: 8,
     affectionRange: [7, 11],
-    socialRange: [5, 8],
     xpRange: [8, 14],
   },
   train: {
     cooldownMinutes: 15,
-    socialRange: [1, 3],
     hungerCostRange: [4, 8],
     affectionCostRange: [2, 4],
     xpRange: [18, 28],
@@ -39,7 +34,6 @@ const ACTION_CONFIG = {
     cooldownMinutes: 20,
     hpRange: [6, 10],
     affectionRange: [2, 4],
-    socialRange: [1, 3],
     xpRange: [6, 10],
   },
 };

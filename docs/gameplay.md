@@ -1,20 +1,27 @@
-# Gameplay Systems
+# Gameplay Systems (v2.0.0)
 
 ## Core Stats
-- `hp`: health (0-100)
-- `hunger`: feeding need (0-100)
-- `affection`: emotional care need (0-100)
-- `social`: social fulfillment need (0-100)
-- `level`, `xp`: progression
-- `mood`: derived state from current stats/sleep context (`Joyful`, `Calm`, `Hungry`, `Lonely`, `Sleepy`, `Worn Out`, `Exhausted`)
+- `hp` (0-100)
+- `hunger` (0-100)
+- `affection` (0-100)
+- `social` (0-100)
+- `battlePower` (0-1000)
+- `level`, `xp`
+- `mood` (derived from stats + sleep context)
 
 ## Care Actions
-- `feed`: hunger + social + XP, 10-minute cooldown
-- `pet`: affection + social + XP, 5-minute cooldown
-- `play`: affection + social + XP, 10-minute cooldown, optional toy boost
-- `cuddle`: affection + social + XP, 8-minute cooldown
-- `train`: high XP, consumes hunger/affection, 15-minute cooldown
-- `bathe`: hp + affection + social + XP, 20-minute cooldown
+- `feed`: hunger + XP, 10m cooldown
+- `pet`: affection + XP, 5m cooldown
+- `play`: affection + XP, 10m cooldown, , optional toy boost
+- `cuddle`: affection + XP, 8m cooldown
+- `train`: XP + battlePower gain, 15m cooldown
+- `bathe`: hp + affection + XP, 20m cooldown
+
+Important rules:
+- Solo care/item/adventure/passive systems do not grant positive social points.
+- Positive social points come only from:
+  - `/social play-with`
+  - `/social interact`
 
 ## Sleep Scheduling
 Each player configures:
@@ -24,7 +31,7 @@ Each player configures:
 
 Behavior:
 - Sleep is evaluated against the player's local clock.
-- All actions except `pet` are blocked while asleep.
+- All actions except `pet` and `cuddle` are blocked while asleep.
 - `/sleep schedule set` supports timezone autocomplete suggestions and strict validation.
 
 ## Decay Rules
@@ -42,16 +49,6 @@ On each care tick:
   - significant Star Coin cost, or
   - one-time revive token safety valve (if available).
 
-## Economy
-- `Star Coins` are the primary soft currency.
-- Shop categories:
-  - consumables (direct stat/XP boosts)
-  - toys (used during `/play`, includes fatigue balancing)
-  - support items (adventure-only)
-- Gifting:
-  - coin gifting with transfer fee and daily caps
-  - item gifting with daily caps and non-tradable protections
-
 ## Daily Progression
 - Daily reset is player-local (based on configured timezone).
 - Daily streaks use a streak-shield system:
@@ -68,24 +65,17 @@ On each care tick:
 - One title can be equipped at a time.
 - Equipped title is displayed in leaderboard rows.
 
-## Social Systems
-- One-way social play:
-  - interact with another player's Kiby name target
-  - only your own Kiby gains social/affection
-  - no target notification or target stat changes
-  - diminishing returns per target/day.
-- Direct social interactions:
-  - positive-only
-  - target must opt in
-  - no forced cross-player disruption.
+## Adventure Lock Rules
+- While a Kiby is actively adventuring, care commands are blocked.
+- After the adventure resolves, care unlocks even before `/adventure claim`.
 
-## Events
-Two layers run in parallel:
-- **Personal random events**: periodic stat impacts on active players.
-- **Global campaign events**:
-  - shared progress goal
-  - per-player contribution tracking
-  - claimable completion rewards for contributors.
+## Battle Power Loop
+- `train` is the primary BP growth action.
+- BP gain defaults to `+12..18` per successful train.
+- Passive BP decay defaults to `3%` per 24h, applied lazily on BP touch.
+- Adventures use BP as dominant readiness signal:
+  - BP weight: ~70%
+  - condition weight (HP/hunger/affection/mood): ~30%
 
 ## Adventures (Async PvE)
 - Start adventures with preset durations only.
@@ -96,6 +86,69 @@ Two layers run in parallel:
   - Kiby returns wounded
   - minimal-to-no rewards.
 - Adventures do not kill Kiby directly (HP floor is protected).
+- Route recommendations (no hard BP start gates):
+  - Meadow Patrol: `0`
+  - Crystal Cavern: `90`
+  - Starfall Ruins: `180`
+  - Obsidian Citadel: `300`
+- Duration selection is a baseline estimate.
+- Actual completion resolves within:
+  - earliest: `baseline * 0.75`
+  - latest: `baseline * 1.25`
+- Low BP increases risk and failure chance materially.
+- Failure behavior:
+  - adventure ends early
+  - Kiby returns wounded
+  - minimal-to-no rewards
+  - Kiby cannot die directly from adventure resolution (HP floor protected).
+- Players are DM-notified once when an adventure becomes claimable.
+
+## Social Systems
+- One-way social play:
+  - interact with another player's Kiby name target
+  - only your own Kiby gains social/affection
+  - no target notification or target stat changes
+- Direct social interactions:
+  - positive-only
+  - target must opt in
+  - no forced cross-player disruption.
+
+## Events
+Two parallel systems:
+- Personal random world events (stat impacts).
+- Global campaign events:
+  - shared objective
+  - active-player goal scaling (24h activity window)
+  - contributor claim rewards (`/events claim`)
+  - developer manual start control (`/globalevent start`).
+
+Global event goal formula:
+- `goal = clamp(ceil(activePlayers * 12 * goalMultiplier), min=24, max=2000)`
+
+## Language Progression
+- Kiby flavor text appears in Kiby-language tokens.
+- Repeated exposure unlocks token translations per player.
+- Unknown terms remain tokenized.
+- Known terms show glossed output (`token(translation)`).
+- Surfaces:
+  - mention replies
+  - ambient messages
+  - adventure flavor lines
+  - world/global event snippets.
+
+## Economy / Persistence
+- `Star Coins` are the primary soft currency.
+- Shop categories:
+  - consumables (direct stat/XP boosts)
+  - toys (used during `/play`, includes fatigue balancing)
+  - support items (adventure-only)
+- Gifting:
+  - coin gifting with transfer fee and daily caps
+  - item gifting with daily caps and non-tradable protections
+- Coins and inventory persist even if Kiby dies.
+- Gifting has daily limits and fees.
+- Receiver notifications are sent on successful gifts.
+- Feedback can be submitted directly in-app via `/feedback`.
 
 ## Leaderboards
 - `total`: all-time mixed board (players + NPCs)
@@ -107,3 +160,4 @@ Sort order:
 1. Level (desc)
 2. XP (desc)
 3. Name (asc)
+

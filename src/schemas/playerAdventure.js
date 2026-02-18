@@ -26,6 +26,11 @@ const adventureRunSchema = new Schema(
       type: String,
       required: true,
     },
+    baselineDurationMinutes: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
     durationMinutes: {
       type: Number,
       required: true,
@@ -37,6 +42,14 @@ const adventureRunSchema = new Schema(
       default: Date.now,
     },
     endsAt: {
+      type: Date,
+      required: true,
+    },
+    earliestResolveAt: {
+      type: Date,
+      required: true,
+    },
+    latestResolveAt: {
       type: Date,
       required: true,
     },
@@ -112,6 +125,10 @@ const adventureRunSchema = new Schema(
       type: Map,
       of: Number,
       default: {},
+    },
+    completionNotifiedAt: {
+      type: Date,
+      default: null,
     },
     claimedAt: {
       type: Date,

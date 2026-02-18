@@ -2,10 +2,15 @@ const env = require("../config/env");
 const { GLOBAL_EVENTS } = require("../domain/events/globalEvents");
 const globalEventRepository = require("../repositories/globalEventRepository");
 const playerRepository = require("../repositories/playerRepository");
+const playerProgressRepository = require("../repositories/playerProgressRepository");
 const economyService = require("./economyService");
 const progressionService = require("./progressionService");
 const seasonService = require("./seasonService");
 const { applyLevelProgression } = require("../domain/progression/calculateXpForLevel");
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
 
 function pickEventDefinition(now = new Date()) {
   const dayIndex = Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
@@ -13,7 +18,7 @@ function pickEventDefinition(now = new Date()) {
 }
 
 function buildEventId(definition, now = new Date()) {
-  return `${definition.key}:${now.toISOString().slice(0, 13)}`;
+  return `${definition.key}:${now.toISOString()}:${Math.floor(Math.random() * 1000)}`;
 }
 
 function getContribution(event, userId) {
@@ -36,18 +41,40 @@ function getClaimed(event, userId) {
   return Boolean(event.claims[userId]);
 }
 
-async function ensureActiveGlobalEvent(now = new Date()) {
-  const active = await globalEventRepository.findActive(now);
-  if (active) {
-    return active;
-  }
+function findDefinitionByKey(key) {
+  return GLOBAL_EVENTS.find((event) => event.key === key) || null;
+}
 
-  const definition = pickEventDefinition(now);
+async function getScaledGoal(definition, now = new Date()) {
+  const windowHours = env.globalEventActivePlayerWindowHours;
+  const since = new Date(now.getTime() - windowHours * 60 * 60 * 1000);
+  const activePlayers = await playerProgressRepository.countActiveSince(since);
+  const rawGoal = Math.ceil(
+    activePlayers * env.globalEventTargetPerActive * definition.goalMultiplier
+  );
+  const goal = clamp(rawGoal, env.globalEventGoalMin, env.globalEventGoalMax);
+
+  return {
+    goal,
+    activePlayers,
+    windowHours,
+    targetPerActive: env.globalEventTargetPerActive,
+    minGoal: env.globalEventGoalMin,
+    maxGoal: env.globalEventGoalMax,
+    goalMultiplier: definition.goalMultiplier,
+  };
+}
+
+async function createEventFromDefinition(
+  definition,
+  now = new Date(),
+  options = {}
+) {
   const startedAt = now;
   const endsAt = new Date(
     startedAt.getTime() + env.globalEventDurationHours * 60 * 60 * 1000
   );
-  const goal = Math.max(10, Math.round(env.globalEventGoal * definition.goalMultiplier));
+  const scaling = await getScaledGoal(definition, startedAt);
 
   return globalEventRepository.createEvent({
     eventId: buildEventId(definition, startedAt),
@@ -56,17 +83,64 @@ async function ensureActiveGlobalEvent(now = new Date()) {
     description: definition.description,
     startedAt,
     endsAt,
-    goal,
+    goal: scaling.goal,
     progress: 0,
     completedAt: null,
     announcedCompletion: false,
     contributions: {},
     claims: {},
+    scalingSnapshot: {
+      activePlayers: scaling.activePlayers,
+      goalMultiplier: scaling.goalMultiplier,
+      targetPerActive: scaling.targetPerActive,
+      minGoal: scaling.minGoal,
+      maxGoal: scaling.maxGoal,
+      windowHours: scaling.windowHours,
+      computedAt: startedAt,
+    },
+    manualTrigger: {
+      startedByUserId: options.startedByUserId || "",
+      startedAt: options.startedByUserId ? startedAt : null,
+    },
   });
 }
 
-function findDefinitionByKey(key) {
-  return GLOBAL_EVENTS.find((event) => event.key === key) || GLOBAL_EVENTS[0];
+async function ensureActiveGlobalEvent(now = new Date()) {
+  const active = await globalEventRepository.findActive(now);
+  if (active) {
+    return active;
+  }
+
+  const definition = pickEventDefinition(now);
+  return createEventFromDefinition(definition, now);
+}
+
+async function startGlobalEventManually(eventKey, startedByUserId, now = new Date()) {
+  const active = await globalEventRepository.findActive(now);
+  if (active) {
+    return {
+      ok: false,
+      reason: "already-active",
+      event: active,
+    };
+  }
+
+  const definition = findDefinitionByKey(eventKey);
+  if (!definition) {
+    return {
+      ok: false,
+      reason: "unknown-event",
+    };
+  }
+
+  const event = await createEventFromDefinition(definition, now, {
+    startedByUserId,
+  });
+
+  return {
+    ok: true,
+    event,
+  };
 }
 
 async function getGlobalEventStatus(userId, now = new Date()) {
@@ -87,6 +161,7 @@ async function getGlobalEventStatus(userId, now = new Date()) {
     completedAt: event.completedAt,
     contribution,
     claimed,
+    scalingSnapshot: event.scalingSnapshot,
   };
 }
 
@@ -143,7 +218,7 @@ async function claimGlobalEventReward(userId, now = new Date()) {
     };
   }
 
-  const definition = findDefinitionByKey(event.key);
+  const definition = findDefinitionByKey(event.key) || pickEventDefinition(now);
   const rewardCoins = definition.rewardCoins + Math.min(40, contribution);
   const rewardXp = definition.rewardXp + Math.min(25, Math.floor(contribution / 2));
 
@@ -157,16 +232,13 @@ async function claimGlobalEventReward(userId, now = new Date()) {
 
   if (player) {
     player.xp += rewardXp;
-    const seasonResult = await seasonService.recordEntityProgress(
+    await seasonService.recordEntityProgress(
       "player",
       userId,
       player.kirbyName,
       rewardXp,
       now
     );
-    if (!seasonResult) {
-      // no-op
-    }
 
     const progression = applyLevelProgression(player.level, player.xp);
     player.level = progression.level;
@@ -174,10 +246,7 @@ async function claimGlobalEventReward(userId, now = new Date()) {
     await playerRepository.savePlayer(player);
   }
 
-  await Promise.all([
-    globalEventRepository.saveEvent(event),
-    economy.save(),
-  ]);
+  await Promise.all([globalEventRepository.saveEvent(event), economy.save()]);
 
   return {
     ok: true,
@@ -207,10 +276,12 @@ async function markEventCompletionAnnounced(eventId) {
 }
 
 module.exports = {
+  GLOBAL_EVENTS,
   claimGlobalEventReward,
   ensureActiveGlobalEvent,
   getCompletedUnannouncedEvent,
   getGlobalEventStatus,
   markEventCompletionAnnounced,
   recordContribution,
+  startGlobalEventManually,
 };

@@ -19,10 +19,25 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - Player-local daily reset, streak shield, 3-slot quest board + bonus quest + reroll
 - Expanded item economy with consumables, toys, and adventure support items
 - Coin/item gifting with anti-abuse caps and fees
-- Async adventures with fixed durations, checkpoint damage, and fail-threshold return flow
+- Async adventures with baseline duration options, checkpoint damage, and wounded-return failure flow
+- Adventure route expansion and risk loop updates:
+  - no BP route start gates
+  - Battle Power-dominant readiness
+  - recommended route tiers: `0 / 90 / 180 / 300`
+  - new route: **Obsidian Citadel**
+  - ETA variance windows and completion notifications
+  - location visibility command (`/adventure locations`)
 - Dual event layer:
   - personal random world events
   - global campaign events with contribution rewards
+- Global event enhancements:
+  - active-player goal scaling (24h activity window)
+  - developer manual event trigger (`/globalevent start`)
+- Kiby language progression (v1):
+  - tokenized Kiby flavor text
+  - per-player translation unlock by exposure
+  - `/language` command
+- Direct in-product feedback command (`/feedback`)
 - Leaderboard modes:
   - total
   - season (weekly/bi-weekly cadence)
@@ -43,14 +58,14 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - `/pet`: Increase affection + XP (allowed while asleep)
 - `/play`: Increase affection + XP
 - `/cuddle`: Increase affection + XP (allowed while asleep)
-- `/train`
+- `/train`: Primary Battle Power growth action
 - `/bathe`
 
 ### Economy And Progression
 - `/shop list|buy`: Purchase consumables
 - `/inventory`: View item inventory and Star Coin balance
 - `/use`: Consume an item to boost Kiby stats
-- `/gift coins|item`
+- `/gift coins|item` (recipient DM notification on successful transfer)
 
 ### Social + Progression
 - `/social play-with|interact|settings`
@@ -58,7 +73,9 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - `/quests view|claim|reroll`
 - `/titles view|equip`
 - `/events view|claim`
-- `/adventure start|status|claim`
+- `/adventure start|status|claim|locations`
+- `/language`
+- `/feedback category:<bug|balance|feature|ux|other> message:<text>`
 
 ### Information
 - `/info`: View your Kiby profile and rank
@@ -66,6 +83,10 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - `/leaderboard`: View mixed top leaderboard
 - `/help`: Command reference
 - `/ping`: Latency check
+
+### Developer
+- `/system subject:<text> body:<text>`
+- `/globalevent start event:<event_key>`
 
 ## Setup
 ### Requirements
@@ -117,6 +138,9 @@ Use `.env.production.example` for all supported variables, including:
 - Care simulation intervals
 - Default sleep schedule
 - NPC population and tick cadence
+- Battle Power and adventure tuning
+- Global event scaling constants
+- Kiby language progression tuning
 
 ## Architecture + Docs
 - `docs/architecture.md`

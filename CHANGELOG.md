@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented in this file.
 
-## [2.0.0] - 2026-02-15
+## [2.0.0] - 2026-02-17
 ### Added
 - New care interactions: `/cuddle`, `/train`, and `/bathe`.
 - New social systems:
@@ -30,7 +30,7 @@ All notable changes to this project are documented in this file.
   - coin/item gifting (`/gift coins|item`) with transfer limits/fees.
 - Async adventure runtime:
   - `/adventure start|status|claim`.
-  - fixed duration presets.
+  - fixed baseline duration presets.
   - checkpoint-based damage simulation.
   - fail-threshold early return and wounded recovery loop.
 - Global campaign event layer (`/events view|claim`) running alongside existing random personal world events.
@@ -55,6 +55,28 @@ All notable changes to this project are documented in this file.
 - Docker and Docker Compose deployment workflow.
 - Testing/linting/CI scaffolding and domain test coverage.
 - Production environment template `.env.production.example` and expanded system docs.
+- Additional finalization updates:
+  - Battle Power progression system on player profiles.
+  - Train-driven BP growth (`+12..18` default) and lazy BP decay support.
+  - Adventure route expansion to 4 routes:
+    - Meadow Patrol (`recommended BP 0`)
+    - Crystal Cavern (`recommended BP 90`)
+    - Starfall Ruins (`recommended BP 180`)
+    - Obsidian Citadel (`recommended BP 300`)
+  - `/adventure locations` command with live adventurer counts and duration options.
+  - Adventure ETA window model (baseline duration +/- 25% variance).
+  - Adventure completion DM notifications with dedupe tracking (`completionNotifiedAt`).
+  - Developer-only `/globalevent start` command for manual global event starts.
+  - Active-player global event goal scaling snapshot metadata.
+  - Kiby language progression system:
+    - token-based flavor text
+    - exposure-based translation unlocking
+    - `/language` progress command.
+  - `/feedback` command for direct developer feedback fanout.
+  - Gift receiver DM notifications for `/gift coins` and `/gift item`.
+  - New progression/activity data fields:
+    - `lastActionAt`
+    - language state (`xp`, `level`, discovered/exposure maps).
 
 ### Changed
 - Revive flow now applies meaningful Star Coin cost with revive-token safety valve.
@@ -67,11 +89,27 @@ All notable changes to this project are documented in this file.
 - Care tick logic refactored into domain rules and scheduler services.
 - Command and media loading optimized with caching and deterministic ordering.
 - Legacy pre-v2 schema/util modules retired.
+- Additional finalization updates:
+  - Adventure start gates removed (no BP minimum route locks).
+  - Adventure readiness/risk rebalanced to BP-dominant weighting.
+  - Adventure start embed no longer displays fail-threshold section.
+  - Adventure start/status/claim embeds now include route location imagery and ETA windows.
+  - Care commands are blocked while a Kiby is actively adventuring.
+  - Sleep interaction policy updated: `pet` and `cuddle` are allowed while asleep.
+  - Social gain policy tightened:
+    - positive social points now come only from `/social play-with` and `/social interact`
+    - solo care, item usage/toys, and passive event/adventure effects no longer grant positive social.
+  - Global event goal computation now scales by 24h active players with clamp bounds.
+  - Global event status surfaces now expose scaling context.
+  - Dialogue/ambient/event/adventure flavor now routes through Kiby-language rendering.
 
 ### Security
 - Kirby name sanitization to reduce mention abuse and unsafe formatting.
 - Environment validation with fail-fast startup behavior.
 - Safer DM failure handling and outbound notification guardrails.
+- Additional finalization updates:
+  - DM fanout and gift notification failures are explicitly logged without reverting successful sender operations.
+  - Environment surface expanded with validation for BP tuning, global event scaling, and language progression knobs.
 
 ## [1.0.0] - 2023-04-11
 ### Added

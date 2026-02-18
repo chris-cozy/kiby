@@ -29,7 +29,14 @@ async function listByUserIds(userIds = []) {
   return PlayerProgress.find({ userId: { $in: userIds } });
 }
 
+async function countActiveSince(since) {
+  return PlayerProgress.countDocuments({
+    lastActionAt: { $gte: since },
+  });
+}
+
 module.exports = {
+  countActiveSince,
   findByUserId,
   listByUserIds,
   saveProgress,
