@@ -1,5 +1,9 @@
 const { EmbedBuilder } = require("discord.js");
 const getMedia = require("../utils/getMedia");
+const {
+  resolveGlobalEventMediaKey,
+  resolveWorldEventMediaKey,
+} = require("../utils/mediaKeyResolver");
 const logger = require("../utils/logger");
 const languageService = require("./languageService");
 
@@ -24,7 +28,7 @@ async function sendDirectMessage(client, userId, payload) {
 }
 
 async function buildNotificationEmbed(client, title, description, mediaKeyword) {
-  const media = await getMedia(mediaKeyword);
+  const media = await getMedia(mediaKeyword, { fallbackCategory: "info" });
   const attachmentName = media.name;
 
   const embed = new EmbedBuilder()
@@ -49,22 +53,22 @@ async function sendNeedNotification(client, type, userId, kirbyName) {
     hunger: {
       title: "HUNGRY",
       description: `**${kirbyName}** is hungry and needs food soon.`,
-      media: "hungry",
+      media: "hunger",
     },
     affection: {
       title: "AFFECTION",
       description: `**${kirbyName}** wants some attention and care.`,
-      media: "affection",
+      media: "needing_affection",
     },
     social: {
       title: "SOCIAL",
       description: `**${kirbyName}** is feeling lonely and needs social play.`,
-      media: "affection",
+      media: "loneliness",
     },
     death: {
       title: "DEATH",
       description: `**${kirbyName}** has died from neglect. You can adopt again anytime.`,
-      media: "death",
+      media: "die",
     },
   };
 
@@ -100,7 +104,7 @@ async function sendWorldEventNotification(client, userId, kirbyName, worldEvent)
     client,
     title,
     description,
-    "portrait"
+    resolveWorldEventMediaKey(worldEvent)
   );
 
   return sendDirectMessage(client, userId, {
@@ -118,7 +122,7 @@ async function sendAmbientBehaviorNotification(
 ) {
   const title = `Kiby Moment (${mood})`;
   const description = `**${kirbyName}** ${phrase}`;
-  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  const payload = await buildNotificationEmbed(client, title, description, "info");
 
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
@@ -130,7 +134,12 @@ async function sendGlobalEventCompletionNotification(client, userId, event) {
   const title = `GLOBAL EVENT COMPLETE: ${event.title}`;
   const flavor = await languageService.buildGlobalEventLineForUser(userId, new Date());
   const description = `Dream Land reached the goal for **${event.title}**. Use \`/events claim\` to collect your reward if you contributed.\n\nKiby Signal: ${flavor}`;
-  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  const payload = await buildNotificationEmbed(
+    client,
+    title,
+    description,
+    resolveGlobalEventMediaKey(event)
+  );
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
     files: [payload.attachment],
@@ -143,7 +152,12 @@ async function sendGlobalEventStartNotification(client, userId, event) {
   const description = `A new global event has begun.\n\n**${event.title}**\n${event.description}\n\nGoal: **${event.goal}** by **${new Date(
     event.endsAt
   ).toLocaleString("en-US")}**.\nUse \`/events view\` to check progress.\n\nKiby Signal: ${flavor}`;
-  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  const payload = await buildNotificationEmbed(
+    client,
+    title,
+    description,
+    resolveGlobalEventMediaKey(event)
+  );
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
     files: [payload.attachment],
@@ -157,25 +171,17 @@ async function sendAdventureReadyNotification(client, userId, payloadData) {
     payloadData.status === "failed"
       ? `**${payloadData.routeLabel}** ended in failure. Use \`/adventure claim\` to resolve and recover your Kiby.`
       : `**${payloadData.routeLabel}** is ready to claim. Use \`/adventure claim\` to collect rewards.`;
+  const mediaKey =
+    payloadData.status === "failed"
+      ? payloadData.routeMediaKey || "info"
+      : payloadData.routeCompleteMediaKey || payloadData.routeMediaKey || "info";
 
-  if (payloadData.routeImageUrl) {
-    const embed = new EmbedBuilder()
-      .setTitle(title)
-      .setColor("#FF69B4")
-      .setDescription(description)
-      .setImage(payloadData.routeImageUrl)
-      .setTimestamp()
-      .setFooter({
-        text: client.user.username,
-        iconURL: client.user.displayAvatarURL(),
-      });
-
-    return sendDirectMessage(client, userId, {
-      embeds: [embed],
-    });
-  }
-
-  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  const payload = await buildNotificationEmbed(
+    client,
+    title,
+    description,
+    mediaKey
+  );
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
     files: [payload.attachment],
@@ -188,7 +194,7 @@ async function sendGiftReceivedNotification(client, userId, gift) {
     gift.type === "coins"
       ? `You received **${gift.amount} Star Coins** from **${gift.senderName}**.`
       : `You received **${gift.quantity}x ${gift.itemLabel}** from **${gift.senderName}**.`;
-  const payload = await buildNotificationEmbed(client, title, description, "portrait");
+  const payload = await buildNotificationEmbed(client, title, description, "info");
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
     files: [payload.attachment],
@@ -198,7 +204,7 @@ async function sendGiftReceivedNotification(client, userId, gift) {
 async function sendSocialInteractionReceivedNotification(client, userId, payloadData) {
   const title = "Kiby Social Visit";
   const description = `**${payloadData.senderName}** used **${payloadData.action}** on your Kiby.\n\nYour Kiby gains:\n- Affection: **+${payloadData.targetAffectionGain}**\n- Social: **+${payloadData.targetSocialGain}**`;
-  const payload = await buildNotificationEmbed(client, title, description, "affection");
+  const payload = await buildNotificationEmbed(client, title, description, "social");
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
     files: [payload.attachment],

@@ -54,6 +54,7 @@ module.exports = {
     if (subcommand === "list") {
       const economy = await economyService.getEconomy(interaction.user.id);
       const items = economyService.listShopItems();
+      const media = await command.get_media_attachment("shop");
 
       const embed = new EmbedBuilder()
         .setTitle("Kiby Shop")
@@ -66,10 +67,12 @@ module.exports = {
             inline: false,
           }))
         )
+        .setImage(media.mediaString)
         .setTimestamp();
 
       await safeReply(interaction, {
         embeds: [embed],
+        files: [media.mediaAttach],
         ephemeral: true,
       });
       return;

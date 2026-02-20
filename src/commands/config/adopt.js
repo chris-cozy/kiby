@@ -35,7 +35,7 @@ module.exports = {
       }
 
       const command = new CommandContext();
-      const media = await command.get_media_attachment("portrait");
+      const media = await command.get_media_attachment("adopt");
 
       const embed = new EmbedBuilder()
         .setTitle("Adoption Complete")

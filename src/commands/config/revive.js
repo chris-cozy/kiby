@@ -86,7 +86,7 @@ module.exports = {
     ]);
 
     const command = new CommandContext();
-    const media = await command.get_media_attachment("portrait");
+    const media = await command.get_media_attachment("revive");
 
     const embed = new EmbedBuilder()
       .setTitle("Revival Complete")

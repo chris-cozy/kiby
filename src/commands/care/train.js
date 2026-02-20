@@ -55,7 +55,7 @@ module.exports = {
     }
 
     const command = new CommandContext();
-    const media = await command.get_media_attachment("play");
+    const media = await command.get_media_attachment("train");
     const { player, updates } = result;
 
     const embed = new EmbedBuilder()

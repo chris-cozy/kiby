@@ -11,8 +11,8 @@ class CommandContext {
     this.zeroSpace = "\u200b";
   }
 
-  async get_media_attachment(keyword = "portrait") {
-    const media = await getMedia(keyword);
+  async get_media_attachment(keyword = "info") {
+    const media = await getMedia(keyword, { fallbackCategory: "info" });
     return {
       mediaString: `attachment://${media.name}`,
       mediaAttach: media.attachment,

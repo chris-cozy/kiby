@@ -63,6 +63,7 @@ function createScheduler(client) {
       result.userId,
       result.kirbyName,
       {
+        key: result.event.key,
         title: result.event.title,
         description: result.event.description,
         delta: result.delta,
@@ -104,6 +105,7 @@ function createScheduler(client) {
         client,
         userId,
         {
+          key: completedEvent.key,
           title: completedEvent.title,
         }
       );
@@ -161,12 +163,17 @@ function createScheduler(client) {
     }
 
     for (const notice of notifications) {
+      const route = adventureService.ROUTES.find(
+        (candidate) => candidate.id === notice.routeId
+      );
       await notificationService.sendAdventureReadyNotification(client, notice.userId, {
         routeLabel: notice.routeLabel,
         status: notice.status,
-        routeImageUrl:
-          adventureService.ROUTES.find((route) => route.id === notice.routeId)?.imageUrl ||
-          "",
+        routeMediaKey: route?.mediaKey || "",
+        routeCompleteMediaKey: (route?.mediaKey || "").replace(
+          /^adventure\//,
+          "adventure_complete/"
+        ),
       });
     }
 

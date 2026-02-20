@@ -200,7 +200,7 @@ module.exports = {
     }
 
     const command = new CommandContext();
-    const media = await command.get_media_attachment("affection");
+    const media = await command.get_media_attachment("social");
     const embed = new EmbedBuilder()
       .setTitle("Social Interaction")
       .setColor(command.pink)

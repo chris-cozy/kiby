@@ -37,7 +37,7 @@ module.exports = {
     const rank = rankIndex >= 0 ? rankIndex + 1 : leaderboard.total;
 
     const command = new CommandContext();
-    const media = await command.get_media_attachment("portrait");
+    const media = await command.get_media_attachment("info");
     const sleepSummary = sleepService.getSleepSummary(schedule, new Date());
     const mood = evaluateMood(player, { sleeping: sleepSummary.sleeping });
     const activeTitle = titleState.equipped

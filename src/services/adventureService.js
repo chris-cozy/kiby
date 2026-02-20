@@ -20,8 +20,7 @@ const ROUTES = [
     damageRange: [4, 11],
     baseCoins: 35,
     baseXp: 22,
-    imageUrl:
-      "https://placehold.co/1200x675/5fbf74/0b1f12?text=Meadow+Patrol",
+    mediaKey: "adventure/meadow_patrol",
     dropTable: {
       food_pack: 0.25,
       toy_box: 0.15,
@@ -36,8 +35,7 @@ const ROUTES = [
     damageRange: [7, 16],
     baseCoins: 54,
     baseXp: 34,
-    imageUrl:
-      "https://placehold.co/1200x675/6ac5ff/0f1b2a?text=Crystal+Cavern",
+    mediaKey: "adventure/crystal_caverns",
     dropTable: {
       gourmet_meal: 0.18,
       sparkle_ball: 0.12,
@@ -53,8 +51,7 @@ const ROUTES = [
     damageRange: [9, 21],
     baseCoins: 74,
     baseXp: 50,
-    imageUrl:
-      "https://placehold.co/1200x675/4f6dff/eff3ff?text=Starfall+Ruins",
+    mediaKey: "adventure/starfall_ruins",
     dropTable: {
       nebula_kite: 0.09,
       deluxe_health_kit: 0.12,
@@ -70,8 +67,7 @@ const ROUTES = [
     damageRange: [11, 26],
     baseCoins: 95,
     baseXp: 64,
-    imageUrl:
-      "https://placehold.co/1200x675/25232e/f5e9d4?text=Obsidian+Citadel",
+    mediaKey: "adventure/obsidian_citadel",
     dropTable: {
       guardian_band: 0.08,
       deluxe_health_kit: 0.2,
@@ -345,7 +341,7 @@ function serializeRun(run, now = new Date()) {
   return {
     routeId: run.routeId,
     routeLabel: run.routeLabel,
-    routeImageUrl: route?.imageUrl || "",
+    routeMediaKey: route?.mediaKey || "",
     recommendedBattlePower: route?.recommendedBattlePower ?? 0,
     baselineDurationMinutes: run.baselineDurationMinutes || run.durationMinutes,
     durationMinutes: run.durationMinutes,
@@ -491,7 +487,7 @@ async function listAdventureLocations(now = new Date()) {
   return ROUTES.map((route) => ({
     routeId: route.id,
     routeLabel: route.label,
-    routeImageUrl: route.imageUrl,
+    routeMediaKey: route.mediaKey,
     recommendedBattlePower: route.recommendedBattlePower,
     activeCount: countMap.get(route.id) || 0,
     durationOptionsMinutes: DURATION_OPTIONS_MINUTES,
@@ -604,7 +600,7 @@ async function claimAdventure(userId, now = new Date()) {
     status: failed ? "failed" : "completed",
     routeId: run.routeId,
     routeLabel: run.routeLabel,
-    routeImageUrl: getRoute(run.routeId)?.imageUrl || "",
+    routeMediaKey: getRoute(run.routeId)?.mediaKey || "",
     rewardCoins: run.rewardCoins,
     rewardXp: run.rewardXp,
     rewardItems: toPlainRewards(run.rewardItems),

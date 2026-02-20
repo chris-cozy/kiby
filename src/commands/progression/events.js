@@ -5,6 +5,7 @@ const {
 const CommandContext = require("../../classes/command");
 const globalEventService = require("../../services/globalEventService");
 const languageService = require("../../services/languageService");
+const { resolveGlobalEventMediaKey } = require("../../utils/mediaKeyResolver");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -146,8 +147,17 @@ module.exports = {
       });
     }
 
+    const media = await command.get_media_attachment(
+      resolveGlobalEventMediaKey({
+        key: status.key,
+        title: status.title,
+      })
+    );
+    embed.setImage(media.mediaString);
+
     await safeReply(interaction, {
       embeds: [embed],
+      files: [media.mediaAttach],
       ephemeral: true,
     });
   },

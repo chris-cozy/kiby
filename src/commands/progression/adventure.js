@@ -29,6 +29,14 @@ function formatEtaWindow(run) {
   return `${earliest} - ${latest}`;
 }
 
+async function getRouteMedia(command, mediaKey) {
+  try {
+    return await command.get_media_attachment(mediaKey || "info");
+  } catch {
+    return null;
+  }
+}
+
 module.exports = {
   name: "adventure",
   description: "Send your Kiby on asynchronous adventures.",
@@ -127,10 +135,10 @@ module.exports = {
         "status",
         new Date()
       );
+      const routeMedia = await getRouteMedia(command, run.routeMediaKey);
       const embed = new EmbedBuilder()
         .setTitle("Adventure Status")
         .setColor(command.pink)
-        .setImage(run.routeImageUrl || null)
         .addFields(
           {
             name: "Route",
@@ -183,8 +191,13 @@ module.exports = {
         )
         .setTimestamp();
 
+      if (routeMedia) {
+        embed.setImage(routeMedia.mediaString);
+      }
+
       await safeReply(interaction, {
         embeds: [embed],
+        ...(routeMedia ? { files: [routeMedia.mediaAttach] } : {}),
         ephemeral: true,
       });
       return;
@@ -219,10 +232,10 @@ module.exports = {
         Object.entries(claim.rewardItems || {})
           .map(([itemId, qty]) => `${itemId} x${qty}`)
           .join(", ") || "none";
+      const routeMedia = await getRouteMedia(command, claim.routeMediaKey);
       const embed = new EmbedBuilder()
         .setTitle(claim.status === "failed" ? "Adventure Failed" : "Adventure Complete")
         .setColor(command.pink)
-        .setImage(claim.routeImageUrl || null)
         .setDescription(
           claim.status === "failed"
             ? `**${claim.routeLabel}** ended early. Your Kiby needs recovery before another risky trip.`
@@ -257,8 +270,13 @@ module.exports = {
         )
         .setTimestamp();
 
+      if (routeMedia) {
+        embed.setImage(routeMedia.mediaString);
+      }
+
       await safeReply(interaction, {
         embeds: [embed],
+        ...(routeMedia ? { files: [routeMedia.mediaAttach] } : {}),
         ephemeral: true,
       });
       return;
@@ -303,10 +321,10 @@ module.exports = {
       "start",
       new Date()
     );
+    const routeMedia = await getRouteMedia(command, run.routeMediaKey);
     const embed = new EmbedBuilder()
       .setTitle("Adventure Started")
       .setColor(command.pink)
-      .setImage(run.routeImageUrl || null)
       .setDescription(
         `Route: **${run.routeLabel}** | Baseline: **${run.baselineDurationMinutes}m**`
       )
@@ -352,8 +370,13 @@ module.exports = {
       });
     }
 
+    if (routeMedia) {
+      embed.setImage(routeMedia.mediaString);
+    }
+
     await safeReply(interaction, {
       embeds: [embed],
+      ...(routeMedia ? { files: [routeMedia.mediaAttach] } : {}),
       ephemeral: true,
     });
   },

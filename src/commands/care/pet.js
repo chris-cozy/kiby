@@ -47,8 +47,7 @@ module.exports = {
     }
 
     const command = new CommandContext();
-    const mediaKey = result.schedule && result.schedule.enabled ? "play" : "play";
-    const media = await command.get_media_attachment(mediaKey);
+    const media = await command.get_media_attachment("pet");
     const { player, updates } = result;
 
     const embed = new EmbedBuilder()
