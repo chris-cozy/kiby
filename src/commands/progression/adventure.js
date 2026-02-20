@@ -23,12 +23,6 @@ const SUPPORT_CHOICES = economyService.listItemsByContext("adventure").map((item
   value: item.id,
 }));
 
-function formatEtaWindow(run) {
-  const earliest = new Date(run.earliestResolveAt).toLocaleString("en-US");
-  const latest = new Date(run.latestResolveAt).toLocaleString("en-US");
-  return `${earliest} - ${latest}`;
-}
-
 async function getRouteMedia(command, mediaKey) {
   try {
     return await command.get_media_attachment(mediaKey || "info");
@@ -172,11 +166,6 @@ module.exports = {
                 ? `In progress (${Math.max(1, Math.ceil(run.msRemaining / 60000))}m remaining)`
                 : run.status.toUpperCase(),
             inline: true,
-          },
-          {
-            name: "ETA Window",
-            value: formatEtaWindow(run),
-            inline: false,
           },
           {
             name: "Projected Rewards",
@@ -348,11 +337,6 @@ module.exports = {
           name: "Support Item",
           value: run.supportItemLabel || "None",
           inline: true,
-        },
-        {
-          name: "ETA Window",
-          value: formatEtaWindow(run),
-          inline: false,
         },
         {
           name: "Kiby Signal",

@@ -156,7 +156,7 @@ function readEnvironment() {
         }
       ),
       npcEnabled: parseBoolean(process.env.NPC_ENABLED, true),
-      npcTotal: parseInteger(process.env.NPC_TOTAL, 36, {
+      npcTotal: parseInteger(process.env.NPC_TOTAL, 20, {
         min: 0,
         fieldName: "NPC_TOTAL",
       }),
@@ -164,7 +164,7 @@ function readEnvironment() {
         min: 0,
         fieldName: "NPC_CASUAL",
       }),
-      npcActive: parseInteger(process.env.NPC_ACTIVE, 10, {
+      npcActive: parseInteger(process.env.NPC_ACTIVE, 2, {
         min: 0,
         fieldName: "NPC_ACTIVE",
       }),

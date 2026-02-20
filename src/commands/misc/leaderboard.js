@@ -59,7 +59,9 @@ module.exports = {
     let description = "";
     board.top.forEach((entry, index) => {
       const titleTag = entry.titleLabel ? ` [${entry.titleLabel}]` : "";
-      const label = `${index + 1}. ${entry.kirbyName} [${titleTag}] -- Lv.${entry.level} -- XP ${entry.xp}`;
+      const rankPrefix =
+        index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "";
+      const label = `${rankPrefix}${index + 1}. ${entry.kirbyName}${titleTag} -- Lv.${entry.level} -- XP ${entry.xp}`;
       const highlighted = entry.type === "player" && entry.userId === interaction.user.id;
       description += highlighted ? `**${label}**\n` : `${label}\n`;
     });
