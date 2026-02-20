@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.0.1] - 2026-02-20
+### Added
+- Developer-only `/version` command to report the currently running application version.
+
+### Changed
+- `/system` now supports audience mode selection:
+  - `active_72h`: send to players active in the last 72 hours.
+  - `all_installed`: send to all players plus all installed servers (best-effort channel selection).
+- `/system` now sends a success delivery report DM to configured developers.
+- Application package version updated to `2.0.1`.
+
 ## [2.0.0] - 2026-02-17
 ### Added
 - New care interactions: `/cuddle`, `/train`, and `/bathe`.

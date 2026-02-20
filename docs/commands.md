@@ -78,5 +78,6 @@ Leaderboard notes:
 - `players` mode is developer-restricted.
 
 ## Developer
-- `/system subject:<text> body:<text>`
+- `/system mode:<active_72h|all_installed> subject:<text> body:<text>`
+- `/version`
 - `/globalevent start event:<event_key>`
