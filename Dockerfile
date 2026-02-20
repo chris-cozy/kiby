@@ -1,20 +1,19 @@
-# Use an official Node.js runtime as the base image
-FROM node:16
+FROM node:20-alpine AS base
 
-# Set the working directory in the container
-WORKDIR /
+WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of your application code to the container
 COPY . .
 
-# Expose a port (if your app listens on a specific port)
-EXPOSE 80
+RUN addgroup -S kiby && adduser -S kiby -G kiby
+USER kiby
 
-# Define the command to run your application
+ENV NODE_ENV=production
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/health || exit 1
+
 CMD ["npm", "start"]

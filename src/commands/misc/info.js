@@ -1,135 +1,124 @@
-const { Client, Interaction, EmbedBuilder } = require("discord.js");
-const userStats = require("../../schemas/stats");
-const calculate_xp_for_level = require("../../utils/calculateXpForLevel");
-const command = require("../../classes/command");
+const { EmbedBuilder } = require("discord.js");
+const CommandContext = require("../../classes/command");
+const playerService = require("../../services/playerService");
+const leaderboardService = require("../../services/leaderboardService");
+const sleepService = require("../../services/sleepService");
+const { calculateXpForLevel } = require("../../domain/progression/calculateXpForLevel");
+const { evaluateMood } = require("../../domain/mood/evaluateMood");
+const titleService = require("../../services/titleService");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
   name: "info",
-  description: "Information about your Kirby!",
-  devonly: false,
-  testOnly: false,
+  description: "View your Kiby's stats.",
   deleted: false,
 
-  /**
-   * @brief Send an embed with bot information
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    await interaction.deferReply({ ephemeral: false });
-    const info = new command();
-    const media = await info.get_media_attachment();
+    await safeDefer(interaction, { ephemeral: false });
 
-    try {
-      const userKirby = await userStats.findOne({
-        userId: interaction.user.id,
+    const player = await playerService.getPlayerByUserId(interaction.user.id);
+    if (!player) {
+      await safeReply(interaction, {
+        content: "You do not have a Kiby yet. Use `/adopt` to get started.",
+        ephemeral: true,
       });
-      if (!userKirby) {
-        interaction.editReply(
-          "You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey."
-        );
-        return;
-      }
-
-      const allUsers = await userStats.find().select("-_id userId level xp");
-
-      // Sort all users by level and xp
-      allUsers.sort((a, b) => {
-        if (a.level === b.level) {
-          return b.xp - a.xp;
-        } else {
-          return b.level - a.level;
-        }
-      });
-
-      // Grab rank of desired user
-      let currentRank =
-        allUsers.findIndex((lvl) => lvl.userId === userKirby.userId) + 1;
-
-      const embed = create_info_embed(
-        client,
-        userKirby,
-        currentRank,
-        allUsers,
-        media.mediaString,
-        info,
-        interaction
-      );
-      interaction.editReply({
-        embeds: [embed],
-        files: [media.mediaAttach],
-      });
-    } catch (error) {
-      console.error(`Error in info.js: ${error}`);
+      return;
     }
+
+    const [leaderboard, schedule, titleState] = await Promise.all([
+      leaderboardService.getMixedLeaderboard(200),
+      sleepService.getScheduleForUser(interaction.user.id),
+      titleService.ensureTitlesForUser(interaction.user.id),
+    ]);
+
+    const rankIndex = leaderboard.rows.findIndex(
+      (row) => row.type === "player" && row.userId === interaction.user.id
+    );
+    const rank = rankIndex >= 0 ? rankIndex + 1 : leaderboard.total;
+
+    const command = new CommandContext();
+    const media = await command.get_media_attachment("info");
+    const sleepSummary = sleepService.getSleepSummary(schedule, new Date());
+    const mood = evaluateMood(player, { sleeping: sleepSummary.sleeping });
+    const activeTitle = titleState.equipped
+      ? titleState.catalog.find((title) => title.id === titleState.equipped)?.label
+      : "";
+
+    const embed = new EmbedBuilder()
+      .setTitle(player.kirbyName)
+      .setColor(command.pink)
+      .addFields(
+        {
+          name: "Level",
+          value: `${player.level}`,
+          inline: true,
+        },
+        {
+          name: "XP",
+          value: `${player.xp}/${calculateXpForLevel(player.level)}`,
+          inline: true,
+        },
+        {
+          name: "Global Rank",
+          value: `${rank}/${leaderboard.total}`,
+          inline: true,
+        },
+        {
+          name: "HP",
+          value: `${player.hp}/100`,
+          inline: true,
+        },
+        {
+          name: "Hunger",
+          value: `${player.hunger}/100`,
+          inline: true,
+        },
+        {
+          name: "Affection",
+          value: `${player.affection}/100`,
+          inline: true,
+        },
+        {
+          name: "Social",
+          value: `${player.social}/100`,
+          inline: true,
+        },
+        {
+          name: "Battle Power",
+          value: `${player.battlePower || 0}`,
+          inline: true,
+        },
+        {
+          name: "Mood",
+          value: mood,
+          inline: true,
+        },
+        {
+          name: "Sleep Status",
+          value: sleepSummary.sleeping ? "ASLEEP" : "AWAKE",
+          inline: true,
+        },
+        {
+          name: "Title",
+          value: activeTitle || "None equipped",
+          inline: true,
+        },
+        {
+          name: "Sleep Schedule",
+          value: `${sleepSummary.timezone} ${sleepSummary.startLocalTime} (${sleepSummary.durationHours}h)`,
+          inline: false,
+        }
+      )
+      .setImage(media.mediaString)
+      .setFooter({
+        text: `Adopted ${player.adoptedAt.toLocaleDateString("en-US")}`,
+        iconURL: interaction.user.displayAvatarURL(),
+      })
+      .setTimestamp();
+
+    await safeReply(interaction, {
+      embeds: [embed],
+      files: [media.mediaAttach],
+    });
   },
 };
-
-function create_info_embed(
-  client,
-  userKirby,
-  currentRank,
-  allUsers,
-  mediaString,
-  info,
-  interaction
-) {
-  const div = "---------------------------";
-  const embed = new EmbedBuilder()
-    .setAuthor({
-      name: `${client.user.username}`,
-      iconURL: `${client.user.displayAvatarURL()}`,
-      url: "https://discord.js.org",
-    })
-    .setTitle(userKirby.kirbyName)
-    .setColor(info.pink)
-    .setDescription(`${div}${info.zeroSpace}`)
-    .setURL("https://discord.js.org/#/")
-    .addFields(
-      {
-        name: "Level",
-        value: `**${userKirby.level}**`,
-        inline: true,
-      },
-      {
-        name: "Xp",
-        value: `**${userKirby.xp}**/${Math.round(
-          calculate_xp_for_level(userKirby.level)
-        )}`,
-        inline: true,
-      },
-      {
-        name: "Global Rank",
-        value: `**${currentRank}**/${allUsers.length}`,
-        inline: true,
-      }
-    )
-    .addFields(
-      {
-        name: "Health",
-        value: `**${userKirby.hp}**/100`,
-        inline: true,
-      },
-      {
-        name: "Hunger",
-        value: `**${userKirby.hunger}**/100`,
-        inline: true,
-      },
-      {
-        name: "Affection",
-        value: `**${userKirby.affection}**/100`,
-        inline: true,
-      }
-    )
-    .setThumbnail(mediaString)
-    .setTimestamp()
-    .setFooter({
-      text: `Adopted ${userKirby.adoptDate.toLocaleDateString("en-us", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })}`,
-      iconURL: `${interaction.user.displayAvatarURL()}`,
-    });
-  return embed;
-}

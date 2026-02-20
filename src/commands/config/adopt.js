@@ -1,76 +1,76 @@
 const {
-  Client,
-  Interaction,
   ApplicationCommandOptionType,
   EmbedBuilder,
 } = require("discord.js");
-const userStats = require("../../schemas/stats");
-const userDates = require("../../schemas/dates");
-const command = require("../../classes/command");
+const CommandContext = require("../../classes/command");
+const playerService = require("../../services/playerService");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
   name: "adopt",
-  description: "Adopt your kirby!",
+  description: "Adopt your Kiby!",
   deleted: false,
   options: [
     {
       name: "name",
-      description: "Choose your kirby's name.",
+      description: "Choose your Kiby's name.",
       type: ApplicationCommandOptionType.String,
       required: true,
     },
   ],
 
-  /**
-   * @brief Allow user to set up their kirby
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    const adopt = new command();
-    const media = await adopt.get_media_attachment();
-    const targetName = interaction.options.get("name").value;
+    await safeDefer(interaction, { ephemeral: false });
 
     try {
-      const userKirby = await userStats.findOne({
-        userId: interaction.user.id,
-      });
+      const targetName = interaction.options.get("name", true).value;
+      const result = await playerService.adoptPlayer(interaction.user.id, targetName);
 
-      if (userKirby) {
-        return interaction.editReply(
-          `You already have **${userKirby.kirbyName}** to take care of!`
-        );
+      if (!result.created) {
+        await safeReply(interaction, {
+          content: `You already have **${result.player.kirbyName}** to care for.`,
+          ephemeral: true,
+        });
+        return;
       }
 
-      const userDate = new userDates({
-        userId: interaction.user.id,
-      });
-
-      const newKirby = new userStats({
-        userId: interaction.user.id,
-        kirbyName: targetName,
-        adoptDate: new Date(),
-      });
-
-      await Promise.all([newKirby.save(), userDate.save()]);
+      const command = new CommandContext();
+      const media = await command.get_media_attachment("adopt");
 
       const embed = new EmbedBuilder()
-        .setTitle(client.user.username)
-        .setColor(adopt.pink)
+        .setTitle("Adoption Complete")
+        .setColor(command.pink)
         .setDescription(
-          `You have adopted a Kirby! **${targetName}** is a nice name for them.`
+          `You adopted **${result.player.kirbyName}**. Keep their hunger and affection up to help them thrive.`
         )
-        .setThumbnail(client.user.displayAvatarURL())
+        .addFields(
+          {
+            name: "Sleep Schedule",
+            value: "Use `/sleep schedule set` to configure local bedtime.",
+            inline: false,
+          },
+          {
+            name: "Starter Stats",
+            value: "HP 100, Hunger 100, Affection 100",
+            inline: false,
+          }
+        )
         .setImage(media.mediaString)
-        .setTimestamp()
         .setFooter({
-          text: `${interaction.user.username}`,
-          iconURL: `${interaction.user.displayAvatarURL()}`,
-        });
+          text: interaction.user.username,
+          iconURL: interaction.user.displayAvatarURL(),
+        })
+        .setTimestamp();
 
-      interaction.reply({ embeds: [embed], files: [media.mediaAttach] });
+      await safeReply(interaction, {
+        embeds: [embed],
+        files: [media.mediaAttach],
+      });
     } catch (error) {
-      console.error(`Error in adopt.js: $${error}`);
+      await safeReply(interaction, {
+        content: `Could not adopt Kiby: ${error.message}`,
+        ephemeral: true,
+      });
     }
   },
 };

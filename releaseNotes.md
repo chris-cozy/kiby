@@ -1,133 +1,109 @@
 # Release Notes
 
-## Version 3.11.2 - July 30, 2023
+## Version 2.0.0 - February 16, 2026
 
-- Reorganized files
-- Error catching and handling for sending message replies
+- Rebuilt Kiby as a fresh production launch with domain/service/repository architecture.
+- Added timezone-aware sleep schedule management using `/sleep schedule set|view|clear`.
+- Added seeded NPC ecosystem (36 baseline participants) and mixed leaderboard.
+- Added economy/progression systems (`/shop`, `/inventory`, `/use`, `/daily`, `/quests`).
+- Added expanded care actions: `/cuddle`, `/train`, `/bathe`.
+- Added `social` stat, mood system, and mood-aware Kiby conversation behavior.
+- Added autonomous ambient Kiby moments with opt-in controls (`/ambient`).
+- Reworked progression loop:
+  - player-local daily reset (timezone-based)
+  - streak shield mechanic
+  - 3-slot daily quest board + bonus quest
+  - daily quest reroll support.
+- Added titles system (`/titles view|equip`) and leaderboard title display.
+- Added seasonal leaderboard mode and season rollover snapshot support.
+- Added dev-restricted players-only leaderboard mode and leaderboard count options.
+- Added expanded economy:
+  - larger shop catalog
+  - toy-specific play boosts with fatigue balancing
+  - adventure support items
+  - persistent inventory/coins after Kiby death.
+- Added gifting commands:
+  - `/gift coins`
+  - `/gift item`
+- Added social interaction suite:
+  - `/social play-with` (one-way, no target notification)
+  - `/social interact` (target opt-in)
+  - `/social settings`.
+- Added asynchronous adventure system (`/adventure start|status|claim`) with:
+  - fixed baseline duration options
+  - checkpoint damage simulation
+  - fail-threshold early return
+  - wounded recovery loop on failed runs.
+- Added dual-layer world event model:
+  - existing random personal events retained
+  - new global campaign events with contribution rewards (`/events view|claim`).
+- Added revive economy updates:
+  - significant revive coin cost
+  - revive token safety valve.
+- Updated sleep command UX with timezone autocomplete guidance.
+- Added production runtime hardening: env validation, structured logs, graceful shutdown, health checks.
+- Added Docker + Docker Compose deployment support.
+- Added lint/test/CI scaffolding and expanded documentation.
 
-## Version 3.11.1 - July 28, 2023
+## Version 2.0.0 - Finalization Updates (February 17, 2026)
 
-- Decreased random message send frequency
-- Error catching and handling for sending messages to users with DMs turned off.
+- Added Battle Power progression:
+  - persistent `battlePower` stat
+  - train-based growth
+  - passive lazy decay.
+- Expanded adventures:
+  - route recommendations shifted to `0 / 90 / 180 / 300`
+  - added fourth route: **Obsidian Citadel**
+  - removed BP hard start gates
+  - BP-dominant readiness and risk model
+  - ETA windows (`baseline * 0.75` to `baseline * 1.25`)
+  - route images on start/status/claim embeds
+  - completion DM notifications
+  - new `/adventure locations` command.
+- Updated care rules:
+  - care actions locked while active adventure is in progress
+  - asleep allowances updated (`pet` and `cuddle` allowed).
+- Tightened social policy:
+  - positive social points only from `/social play-with` and `/social interact`
+  - removed positive social gains from solo care, toy use, and passive effects.
+- Expanded global event controls:
+  - developer-only `/globalevent start`
+  - active-player goal scaling using 24h activity.
+- Added Kiby language progression v1:
+  - tokenized Kiby dialogue/flavor
+  - per-player translation unlocks by exposure
+  - `/language` command.
+- Added `/feedback` command for direct player feedback to developers.
+- Added recipient DM notifications for gifted coins/items.
+- Updated configuration/documentation for all above changes under the v2.0.0 release line.
 
-## Version 3.11.0 - July 18, 2023
+## Version 2.0.0 - Event Cadence + Social Anti-Spam Update (February 18, 2026)
 
-- Altered depracated user tag in leaderboard to display name
-- Update dm sending methods
+- Refactored global campaign lifecycle to scheduler-driven sporadic starts:
+  - removed lazy auto-start side effects from status/contribution/claim paths
+  - random duration range: `24-72h`
+  - random post-event idle gap range: `24-48h`
+  - eligibility + chance start model (`35%` per tick once eligible).
+- Added active-user global event start notifications:
+  - audience: users active in last 24h (`lastActionAt`)
+  - best-effort DM fanout with delivery/failure logging.
+- Added new global event scheduler cycle state persistence (`GlobalEventCycleState`) for deterministic lifecycle tracking.
+- Updated event command behavior:
+  - `/events view` supports explicit idle state with next-eligible timing/cadence details
+  - `/events claim` now returns no-active-event when no campaign event is running.
+- Updated direct social interactions (`/social interact`):
+  - receiver-side anti-spam cooldown (default 45 minutes)
+  - successful interaction applies receiver stat gains
+  - successful interaction sends receiver notification DM (best effort, no rollback on DM failure).
+- Confirmed `/social play-with` remains one-way/no-notify with no receiver stat impact.
+- Added new environment knobs:
+  - `GLOBAL_EVENT_DURATION_MIN_HOURS`
+  - `GLOBAL_EVENT_DURATION_MAX_HOURS`
+  - `GLOBAL_EVENT_IDLE_GAP_MIN_HOURS`
+  - `GLOBAL_EVENT_IDLE_GAP_MAX_HOURS`
+  - `GLOBAL_EVENT_START_CHANCE_PER_TICK_PERCENT`
+  - `SOCIAL_RECEIVE_COOLDOWN_MINUTES`.
 
-## Version 3.10.0 - June 7, 2023
+## Legacy Note
 
-- Implemented revive dev command
-- Decreased hp losses to minimum
-- Added release notes
-
-## Version 3.9.1 - June 6, 2023
-
-- Bug fixes
-- Greatly reduced point losses for hunger and affection
-
-## Version 3.9.0 - June 6, 2023
-
-- Bug fixes
-- Implemented top.gg feature, to uploade stats
-
-## Version 3.8.3 - June 5, 2023
-
-- Updated sent DMs to show user's kirby
-- Decreased health loss rate
-
-## Version 3.8.2 - June 5, 2023
-
-- Optimized entire codebase
-- Implemented 20% chance on care check for a user to recieve a message from their kirby (unless kirby is asleep)
-- Fixed bug when message ephemerality was reversed
-- Fixed bug preventing dead kirby data to save
-- Messages no longer attempt to wsend to users with DMs off
-
-## Version 3.8.0 - June 4, 2023
-
-- Updated bot status to help command
-- Implemented feature to save information of dead kirbys
-
-## Version 3.7.0 - June 4, 2023
-
-- Rebalanced care checking (decreased hp drain, increased hunger and affection drain)
-- Updated leaderboard to bold user's name if they appear
-- Implemented help command
-
-## Version 3.6.0 - June 4, 2023
-
-- Updated leaderboard to display the total Kiby count
-- Changed leaderboard name
-- Updated feed cooldown to show if kirby is full
-- Updated sleep command to display how long kirby will sleep for
-- Updated cooldown display for simpler viewing
-- Rebalanced care checking (Altered to 30min check cycle, decreased point drains)
-
-## Version 3.5.0 - June 3, 2023
-
-- Switched from displaying username to discriminator, for privacy
-- Fixed bug in feed cooldown
-- Updated invite link
-- Decreased feeding cooldown
-- Deleted hunger points gain in respect to cooldown
-- Replaced cooldown dates with time countdown
-- Increased sleep time to 9 hours
-- Implemented notifications for hunger, death, and affection needs
-- Updated ephemeral settings
-
-## Version 3.4.0 - May 18, 2023
-
-- Cleaned and optimized code
-- Added more kirby images
-
-## Version 3.3.0 - May 1, 2023
-
-- Implemented cooldowns command
-- Fixed bugs
-
-## Version 3.0.6 - April 30, 2023
-
-- Implemented sleep command
-- Pet and Play have different cooldowns
-- All commands have a pink embed color
-- Implemented leaderboard command
-- Altered info card design
-
-## Version 3.0.4 - April 27, 2023
-
-- Implemented heal when kirby's needs are met
-- Care commands in DM are not ephemeral
-- Updated info command
-- Updated adopt command
-- Uploaded more kirby media
-- Cleaned code
-
-## Version 3.0.0 - April 25, 2023
-
-- Implemented feed command
-- Implemented play command
-- Implemented pet command
-- Replaced tenor gifs with local images
-
-## Version 2.1.0 - April 24, 2023
-
-- Implemented care and health decay, and death
-- Implemented last care dates
-
-## Version 2.0.0 - April 24, 2023
-
-- Implemented info command
-- Implemented tenor gif API for displaying Kirby graphics
-- Connected to database for data retention
-- Implemented configure command
-
-## Version 1.1.0 - April 11, 2023
-
-- Removed OpenAI API
-- Created Kirby lexicon for chatting feature
-
-## Version 1.0.0 - April 11, 2023
-
-- Set up initial project
-- Integrated OpenAI API for chatting feature
+All pre-2.0 historical release notes remain in `/CHANGELOG.md` under the `1.0.0` legacy baseline section.

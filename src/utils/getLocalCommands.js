@@ -1,33 +1,42 @@
-const path = require('path');
-const get_all_files = require('./getAllFiles');
+const path = require("path");
+const getAllFiles = require("./getAllFiles");
 
-/**
- * @brief Grab local commands (in codebase)
- * @param {Array} exceptions - Array of command names to skip over
- * @returns Array of local commmand objects
- */
-module.exports = (exceptions = []) => {
-    let localCommands = [];
+let cachedCommands = null;
 
-    // Grab all subdirs of command directory
-    const commandCategories = get_all_files(
-        path.join(__dirname, '..', 'commands'),
-        true
-    )
+function readCommandsFromDisk() {
+  const localCommands = [];
+  const commandCategories = getAllFiles(path.join(__dirname, "..", "commands"), true)
+    .slice()
+    .sort((a, b) => a.localeCompare(b));
 
-    for (const commandCategory of commandCategories) {
-        const commandFiles = get_all_files(commandCategory);
+  for (const category of commandCategories) {
+    const commandFiles = getAllFiles(category)
+      .slice()
+      .sort((a, b) => a.localeCompare(b));
 
-        // Create a require() object for each file in command category
-        for (const commandFile of commandFiles) {
-            const commandObject = require(commandFile);
-
-            // Ignore commands in exceptions
-            if (exceptions.includes(commandObject.name)) {
-                continue;
-            }
-            localCommands.push(commandObject);
-        }
+    for (const commandFile of commandFiles) {
+      delete require.cache[require.resolve(commandFile)];
+      const commandObject = require(commandFile);
+      localCommands.push(commandObject);
     }
-    return localCommands;
+  }
+
+  return localCommands;
+}
+
+module.exports = (exceptions = []) => {
+  if (!cachedCommands) {
+    cachedCommands = readCommandsFromDisk();
+  }
+
+  if (!exceptions.length) {
+    return cachedCommands;
+  }
+
+  return cachedCommands.filter((command) => !exceptions.includes(command.name));
+};
+
+module.exports.refresh = () => {
+  cachedCommands = readCommandsFromDisk();
+  return cachedCommands;
 };

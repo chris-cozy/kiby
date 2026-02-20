@@ -1,140 +1,115 @@
-const { Client, Interaction, EmbedBuilder } = require("discord.js");
-const userStats = require("../../schemas/stats");
-const userDates = require("../../schemas/dates");
-const command = require("../../classes/command");
-const convert_countdown = require("../../utils/convertCountdown");
+const { EmbedBuilder } = require("discord.js");
+const CommandContext = require("../../classes/command");
+const playerService = require("../../services/playerService");
+const sleepService = require("../../services/sleepService");
+const { getActionCooldownMs } = require("../../domain/care/rules");
+const convertCountdown = require("../../utils/convertCountdown");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
+
+function getActionAvailability(nowMs, lastActionAt, cooldownMs) {
+  if (!lastActionAt) {
+    return "READY";
+  }
+
+  const elapsed = nowMs - new Date(lastActionAt).getTime();
+  if (elapsed >= cooldownMs) {
+    return "READY";
+  }
+
+  return convertCountdown(cooldownMs - elapsed);
+}
 
 module.exports = {
   name: "cooldowns",
-  description: "List the cooldown timers for your Kirby!",
-  devonly: false,
-  testOnly: false,
+  description: "View interaction cooldowns for your Kiby.",
   deleted: false,
 
-  /**
-   * @brief List the cooldown timers for the user's kirby
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    const deferOptions = { ephemeral: interaction.inGuild() };
-    await interaction.deferReply(deferOptions);
+    await safeDefer(interaction, { ephemeral: true });
 
-    const cooldown = new command();
-    const playWait = 10 * cooldown.milliConversion;
-    const petWait = 5 * cooldown.milliConversion;
-    const feedWait = 10 * cooldown.milliConversion;
-
-    let userKirby = await userStats.findOne({ userId: interaction.user.id });
-
-    if (!userKirby) {
-      interaction.editReply(
-        `You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`
-      );
+    const player = await playerService.getPlayerByUserId(interaction.user.id);
+    if (!player) {
+      await safeReply(interaction, {
+        content: "You do not have a Kiby yet. Use `/adopt` first.",
+        ephemeral: true,
+      });
       return;
     }
 
-    let userDate = await userDates.findOne({ userId: interaction.user.id });
+    const schedule = await sleepService.getScheduleForUser(interaction.user.id);
+    const summary = sleepService.getSleepSummary(schedule, new Date());
+    const nowMs = Date.now();
 
-    try {
-      const awakeDate = new Date(
-        userDate.lastSleep.getTime() + cooldown.sleepTime
-      );
-      let sleepCooldown;
-      let petCooldown;
-      let playCooldown;
-      let feedCooldown;
-      let status;
+    const petReady = getActionAvailability(nowMs, player.lastCare.pet, getActionCooldownMs("pet"));
+    const feedReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.feed, getActionCooldownMs("feed"));
+    const playReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.play, getActionCooldownMs("play"));
+    const cuddleReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.cuddle, getActionCooldownMs("cuddle"));
+    const trainReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.train, getActionCooldownMs("train"));
+    const batheReady = summary.sleeping
+      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
+      : getActionAvailability(nowMs, player.lastCare.bathe, getActionCooldownMs("bathe"));
 
-      // If Kirby is still asleep, set cooldowns to wake time. Else, check individual times
-      if (cooldown.currentDate < awakeDate) {
-        status = "ASLEEP";
-        sleepCooldown = convert_countdown(
-          awakeDate.getTime() - cooldown.currentDate.getTime()
-        );
-        playCooldown = "--";
-        feedCooldown = "--";
-      } else {
-        status = "AWAKE";
-        sleepCooldown = `--`;
-
-        if (cooldown.currentDate > userDate.lastPlay.getTime() + playWait) {
-          playCooldown = "CAN PLAY";
-        } else {
-          playCooldown = convert_countdown(
-            userDate.lastPlay.getTime() +
-              playWait -
-              cooldown.currentDate.getTime()
-          );
+    const command = new CommandContext();
+    const embed = new EmbedBuilder()
+      .setTitle("Cooldowns")
+      .setColor(command.pink)
+      .setDescription(`Current interaction availability for **${player.kirbyName}**.`)
+      .addFields(
+        {
+          name: "Sleep Status",
+          value: summary.sleeping
+            ? `ASLEEP (${convertCountdown(summary.remainingMs)} left)`
+            : "AWAKE",
+          inline: false,
+        },
+        {
+          name: "Pet",
+          value: petReady,
+          inline: true,
+        },
+        {
+          name: "Feed",
+          value: feedReady,
+          inline: true,
+        },
+        {
+          name: "Play",
+          value: playReady,
+          inline: true,
+        },
+        {
+          name: "Cuddle",
+          value: cuddleReady,
+          inline: true,
+        },
+        {
+          name: "Train",
+          value: trainReady,
+          inline: true,
+        },
+        {
+          name: "Bathe",
+          value: batheReady,
+          inline: true,
         }
+      )
+      .setFooter({
+        text: client.user.username,
+        iconURL: client.user.displayAvatarURL(),
+      })
+      .setTimestamp();
 
-        if (cooldown.currentDate > userDate.lastFeed.getTime() + feedWait) {
-          if (userKirby.hunger == 100) {
-            feedCooldown = `${userKirby.kirbyName} is FULL`;
-          } else {
-            feedCooldown = "CAN FEED";
-          }
-        } else {
-          feedCooldown = convert_countdown(
-            userDate.lastFeed.getTime() +
-              feedWait -
-              cooldown.currentDate.getTime()
-          );
-        }
-      }
-
-      if (cooldown.currentDate > userDate.lastPet.getTime() + petWait) {
-        petCooldown = "CAN PET";
-      } else {
-        petCooldown = convert_countdown(
-          userDate.lastPet.getTime() + petWait - cooldown.currentDate.getTime()
-        );
-      }
-
-      const embed = new EmbedBuilder()
-        .setTitle("**COOLDOWNS**")
-        .setColor(cooldown.pink)
-        .setDescription(
-          `The times when you can interact with **${userKirby.kirbyName}**!`
-        )
-        .addFields(
-          {
-            name: "Status",
-            value: `${status}`,
-            inline: true,
-          },
-          {
-            name: "Wake Time",
-            value: `${sleepCooldown}`,
-            inline: true,
-          }
-        )
-        .addFields(
-          {
-            name: "Pet",
-            value: `${petCooldown}`,
-            inline: true,
-          },
-          {
-            name: "Play",
-            value: `${playCooldown}`,
-            inline: true,
-          },
-          {
-            name: "Feed",
-            value: `${feedCooldown}`,
-            inline: true,
-          }
-        )
-        .setTimestamp()
-        .setFooter({
-          text: `${client.user.tag} `,
-          iconURL: `${client.user.displayAvatarURL()}`,
-        });
-
-      interaction.editReply({ embeds: [embed] });
-    } catch (error) {
-      console.error(`Error in cooldown.js: ${error}`);
-    }
+    await safeReply(interaction, {
+      embeds: [embed],
+      ephemeral: true,
+    });
   },
 };

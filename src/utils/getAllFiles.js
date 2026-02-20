@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 /**
  * @brief Grab file paths or subdir paths in a directory
@@ -20,7 +20,7 @@ module.exports = (directory, foldersOnly = false) => {
         // Add filepaths to array
         if (foldersOnly) {
             if (file.isDirectory()) {
-                fileNames.push(filePath)
+                fileNames.push(filePath);
             }
         } else {
             if (file.isFile()) {
@@ -30,4 +30,4 @@ module.exports = (directory, foldersOnly = false) => {
     }
 
     return fileNames;
-}
+};

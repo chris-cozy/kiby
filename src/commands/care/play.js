@@ -1,140 +1,162 @@
-const { Client, Interaction, EmbedBuilder } = require("discord.js");
-const userStats = require("../../schemas/stats");
-const userDates = require("../../schemas/dates");
-const calculate_xp_for_level = require("../../utils/calculateXpForLevel");
-const random_number = require("../../utils/randomNumber");
-const command = require("../../classes/command");
+const { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
+const CommandContext = require("../../classes/command");
+const careService = require("../../services/careService");
+const economyService = require("../../services/economyService");
+const progressionService = require("../../services/progressionService");
+const playerRepository = require("../../repositories/playerRepository");
+const convertCountdown = require("../../utils/convertCountdown");
+const { safeDefer, safeReply } = require("../../utils/interactionReply");
+
+const TOY_CHOICES = economyService.listItemsByContext("play").map((item) => ({
+  name: item.label,
+  value: item.id,
+}));
 
 module.exports = {
   name: "play",
-  description: "Play with your Kirby!",
-  devonly: false,
-  testOnly: false,
+  description: "Play with your Kiby.",
   deleted: false,
+  devOnly: false,
+  testOnly: false,
+  options: [
+    {
+      name: "toy",
+      description: "Optional toy to enhance play effects.",
+      type: ApplicationCommandOptionType.String,
+      required: false,
+      choices: TOY_CHOICES,
+    },
+  ],
 
-  /**
-   * @brief Play with user's Kirby
-   * @param {Client} client
-   * @param {Interaction} interaction
-   */
   callback: async (client, interaction) => {
-    const play = new command(10);
-    const media = await play.get_media_attachment("play");
+    await safeDefer(interaction, { ephemeral: false });
 
-    const deferOptions = { ephemeral: interaction.inGuild() };
-    await interaction.deferReply(deferOptions);
+    const result = await careService.runActionForUser(
+      interaction.user.id,
+      "play",
+      new Date()
+    );
 
-    const userKirby = await userStats.findOne({ userId: interaction.user.id });
-    const userDate = await userDates.findOne({ userId: interaction.user.id });
-
-    // Check if user owns a Kirby
-    if (!userKirby) {
-      interaction.editReply(
-        "You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey."
-      );
-      return;
-    }
-
-    try {
-      const awakeDate = new Date(userDate.lastSleep.getTime() + play.sleepTime);
-
-      // If Kirby is still asleep, show an error message
-      if (play.currentDate < awakeDate) {
-        interaction.editReply(
-          `You can't play with ${userKirby.kirbyName} while they're asleep!`
-        );
-        return;
-      }
-
-      // Check if it has been enough time since last affection
-      if (play.currentDate - userDate.lastPlay < play.interactionCooldown) {
-        interaction.editReply({
-          content: `You can only play ${userKirby.kirbyName} every ${play.cooldownMins} minutes! They need personal time too!`,
+    if (!result.ok) {
+      if (result.reason === "missing-player") {
+        await safeReply(interaction, {
+          content: "You do not have a Kiby yet. Use `/adopt` first.",
           ephemeral: true,
         });
         return;
       }
 
-      // Generate affection and xp amount
-      let affectionGranted = random_number(6, 10);
-      const xpGranted = random_number(10, 20);
-
-      if (userKirby.affection + affectionGranted > play.max) {
-        affectionGranted = play.max - userKirby.affection;
-      }
-
-      // Update feed and XP in the database
-      userDate.lastPlay = play.currentDate;
-      userKirby.affection += affectionGranted;
-      userKirby.xp += xpGranted;
-
-      // If user's XP exceeds that for current level
-      if (userKirby.xp > calculate_xp_for_level(userKirby.level)) {
-        userKirby.xp = 0;
-        userKirby.level += 1;
-
-        interaction.editReply({
-          content: `**${userKirby.kirbyName}** has leveled up to level **${userKirby.level}**!`,
+      if (result.reason === "asleep") {
+        await safeReply(interaction, {
+          content: `**${result.player.kirbyName}** is asleep and cannot play right now.`,
+          ephemeral: true,
         });
+        return;
       }
 
-      // Save database updates
-      await Promise.all([userKirby.save(), userDate.save()]);
-      const embed = create_play_embed(
-        client,
-        userKirby,
-        affectionGranted,
-        media.mediaString,
-        play,
-        interaction,
-        xpGranted
+      if (result.reason === "adventuring") {
+        await safeReply(interaction, {
+          content: `**${result.player.kirbyName}** is currently on an adventure. Care actions are locked until they return.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      if (result.reason === "cooldown") {
+        await safeReply(interaction, {
+          content: `You can play again in ${convertCountdown(result.waitMs)}.`,
+          ephemeral: true,
+        });
+        return;
+      }
+    }
+
+    const toyId = interaction.options.getString("toy");
+
+    if (toyId) {
+      const toyUse = await economyService.useToyForPlay(
+        interaction.user.id,
+        toyId,
+        result.player,
+        new Date()
       );
 
-      interaction.editReply({ embeds: [embed], files: [media.mediaAttach] });
-    } catch (error) {
-      console.error(`Error in play.js: ${error}`);
+      if (!toyUse.ok) {
+        result.toyError =
+          toyUse.reason === "missing-item"
+            ? `Toy not applied: you do not have **${toyUse.item.label}** in inventory.`
+            : "Toy not applied: invalid toy selection.";
+      } else {
+        result.updates.affectionGranted += toyUse.effects.affection;
+        result.updates.xpGranted += toyUse.effects.xp;
+        result.updates.leveledUp = result.updates.leveledUp || toyUse.effects.leveledUp;
+        result.updates.newLevel = toyUse.effects.newLevel;
+        await playerRepository.savePlayer(result.player);
+        await progressionService.recordItemUse(interaction.user.id, new Date());
+        result.toyUse = toyUse;
+      }
     }
+
+    const command = new CommandContext();
+    const media = await command.get_media_attachment("play");
+    const { player, updates } = result;
+
+    const embed = new EmbedBuilder()
+      .setTitle("Playtime")
+      .setColor(command.pink)
+      .setDescription(`**${interaction.user.username}** played with **${player.kirbyName}**.`)
+      .addFields(
+        {
+          name: "Affection",
+          value: `+${updates.affectionGranted} (now ${player.affection}/100)`,
+          inline: true,
+        },
+        {
+          name: "XP",
+          value: `+${updates.xpGranted}`,
+          inline: true,
+        },
+        {
+          name: "Level",
+          value: `${player.level}`,
+          inline: true,
+        }
+      )
+      .setImage(media.mediaString)
+      .setTimestamp()
+      .setFooter({
+        text: client.user.username,
+        iconURL: client.user.displayAvatarURL(),
+      });
+
+    if (updates.leveledUp) {
+      embed.addFields({
+        name: "Level Up",
+        value: `**${player.kirbyName}** reached level **${updates.newLevel}**!`,
+      });
+    }
+
+    if (result.toyUse) {
+      embed.addFields({
+        name: "Toy Bonus",
+        value: `Used **${result.toyUse.item.label}**${
+          result.toyUse.fatigueApplied ? " (fatigue reduced effectiveness)" : ""
+        }.`,
+        inline: false,
+      });
+    }
+
+    if (result.toyError) {
+      embed.addFields({
+        name: "Toy Result",
+        value: result.toyError,
+        inline: false,
+      });
+    }
+
+    await safeReply(interaction, {
+      embeds: [embed],
+      files: [media.mediaAttach],
+    });
   },
 };
-
-function create_play_embed(
-  client,
-  userKirby,
-  affectionGranted,
-  mediaString,
-  play,
-  interaction,
-  xpGranted
-) {
-  return new EmbedBuilder()
-    .setTitle("**PLAYING**")
-    .setColor(play.pink)
-    .setDescription(
-      `**${interaction.user.username}** is playing with **${userKirby.kirbyName}**!`
-    )
-    .addFields(
-      {
-        name: "Health",
-        value: `${userKirby.hp}`,
-        inline: true,
-      },
-      {
-        name: "Affection",
-        value: `${userKirby.affection - affectionGranted} -> ${
-          userKirby.affection
-        }`,
-        inline: true,
-      },
-      {
-        name: "XP",
-        value: `+${xpGranted}`,
-        inline: true,
-      }
-    )
-    .setImage(mediaString)
-    .setTimestamp()
-    .setFooter({
-      text: `${client.user.username} `,
-      iconURL: `${client.user.displayAvatarURL()}`,
-    });
-}

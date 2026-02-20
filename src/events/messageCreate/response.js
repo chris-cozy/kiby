@@ -1,40 +1,38 @@
-const { Client, Message } = require("discord.js");
-const construct_sentence = require("../../utils/constructSentence");
-const userStats = require("../../schemas/stats");
+const playerRepository = require("../../repositories/playerRepository");
+const sleepService = require("../../services/sleepService");
+const { buildConversationLine } = require("../../services/dialogueService");
 
-/**
- * @brief Handle a message sent in the server. Upon being mentioned, respond with random combination of kirby language
- * @param {Client} client - The bot
- * @param {Message} message - The message which was sent
- */
 module.exports = async (client, message) => {
-  // Ignore message if author is a bot
   if (message.author.bot) {
     return;
   }
 
-  if (message.mentions.has(client.user.id)) {
-    const userKirby = await userStats.findOne({ userId: message.author.id });
+  if (!message.mentions.has(client.user.id)) {
+    return;
+  }
 
-    if (!userKirby) {
-      message.reply(
-        `You don't yet own a Kirby! Use command **/adopt** to start your Kirby journey.`
-      );
-      return;
-    }
+  const player = await playerRepository.findByUserId(message.author.id);
 
-    // Give the illusion of bot typing
-    try {
-      await message.channel.sendTyping();
+  if (!player) {
+    await message.reply(
+      "You do not own a Kiby yet. Use `/adopt` to start your journey."
+    );
+    return;
+  }
 
-      const kirbyName = userKirby.kirbyName;
-      const response = construct_sentence();
+  try {
+    const schedule = await sleepService.getScheduleForUser(message.author.id);
+    const sleeping = sleepService.isSleepingNow(schedule, new Date());
+    const line = await buildConversationLine(
+      message.author.id,
+      player,
+      { sleeping },
+      new Date()
+    );
 
-      message.reply(`**${kirbyName}**: ` + response);
-    } catch (error) {
-      console.error(
-        `Could not send Kirby message reply due to error: ${error}`
-      );
-    }
+    await message.channel.sendTyping();
+    await message.reply(`**${player.kirbyName}**: ${line}`);
+  } catch (error) {
+    console.error(`Could not send Kiby response: ${error.message}`);
   }
 };
