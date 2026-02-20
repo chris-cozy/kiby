@@ -30,6 +30,23 @@ Services:
 - `kiby`: Discord bot runtime
 - `mongo`: local MongoDB
 
+### NAS Bind-Mount Permissions
+If the container crashes with `EACCES: permission denied, open '/app/package.json'`, the app user cannot read files in `/app`.
+
+Preferred production setup:
+- do not bind-mount the project source into `/app`
+- let the image copy files at build time
+
+If you intentionally bind-mount source on a NAS, either:
+- make the project directory readable by the container user (for example `chmod -R a+rX <project-dir>`)
+- or run the service with a matching host UID/GID:
+
+```yaml
+services:
+  kiby:
+    user: "${PUID:-1000}:${PGID:-1000}"
+```
+
 ## Health
 `GET /health`
 - `200` when Discord + DB are ready

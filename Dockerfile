@@ -1,14 +1,14 @@
 FROM node:20-alpine AS base
 
+RUN addgroup -S kiby && adduser -S kiby -G kiby
 WORKDIR /app
+RUN chown kiby:kiby /app
 
-COPY package*.json ./
+COPY --chown=kiby:kiby package*.json ./
+USER kiby
 RUN npm ci --omit=dev
 
-COPY . .
-
-RUN addgroup -S kiby && adduser -S kiby -G kiby
-USER kiby
+COPY --chown=kiby:kiby . .
 
 ENV NODE_ENV=production
 EXPOSE 8080
