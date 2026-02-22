@@ -77,21 +77,6 @@ module.exports = {
         )
         .addFields(
           {
-            name: "Next Eligible Start",
-            value: new Date(status.nextEligibleAt).toLocaleString("en-US"),
-            inline: false,
-          },
-          {
-            name: "Cadence",
-            value: `Duration: ${status.durationRangeHours[0]}-${status.durationRangeHours[1]}h | Quiet Gap: ${status.idleGapRangeHours[0]}-${status.idleGapRangeHours[1]}h`,
-            inline: false,
-          },
-          {
-            name: "Start Chance Per Tick",
-            value: `${status.startChancePerTickPercent}%`,
-            inline: false,
-          },
-          {
             name: "Kiby Signal",
             value: flavor,
             inline: false,
@@ -138,14 +123,6 @@ module.exports = {
         }
       )
       .setTimestamp();
-
-    if (status.scalingSnapshot) {
-      embed.addFields({
-        name: "Scaled Goal",
-        value: `Active(24h): ${status.scalingSnapshot.activePlayers} | Target/Active: ${status.scalingSnapshot.targetPerActive} | Multiplier: ${status.scalingSnapshot.goalMultiplier}`,
-        inline: false,
-      });
-    }
 
     const media = await command.get_media_attachment(
       resolveGlobalEventMediaKey({

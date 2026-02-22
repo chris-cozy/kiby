@@ -6,6 +6,7 @@ const sleepService = require("../../services/sleepService");
 const { calculateXpForLevel } = require("../../domain/progression/calculateXpForLevel");
 const { evaluateMood } = require("../../domain/mood/evaluateMood");
 const titleService = require("../../services/titleService");
+const onboardingService = require("../../services/onboardingService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -49,13 +50,8 @@ module.exports = {
       .setColor(command.pink)
       .addFields(
         {
-          name: "Level",
-          value: `${player.level}`,
-          inline: true,
-        },
-        {
-          name: "XP",
-          value: `${player.xp}/${calculateXpForLevel(player.level)}`,
+          name: `Level ${player.level}`,
+          value: `${player.xp}/${calculateXpForLevel(player.level)} XP`,
           inline: true,
         },
         {
@@ -107,11 +103,16 @@ module.exports = {
           name: "Sleep Schedule",
           value: `${sleepSummary.timezone} ${sleepSummary.startLocalTime} (${sleepSummary.durationHours}h)`,
           inline: false,
+        },
+        {
+          name: "Adopted At",
+          value: player.adoptedAt.toLocaleDateString("en-US"),
+          inline: true,
         }
       )
       .setImage(media.mediaString)
       .setFooter({
-        text: `Adopted ${player.adoptedAt.toLocaleDateString("en-US")}`,
+        text: interaction.user.username,
         iconURL: interaction.user.displayAvatarURL(),
       })
       .setTimestamp();
@@ -120,5 +121,15 @@ module.exports = {
       embeds: [embed],
       files: [media.mediaAttach],
     });
+    try {
+      await onboardingService.recordEvent(
+        interaction.user.id,
+        "info-view",
+        {},
+        new Date()
+      );
+    } catch {
+      // Ignore onboarding tracking failures.
+    }
   },
 };

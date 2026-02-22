@@ -5,6 +5,9 @@ const {
 const CommandContext = require("../../classes/command");
 const economyService = require("../../services/economyService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 const ITEM_CHOICES = economyService.listShopItems().map((item) => ({
   name: item.label,
@@ -75,6 +78,13 @@ module.exports = {
         files: [media.mediaAttach],
         ephemeral: true,
       });
+      await recordTutorialEventAndFollowUp(
+        interaction,
+        interaction.user.id,
+        "economy-interaction",
+        { interaction: "shop-list" },
+        new Date()
+      );
       return;
     }
 

@@ -4,6 +4,7 @@
 - `gameplay.md`: gameplay and simulation rules
 - `deployment.md`: production deployment guidance
 - `policy.md`: synthetic participant policy disclosure
+- `legal/`: versioned Terms of Service and Privacy Policy drafts
 - `commands.md`: command reference
 - `testing.md`: test and verification guidance
 - `roadmap-completion.md`: roadmap implementation mapping

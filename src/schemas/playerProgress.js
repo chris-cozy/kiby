@@ -259,6 +259,118 @@ const playerProgressSchema = new Schema(
         default: {},
       },
     },
+    onboarding: {
+      adoptionCount: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      firstAdoptedAt: {
+        type: Date,
+        default: null,
+      },
+      lastAdoptedAt: {
+        type: Date,
+        default: null,
+      },
+      runsStarted: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      runsCompleted: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      runsSkipped: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+      latestRun: {
+        runId: {
+          type: String,
+          default: "",
+        },
+        version: {
+          type: Number,
+          default: 1,
+          min: 1,
+        },
+        source: {
+          type: String,
+          default: "",
+        },
+        status: {
+          type: String,
+          enum: ["none", "active", "completed", "skipped"],
+          default: "none",
+        },
+        startedAt: {
+          type: Date,
+          default: null,
+        },
+        endedAt: {
+          type: Date,
+          default: null,
+        },
+        currentStep: {
+          type: String,
+          default: "care",
+        },
+        steps: {
+          care: {
+            type: Date,
+            default: null,
+          },
+          sleep: {
+            type: Date,
+            default: null,
+          },
+          training: {
+            type: Date,
+            default: null,
+          },
+          adventure: {
+            type: Date,
+            default: null,
+          },
+          economy: {
+            type: Date,
+            default: null,
+          },
+          leaderboard: {
+            type: Date,
+            default: null,
+          },
+          social: {
+            type: Date,
+            default: null,
+          },
+        },
+        economyInteraction: {
+          type: String,
+          default: "",
+        },
+        helpViewedAt: {
+          type: Date,
+          default: null,
+        },
+        infoViewedAt: {
+          type: Date,
+          default: null,
+        },
+        cooldownsViewedAt: {
+          type: Date,
+          default: null,
+        },
+        recapShownAt: {
+          type: Date,
+          default: null,
+        },
+      },
+    },
   },
   { timestamps: true }
 );

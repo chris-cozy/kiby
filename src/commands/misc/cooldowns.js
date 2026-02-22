@@ -2,21 +2,22 @@ const { EmbedBuilder } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const playerService = require("../../services/playerService");
 const sleepService = require("../../services/sleepService");
+const onboardingService = require("../../services/onboardingService");
 const { getActionCooldownMs } = require("../../domain/care/rules");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
-function getActionAvailability(nowMs, lastActionAt, cooldownMs) {
+function getActionRemainingMs(nowMs, lastActionAt, cooldownMs) {
   if (!lastActionAt) {
-    return "READY";
+    return 0;
   }
 
   const elapsed = nowMs - new Date(lastActionAt).getTime();
   if (elapsed >= cooldownMs) {
-    return "READY";
+    return 0;
   }
 
-  return convertCountdown(cooldownMs - elapsed);
+  return cooldownMs - elapsed;
 }
 
 module.exports = {
@@ -40,67 +41,91 @@ module.exports = {
     const summary = sleepService.getSleepSummary(schedule, new Date());
     const nowMs = Date.now();
 
-    const petReady = getActionAvailability(nowMs, player.lastCare.pet, getActionCooldownMs("pet"));
-    const feedReady = summary.sleeping
-      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
-      : getActionAvailability(nowMs, player.lastCare.feed, getActionCooldownMs("feed"));
-    const playReady = summary.sleeping
-      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
-      : getActionAvailability(nowMs, player.lastCare.play, getActionCooldownMs("play"));
-    const cuddleReady = summary.sleeping
-      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
-      : getActionAvailability(nowMs, player.lastCare.cuddle, getActionCooldownMs("cuddle"));
-    const trainReady = summary.sleeping
-      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
-      : getActionAvailability(nowMs, player.lastCare.train, getActionCooldownMs("train"));
-    const batheReady = summary.sleeping
-      ? `ASLEEP (${convertCountdown(summary.remainingMs)})`
-      : getActionAvailability(nowMs, player.lastCare.bathe, getActionCooldownMs("bathe"));
+    const cooldownEntries = [
+      {
+        name: "Pet",
+        remainingMs: getActionRemainingMs(
+          nowMs,
+          player.lastCare.pet,
+          getActionCooldownMs("pet")
+        ),
+      },
+      {
+        name: "Feed",
+        remainingMs: getActionRemainingMs(
+          nowMs,
+          player.lastCare.feed,
+          getActionCooldownMs("feed")
+        ),
+      },
+      {
+        name: "Play",
+        remainingMs: getActionRemainingMs(
+          nowMs,
+          player.lastCare.play,
+          getActionCooldownMs("play")
+        ),
+      },
+      {
+        name: "Cuddle",
+        remainingMs: getActionRemainingMs(
+          nowMs,
+          player.lastCare.cuddle,
+          getActionCooldownMs("cuddle")
+        ),
+      },
+      {
+        name: "Train",
+        remainingMs: getActionRemainingMs(
+          nowMs,
+          player.lastCare.train,
+          getActionCooldownMs("train")
+        ),
+      },
+      {
+        name: "Bathe",
+        remainingMs: getActionRemainingMs(
+          nowMs,
+          player.lastCare.bathe,
+          getActionCooldownMs("bathe")
+        ),
+      },
+    ]
+      .filter((entry) => entry.remainingMs > 0)
+      .sort((a, b) => a.remainingMs - b.remainingMs);
 
     const command = new CommandContext();
+    const description = cooldownEntries.length
+      ? `Active cooldown timers for **${player.kirbyName}**.`
+      : summary.sleeping
+        ? `No active cooldown timers for **${player.kirbyName}**. While asleep, only \`/pet\` and \`/cuddle\` are available.`
+        : `No active cooldown timers for **${player.kirbyName}**. All care actions are ready.`;
+
+    const fields = [
+      {
+        name: "Sleep Status",
+        value: summary.sleeping
+          ? `ASLEEP (${convertCountdown(summary.remainingMs)} left)`
+          : "AWAKE",
+        inline: false,
+      },
+    ];
+
+    if (cooldownEntries.length) {
+      fields.push(
+        ...cooldownEntries.map((entry) => ({
+          name: entry.name,
+          value: convertCountdown(entry.remainingMs),
+          inline: true,
+        }))
+      );
+    }
+
     const embed = new EmbedBuilder()
       .setTitle("Cooldowns")
       .setColor(command.pink)
-      .setDescription(`Current interaction availability for **${player.kirbyName}**.`)
-      .addFields(
-        {
-          name: "Sleep Status",
-          value: summary.sleeping
-            ? `ASLEEP (${convertCountdown(summary.remainingMs)} left)`
-            : "AWAKE",
-          inline: false,
-        },
-        {
-          name: "Pet",
-          value: petReady,
-          inline: true,
-        },
-        {
-          name: "Feed",
-          value: feedReady,
-          inline: true,
-        },
-        {
-          name: "Play",
-          value: playReady,
-          inline: true,
-        },
-        {
-          name: "Cuddle",
-          value: cuddleReady,
-          inline: true,
-        },
-        {
-          name: "Train",
-          value: trainReady,
-          inline: true,
-        },
-        {
-          name: "Bathe",
-          value: batheReady,
-          inline: true,
-        }
-      )
+      .setDescription(description)
+      .addFields(...fields)
       .setFooter({
         text: client.user.username,
         iconURL: client.user.displayAvatarURL(),
@@ -111,5 +136,15 @@ module.exports = {
       embeds: [embed],
       ephemeral: true,
     });
+    try {
+      await onboardingService.recordEvent(
+        interaction.user.id,
+        "cooldowns-view",
+        {},
+        new Date()
+      );
+    } catch {
+      // Ignore onboarding tracking failures.
+    }
   },
 };

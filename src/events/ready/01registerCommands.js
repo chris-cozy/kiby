@@ -3,6 +3,7 @@ const getApplicationCommands = require("../../utils/getApplicationCommands");
 const areCommandsDifferent = require("../../utils/areCommandsDifferent");
 const env = require("../../config/env");
 const logger = require("../../utils/logger");
+const topggCommandSyncService = require("../../services/topggCommandSyncService");
 
 module.exports = async (client) => {
   try {
@@ -52,6 +53,22 @@ module.exports = async (client) => {
     if (env.testGuildId) {
       const guildCommands = await getApplicationCommands(client, env.testGuildId);
       await syncCommands(guildCommands, `guild:${env.testGuildId}`);
+    }
+
+    const syncResult = await topggCommandSyncService.publishLocalCommands(localCommands, {
+      token: env.topggCommandSyncToken,
+    });
+
+    if (syncResult.ok) {
+      logger.info("Pushed slash command definitions to top.gg", {
+        commandCount: syncResult.commandCount,
+      });
+    } else if (!syncResult.skipped) {
+      logger.warn("Failed to push slash command definitions to top.gg", {
+        reason: syncResult.reason,
+        statusCode: syncResult.statusCode,
+        error: syncResult.error,
+      });
     }
   } catch (error) {
     logger.error("Failed to register commands", { error: error.message });

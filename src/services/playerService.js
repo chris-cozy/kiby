@@ -4,6 +4,7 @@ const sleepService = require("./sleepService");
 const economyService = require("./economyService");
 const progressionService = require("./progressionService");
 const sanitizeKirbyName = require("../utils/sanitizeKirbyName");
+const { getActionCooldownMs } = require("../domain/care/rules");
 
 async function getPlayerByUserId(userId) {
   return playerRepository.findByUserId(userId);
@@ -19,19 +20,22 @@ async function adoptPlayer(userId, kirbyName) {
   }
 
   const safeName = sanitizeKirbyName(kirbyName, env.maxKirbyNameLength);
+  const adoptedAt = new Date();
+  const petReadyAt = new Date(adoptedAt.getTime() - getActionCooldownMs("pet"));
+  const trainReadyAt = new Date(adoptedAt.getTime() - getActionCooldownMs("train"));
 
   const player = await playerRepository.createPlayer({
     userId,
     kirbyName: safeName,
-    adoptedAt: new Date(),
+    adoptedAt,
     lastCare: {
-      feed: new Date(),
-      pet: new Date(),
-      play: new Date(),
-      cuddle: new Date(),
-      train: new Date(),
-      bathe: new Date(),
-      socialPlay: new Date(),
+      feed: adoptedAt,
+      pet: petReadyAt,
+      play: adoptedAt,
+      cuddle: adoptedAt,
+      train: trainReadyAt,
+      bathe: adoptedAt,
+      socialPlay: adoptedAt,
       socialReceived: null,
     },
   });

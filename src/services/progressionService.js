@@ -255,6 +255,68 @@ function ensureLanguage(progress) {
   }
 }
 
+function ensureOnboarding(progress) {
+  progress.onboarding = progress.onboarding || {};
+  progress.onboarding.adoptionCount = ensureNumber(
+    progress.onboarding.adoptionCount,
+    0
+  );
+  progress.onboarding.firstAdoptedAt = progress.onboarding.firstAdoptedAt || null;
+  progress.onboarding.lastAdoptedAt = progress.onboarding.lastAdoptedAt || null;
+  progress.onboarding.runsStarted = ensureNumber(progress.onboarding.runsStarted, 0);
+  progress.onboarding.runsCompleted = ensureNumber(
+    progress.onboarding.runsCompleted,
+    0
+  );
+  progress.onboarding.runsSkipped = ensureNumber(progress.onboarding.runsSkipped, 0);
+
+  progress.onboarding.latestRun = progress.onboarding.latestRun || {};
+  progress.onboarding.latestRun.runId = progress.onboarding.latestRun.runId || "";
+  progress.onboarding.latestRun.version = Math.max(
+    1,
+    ensureNumber(progress.onboarding.latestRun.version, 1)
+  );
+  progress.onboarding.latestRun.source = progress.onboarding.latestRun.source || "";
+  const status = progress.onboarding.latestRun.status || "none";
+  progress.onboarding.latestRun.status = ["none", "active", "completed", "skipped"].includes(
+    status
+  )
+    ? status
+    : "none";
+  progress.onboarding.latestRun.startedAt =
+    progress.onboarding.latestRun.startedAt || null;
+  progress.onboarding.latestRun.endedAt = progress.onboarding.latestRun.endedAt || null;
+  progress.onboarding.latestRun.currentStep =
+    progress.onboarding.latestRun.currentStep || "care";
+
+  progress.onboarding.latestRun.steps = progress.onboarding.latestRun.steps || {};
+  progress.onboarding.latestRun.steps.care =
+    progress.onboarding.latestRun.steps.care || null;
+  progress.onboarding.latestRun.steps.sleep =
+    progress.onboarding.latestRun.steps.sleep || null;
+  progress.onboarding.latestRun.steps.training =
+    progress.onboarding.latestRun.steps.training || null;
+  progress.onboarding.latestRun.steps.adventure =
+    progress.onboarding.latestRun.steps.adventure || null;
+  progress.onboarding.latestRun.steps.economy =
+    progress.onboarding.latestRun.steps.economy || null;
+  progress.onboarding.latestRun.steps.leaderboard =
+    progress.onboarding.latestRun.steps.leaderboard || null;
+  progress.onboarding.latestRun.steps.social =
+    progress.onboarding.latestRun.steps.social || null;
+
+  progress.onboarding.latestRun.economyInteraction =
+    progress.onboarding.latestRun.economyInteraction || "";
+  progress.onboarding.latestRun.helpViewedAt =
+    progress.onboarding.latestRun.helpViewedAt || null;
+  progress.onboarding.latestRun.infoViewedAt =
+    progress.onboarding.latestRun.infoViewedAt || null;
+  progress.onboarding.latestRun.cooldownsViewedAt =
+    progress.onboarding.latestRun.cooldownsViewedAt || null;
+  progress.onboarding.latestRun.recapShownAt =
+    progress.onboarding.latestRun.recapShownAt || null;
+}
+
 function ensureProgressShape(progress) {
   progress.dailyStreak = ensureNumber(progress.dailyStreak, 0);
   progress.streakShieldCharges = Math.min(
@@ -302,6 +364,7 @@ function ensureProgressShape(progress) {
 
   progress.lastActionAt = progress.lastActionAt || new Date();
   ensureLanguage(progress);
+  ensureOnboarding(progress);
 }
 
 async function getUserTimeZone(userId) {
@@ -461,6 +524,37 @@ async function ensureProgress(userId, now = new Date()) {
         level: 1,
         discovered: {},
         exposure: {},
+      },
+      onboarding: {
+        adoptionCount: 0,
+        firstAdoptedAt: null,
+        lastAdoptedAt: null,
+        runsStarted: 0,
+        runsCompleted: 0,
+        runsSkipped: 0,
+        latestRun: {
+          runId: "",
+          version: 1,
+          source: "",
+          status: "none",
+          startedAt: null,
+          endedAt: null,
+          currentStep: "care",
+          steps: {
+            care: null,
+            sleep: null,
+            training: null,
+            adventure: null,
+            economy: null,
+            leaderboard: null,
+            social: null,
+          },
+          economyInteraction: "",
+          helpViewedAt: null,
+          infoViewedAt: null,
+          cooldownsViewedAt: null,
+          recapShownAt: null,
+        },
       },
     });
   }

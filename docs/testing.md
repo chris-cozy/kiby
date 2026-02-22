@@ -1,4 +1,4 @@
-# Testing Guide (v2.0.0)
+# Testing Guide (v2.1.0)
 
 ## Automated Checks
 - `npm run lint`
@@ -6,7 +6,9 @@
 
 ## Current Automated Coverage
 - Sleep schedule timezone behavior
+- Cooldowns embed active-timer filtering
 - Care cooldown/decay rules
+- Top.gg slash-command sync payload and publish handling
 - Solo social-gain guardrails in care rules
 - Battle profile projection
 - Battle power decay/training helpers
@@ -26,7 +28,7 @@
 - duration always resolves within configured random range (`24-72h`)
 - idle gap always resolves within configured random range (`24-48h`)
 - active users (last 24h action) receive start notification fanout on event start
-- `/events view` shows no-active-event idle state and next eligible timestamp when idle
+- `/events view` shows no-active-event idle state when idle
 - `/events claim` returns no-active-event when no global event is running
 
 ### Social policy

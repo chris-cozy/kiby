@@ -9,6 +9,7 @@ const deathHistoryRepository = require("../repositories/deathHistoryRepository")
 const seasonService = require("./seasonService");
 const globalEventService = require("./globalEventService");
 const battlePowerService = require("./battlePowerService");
+const onboardingService = require("./onboardingService");
 
 async function runActionForUser(userId, actionName, now = new Date()) {
   const player = await playerRepository.findByUserId(userId);
@@ -82,11 +83,24 @@ async function runActionForUser(userId, actionName, now = new Date()) {
     globalEventService.recordContribution(userId, 1, now),
   ]);
 
+  let tutorial = null;
+  try {
+    tutorial = await onboardingService.recordEvent(
+      userId,
+      actionName === "train" ? "training-action" : "care-action",
+      { actionName },
+      now
+    );
+  } catch {
+    tutorial = null;
+  }
+
   return {
     ok: true,
     player,
     schedule,
     updates: actionResult.updates,
+    tutorial,
   };
 }
 

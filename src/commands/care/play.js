@@ -6,6 +6,7 @@ const progressionService = require("../../services/progressionService");
 const playerRepository = require("../../repositories/playerRepository");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const { followUpFromTutorialUpdate } = require("../../utils/tutorialFollowUp");
 
 const TOY_CHOICES = economyService.listItemsByContext("play").map((item) => ({
   name: item.label,
@@ -158,5 +159,11 @@ module.exports = {
       embeds: [embed],
       files: [media.mediaAttach],
     });
+    await followUpFromTutorialUpdate(
+      interaction,
+      interaction.user.id,
+      result.tutorial,
+      new Date()
+    );
   },
 };

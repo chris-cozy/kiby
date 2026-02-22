@@ -3,6 +3,9 @@ const CommandContext = require("../../classes/command");
 const leaderboardService = require("../../services/leaderboardService");
 const env = require("../../config/env");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "leaderboard",
@@ -97,5 +100,12 @@ module.exports = {
     }
 
     await safeReply(interaction, { embeds: [embed] });
+    await recordTutorialEventAndFollowUp(
+      interaction,
+      interaction.user.id,
+      "leaderboard-view",
+      {},
+      new Date()
+    );
   },
 };

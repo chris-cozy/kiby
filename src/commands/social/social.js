@@ -8,6 +8,9 @@ const notificationService = require("../../services/notificationService");
 const convertCountdown = require("../../utils/convertCountdown");
 const logger = require("../../utils/logger");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "social",
@@ -152,6 +155,13 @@ module.exports = {
         embeds: [embed],
         ephemeral: true,
       });
+      await recordTutorialEventAndFollowUp(
+        interaction,
+        interaction.user.id,
+        "social-action",
+        { interaction: "social-play-with" },
+        new Date()
+      );
       return;
     }
 
@@ -232,5 +242,12 @@ module.exports = {
       files: [media.mediaAttach],
       ephemeral: true,
     });
+    await recordTutorialEventAndFollowUp(
+      interaction,
+      interaction.user.id,
+      "social-action",
+      { interaction: "social-interact" },
+      new Date()
+    );
   },
 };

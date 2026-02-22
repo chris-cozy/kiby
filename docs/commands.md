@@ -1,9 +1,10 @@
-# Command Reference (v2.0.0)
+# Command Reference (v2.1.0)
 
 ## Configuration
 - `/adopt name:<name>`: create your Kiby.
 - `/revive`: revive your most recent fallen Kiby (token or coin cost).
-- `/sleep schedule set timezone:<IANA> start:<HH:mm> duration_hours:<1-9>`
+- `/tutorial start|status|skip|replay`: manage onboarding tutorial runs.
+- `/sleep schedule set timezone:<IANA> start:<12 AM ... 11 PM> duration_hours:<1-9>`
 - `/sleep schedule view`
 - `/sleep schedule clear`
 - `/ambient view|set enabled:<true|false>`: Toggle autonomous ambient Kiby moments.
@@ -63,12 +64,11 @@ Gifting behavior:
 
 Global event behavior:
 - `/events view` can return an idle state when no global campaign event is active.
-- idle-state payload includes next eligible window, duration range, idle-gap range, and start chance per tick.
 - `/events claim` can return `no-active-event` when no event is currently running.
 
 ## Information
 - `/info`
-- `/cooldowns`
+- `/cooldowns` (shows only currently active care cooldown timers)
 - `/leaderboard mode:<total|season|players (dev-only)> count:<5|10|15|20>`
 - `/feedback category:<bug|balance|feature|ux|other> message:<text>`
 - `/help`
@@ -81,3 +81,7 @@ Leaderboard notes:
 - `/system mode:<active_72h|all_installed> subject:<text> body:<text>`
 - `/version`
 - `/globalevent start event:<event_key>`
+
+## Onboarding Telemetry
+- Tutorial funnel telemetry is stored in `PlayerProgress.onboarding`.
+- Retention and onboarding checks can compare step completion/drop-off versus `lastActionAt` cohorts.

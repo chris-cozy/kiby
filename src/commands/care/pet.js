@@ -3,6 +3,7 @@ const CommandContext = require("../../classes/command");
 const careService = require("../../services/careService");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const { followUpFromTutorialUpdate } = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "pet",
@@ -89,5 +90,11 @@ module.exports = {
       embeds: [embed],
       files: [media.mediaAttach],
     });
+    await followUpFromTutorialUpdate(
+      interaction,
+      interaction.user.id,
+      result.tutorial,
+      new Date()
+    );
   },
 };

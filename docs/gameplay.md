@@ -1,4 +1,4 @@
-# Gameplay Systems (v2.0.0)
+# Gameplay Systems (v2.1.0)
 
 ## Core Stats
 - `hp` (0-100)
@@ -22,11 +22,12 @@ Important rules:
 - Positive social points come only from:
   - `/social play-with`
   - `/social interact`
+- `/cooldowns` surfaces only active care cooldown timers (it omits actions that are already ready).
 
 ## Sleep Scheduling
 Each player configures:
 - `timezone` (IANA)
-- `sleep_start_local` (HH:mm)
+- `sleep_start_local` (chosen via 12-hour labels, stored as HH:mm)
 - `sleep_duration_hours` (1-9)
 
 Behavior:
@@ -173,3 +174,27 @@ Sort order:
 1. Level (desc)
 2. XP (desc)
 3. Name (asc)
+
+## Onboarding Tutorial
+- Auto-starts when a user adopts their first Kiby.
+- Subsequent adoptions prompt users to rerun (`/tutorial start`) or skip (`/tutorial skip`).
+- Required progression steps:
+  - care action
+  - sleep schedule set
+  - training action
+  - adventure start
+  - economy interaction (`/daily`, `/quests view`, `/shop list`, or `/inventory`)
+  - leaderboard check (`/leaderboard`)
+- Social step is optional and never blocks completion.
+- Users can inspect or rerun via:
+  - `/tutorial status`
+  - `/tutorial replay`
+
+## Onboarding Funnel Metrics
+- Stored in `PlayerProgress.onboarding` as run counters and step timestamps.
+- Supports:
+  - auto-start rate tracking
+  - step completion drop-off analysis
+  - completion vs skip ratio
+  - time-to-complete
+  - retention comparisons via `lastActionAt`

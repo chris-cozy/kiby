@@ -121,6 +121,7 @@ function readEnvironment() {
       token,
       mongoConnection,
       topggKey: process.env.TOPGG_KEY || "",
+      topggCommandSyncToken: process.env.TOPGG_COMMAND_SYNC_TOKEN || "",
       testGuildId: process.env.TEST_GUILD_ID || "",
       devUserIds: parseCsv(process.env.DEV_USER_IDS),
       healthPort: parseInteger(process.env.HEALTH_PORT, 8080, {

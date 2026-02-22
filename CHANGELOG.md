@@ -2,6 +2,52 @@
 
 All notable changes to this project are documented in this file.
 
+## [2.1.0] - Unreleased
+### Added
+- Guided onboarding tutorial system for first-time and returning adopters:
+  - auto-start onboarding on first `/adopt`
+  - replay prompt on subsequent adoptions
+  - `/tutorial start|status|skip|replay` command flow
+  - step-driven progression across care, sleep, training, adventure, and economy
+  - optional social step and completion recap messaging.
+- Onboarding funnel telemetry persisted in `PlayerProgress.onboarding`:
+  - adoption counters/timestamps
+  - run status + step completion timestamps
+  - run start/complete/skip counters
+  - onboarding recap exposure tracking.
+- Expanded automated coverage for onboarding flows, sleep option shapes, and adoption readiness behavior.
+- Startup integration to publish current slash-command definitions to top.gg (v1 projects command sync endpoint).
+- Versioned legal policy documentation under `docs/legal/`:
+  - Terms of Service (`docs/legal/terms/current.md`)
+  - Privacy Policy (`docs/legal/privacy/current.md`)
+  - versioned snapshots for both policies.
+
+### Changed
+- Adoption UX now defers setup guidance to onboarding:
+  - removed starter sleep/stats sections from the adoption embed.
+- Tutorial prompt UX and progression polish:
+  - clearer action-first formatting
+  - integrated Dream Land context per step
+  - care-step command list display
+  - required leaderboard check step (`/leaderboard`) to introduce community competition early
+  - italicized tip callouts
+  - bold completion + good-luck messaging.
+- Tutorial blockers removed:
+  - newly adopted/revived Kibys can immediately perform `pet` and `train` onboarding actions.
+- Sleep schedule command input UX updated:
+  - bedtime start is selected via 12-hour labels (`12 AM` ... `11 PM`) mapped to internal `HH:mm` values
+  - duration remains constrained to explicit `1-9` hour choices
+  - timezone autocomplete path restored and isolated from start-time selection.
+- Event and profile embed presentation refinements:
+  - removed idle/global event planning metadata from `/events view` idle embed
+  - removed active-event scaled-goal section
+  - `/info` now combines level/xp into one field (`Level <n>`)
+  - `/info` now includes an explicit `Adopted At` section.
+- Additional profile/cooldown presentation cleanup:
+  - `/info` stat rows now render as compact percentages and move sleep-status + mood into the title
+  - `/cooldowns` now lists only actions with active cooldown timers.
+- Application package version updated to `2.1.0`.
+
 ## [2.0.1] - 2026-02-20
 ### Added
 - Developer-only `/version` command to report the currently running application version.

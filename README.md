@@ -2,12 +2,16 @@
   <img src="src\media\gifs\kirby-cute.gif" width="500"/>
 </div>
 
-# Kiby v2.0.0
+# Kiby v2.1.0
 
 Kiby is a Discord virtual pet system where users adopt a Kiby, maintain core needs, and progress through competitive/social long-term loops.
-v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a seeded social ecosystem via synthetic participants.
+v2.1.0 adds guided onboarding, command UX polish, and legal policy publication alongside the existing v2 systems.
 
 ## Highlights
+- Guided onboarding tutorial:
+  - auto-start on first adoption
+  - replay/skip/status controls via `/tutorial`
+  - funnel telemetry in `PlayerProgress.onboarding`
 - Timezone-based sleep scheduling with autocomplete timezone input
 - Automatic care decay and health simulation loops
 - Mixed leaderboard with real players and baseline competitors
@@ -55,7 +59,8 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 ### Configuration
 - `/adopt name:<name>`: Adopt a Kiby
 - `/revive`: Revive your most recent fallen Kiby
-- `/sleep schedule set timezone:<IANA> start:<HH:mm> duration_hours:<1-9>`
+- `/tutorial start|status|skip|replay`
+- `/sleep schedule set timezone:<IANA> start:<12 AM...11 PM> duration_hours:<1-9>`
 - `/sleep schedule view`
 - `/sleep schedule clear`
 - `/ambient view|set`
@@ -96,7 +101,7 @@ v2.0.0 focuses on production readiness, timezone-aware sleep scheduling, and a s
 - `/globalevent start event:<event_key>`
 
 Behavior notes:
-- `/events view` now shows idle-state timing details when no global event is active.
+- `/events view` now shows an idle state when no global event is active.
 - `/events claim` can return no-active-event when no campaign is currently running.
 - `/social interact` may return receiver cooldown with remaining wait time.
 
@@ -132,8 +137,8 @@ npm run seed:npcs:reset
 ## Deployment
 ### Docker
 ```bash
-docker build -t kiby:2.0.0 .
-docker run --env-file .env -p 8080:8080 kiby:2.0.0
+docker build -t kiby:2.1.0 .
+docker run --env-file .env -p 8080:8080 kiby:2.1.0
 ```
 
 ### Docker Compose
@@ -143,6 +148,11 @@ docker compose up --build
 
 Health check endpoint:
 - `GET /health` on `HEALTH_PORT`
+
+Legal policy files:
+- `docs/legal/README.md` (index/current links)
+- `docs/legal/terms/` (versioned Terms of Service)
+- `docs/legal/privacy/` (versioned Privacy Policy)
 
 ## Configuration
 Use `.env.production.example` for all supported variables, including:
