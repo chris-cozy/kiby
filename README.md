@@ -144,6 +144,11 @@ docker compose up --build
 Health check endpoint:
 - `GET /health` on `HEALTH_PORT`
 
+Legal policy files:
+- `docs/legal/README.md` (index/current links)
+- `docs/legal/terms/` (versioned Terms of Service)
+- `docs/legal/privacy/` (versioned Privacy Policy)
+
 ## Configuration
 Use `.env.production.example` for all supported variables, including:
 - Runtime/logging
