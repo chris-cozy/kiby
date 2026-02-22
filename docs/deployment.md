@@ -7,6 +7,7 @@ Copy `.env.production.example` to `.env` and configure required secrets:
 
 Optional:
 - `TOPGG_KEY`
+- `TOPGG_COMMAND_SYNC_TOKEN` (Top.gg v1 bearer token for slash-command publishing)
 - custom scheduler intervals
 - NPC configuration values
 - world event chance tuning (`WORLD_EVENT_CHANCE_PERCENT`)
@@ -56,5 +57,6 @@ services:
 - App handles `SIGINT` and `SIGTERM` for graceful shutdown.
 - Scheduler intervals are configured via environment variables.
 - Use structured logs for incident triage and simulation observability.
+- When `TOPGG_COMMAND_SYNC_TOKEN` is configured, the bot publishes its current slash-command schema to top.gg at startup after command registration.
 - You can manually seed NPC data using `npm run seed:npcs` when needed.
 - To wipe and regenerate NPCs, run `npm run seed:npcs:reset`.

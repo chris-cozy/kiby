@@ -16,6 +16,7 @@ All notable changes to this project are documented in this file.
   - run start/complete/skip counters
   - onboarding recap exposure tracking.
 - Expanded automated coverage for onboarding flows, sleep option shapes, and adoption readiness behavior.
+- Startup integration to publish current slash-command definitions to top.gg (v1 projects command sync endpoint).
 - Versioned legal policy documentation under `docs/legal/`:
   - Terms of Service (`docs/legal/terms/current.md`)
   - Privacy Policy (`docs/legal/privacy/current.md`)
@@ -41,6 +42,9 @@ All notable changes to this project are documented in this file.
   - removed active-event scaled-goal section
   - `/info` now combines level/xp into one field (`Level <n>`)
   - `/info` now includes an explicit `Adopted At` section.
+- Additional profile/cooldown presentation cleanup:
+  - `/info` stat rows now render as compact percentages and move sleep-status + mood into the title
+  - `/cooldowns` now lists only actions with active cooldown timers.
 - Application package version updated to `2.1.0`.
 
 ## [2.0.1] - 2026-02-20

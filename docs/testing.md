@@ -6,7 +6,9 @@
 
 ## Current Automated Coverage
 - Sleep schedule timezone behavior
+- Cooldowns embed active-timer filtering
 - Care cooldown/decay rules
+- Top.gg slash-command sync payload and publish handling
 - Solo social-gain guardrails in care rules
 - Battle profile projection
 - Battle power decay/training helpers

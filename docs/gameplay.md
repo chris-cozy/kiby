@@ -22,6 +22,7 @@ Important rules:
 - Positive social points come only from:
   - `/social play-with`
   - `/social interact`
+- `/cooldowns` surfaces only active care cooldown timers (it omits actions that are already ready).
 
 ## Sleep Scheduling
 Each player configures:

@@ -68,7 +68,7 @@ Global event behavior:
 
 ## Information
 - `/info`
-- `/cooldowns`
+- `/cooldowns` (shows only currently active care cooldown timers)
 - `/leaderboard mode:<total|season|players (dev-only)> count:<5|10|15|20>`
 - `/feedback category:<bug|balance|feature|ux|other> message:<text>`
 - `/help`

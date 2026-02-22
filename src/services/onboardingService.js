@@ -427,7 +427,7 @@ function getCurrentPrompt(statusPayload) {
       stepKey,
       stepNumber,
       action: "/pet",
-      content: `${prefix}\nIn Dream Land, your Kiby stays healthy when care commands are used regularly.\n**Action:** Use \`/pet\` once.\nAvailable care commands: \`/feed\`, \`/pet\`, \`/play\`, \`/cuddle\`, \`/train\`, \`/bathe\`.\n*Tip:* \`/info\` shows your Kiby's core stats (HP, hunger, affection, social, mood, BP, sleep).\n*Tip:* \`/cooldowns\` shows which care actions are ready now and which are waiting.\n${skipLine}`,
+      content: `${prefix}\nIn Dream Land, your Kiby stays healthy when care commands are used regularly.\n**Action:** Use \`/pet\` once.\nAvailable care commands: \`/feed\`, \`/pet\`, \`/play\`, \`/cuddle\`, \`/train\`, \`/bathe\`.\n*Tip:* \`/info\` shows your Kiby's core stats, level progress, and adoption date at a glance.\n*Tip:* \`/cooldowns\` shows only active care cooldowns and exactly how long each has left.\n${skipLine}`,
     };
   }
 
