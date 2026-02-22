@@ -340,6 +340,10 @@ const playerProgressSchema = new Schema(
             type: Date,
             default: null,
           },
+          leaderboard: {
+            type: Date,
+            default: null,
+          },
           social: {
             type: Date,
             default: null,

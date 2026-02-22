@@ -2,7 +2,14 @@ const playerProgressRepository = require("../repositories/playerProgressReposito
 const progressionService = require("./progressionService");
 
 const ONBOARDING_VERSION = 1;
-const REQUIRED_STEPS = ["care", "sleep", "training", "adventure", "economy"];
+const REQUIRED_STEPS = [
+  "care",
+  "sleep",
+  "training",
+  "adventure",
+  "economy",
+  "leaderboard",
+];
 const OPTIONAL_STEPS = ["social"];
 const ALL_STEP_KEYS = [...REQUIRED_STEPS, ...OPTIONAL_STEPS];
 
@@ -12,6 +19,7 @@ const STEP_LABELS = {
   training: "Training + Battle Power",
   adventure: "Adventure System",
   economy: "Economy System",
+  leaderboard: "Leaderboard + Community",
   social: "Social Systems (Optional)",
 };
 
@@ -22,6 +30,7 @@ function buildEmptySteps() {
     training: null,
     adventure: null,
     economy: null,
+    leaderboard: null,
     social: null,
   };
 }
@@ -228,6 +237,8 @@ function applyEventToRun(run, eventKey, payload, now = new Date()) {
       run.economyInteraction = payload.interaction;
       changed = true;
     }
+  } else if (eventKey === "leaderboard-view") {
+    changed = markStep(run, "leaderboard", now) || changed;
   } else if (eventKey === "social-action") {
     changed = markStep(run, "social", now) || changed;
   } else if (eventKey === "help-view" && !run.helpViewedAt) {
@@ -458,12 +469,25 @@ function getCurrentPrompt(statusPayload) {
     };
   }
 
-  return {
-    stepKey: "economy",
-    stepNumber: REQUIRED_STEPS.length,
-    action: "/daily",
-    content: `${prefix}\nStar Coins power Dream Land's economy, letting you buy tools and keep momentum.\n**Action:** Use \`/daily\` once.\n*Tip:* Economy step also accepts \`/quests view\`, \`/shop list\`, or \`/inventory\`.\n${skipLine}`,
-  };
+  if (stepKey === "economy") {
+    return {
+      stepKey,
+      stepNumber,
+      action: "/daily",
+      content: `${prefix}\nStar Coins power Dream Land's economy, letting you buy tools and keep momentum.\n**Action:** Use \`/daily\` once.\n*Tip:* Economy step also accepts \`/quests view\`, \`/shop list\`, or \`/inventory\`.\n${skipLine}`,
+    };
+  }
+
+  if (stepKey === "leaderboard") {
+    return {
+      stepKey,
+      stepNumber,
+      action: "/leaderboard",
+      content: `${prefix}\nDream Land is shared with other Kibys, and the leaderboard is where friendly competition comes alive.\n**Action:** Use \`/leaderboard\` once.\n*Tip:* Check \`mode:season\` to track the current race and compare your growth over time.\n${skipLine}`,
+    };
+  }
+
+  return null;
 }
 
 function getCompletionRecap(statusPayload) {
@@ -482,6 +506,7 @@ function getCompletionRecap(statusPayload) {
       "- Train regularly to build Battle Power for tougher adventures.\n" +
       "- Use `/adventure start`, `/adventure status`, and `/adventure claim`.\n" +
       "- Keep economy moving with `/daily`, `/quests view`, `/shop list`, and `/inventory`.\n" +
+      "- Check `/leaderboard` regularly to follow community and season ranks.\n" +
       "- Optional social loop: `/social play-with` or `/social settings`.\n" +
       "- Notifications/reminders arrive via DMs (needs, adventure ready, events, social/gifts).\n" +
       "- Track active tasks in `/quests view`, `/adventure status`, `/events view`, `/cooldowns`.\n" +

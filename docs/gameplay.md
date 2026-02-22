@@ -184,6 +184,7 @@ Sort order:
   - training action
   - adventure start
   - economy interaction (`/daily`, `/quests view`, `/shop list`, or `/inventory`)
+  - leaderboard check (`/leaderboard`)
 - Social step is optional and never blocks completion.
 - Users can inspect or rerun via:
   - `/tutorial status`

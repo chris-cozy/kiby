@@ -300,6 +300,8 @@ function ensureOnboarding(progress) {
     progress.onboarding.latestRun.steps.adventure || null;
   progress.onboarding.latestRun.steps.economy =
     progress.onboarding.latestRun.steps.economy || null;
+  progress.onboarding.latestRun.steps.leaderboard =
+    progress.onboarding.latestRun.steps.leaderboard || null;
   progress.onboarding.latestRun.steps.social =
     progress.onboarding.latestRun.steps.social || null;
 
@@ -544,6 +546,7 @@ async function ensureProgress(userId, now = new Date()) {
             training: null,
             adventure: null,
             economy: null,
+            leaderboard: null,
             social: null,
           },
           economyInteraction: "",

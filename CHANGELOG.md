@@ -29,6 +29,7 @@ All notable changes to this project are documented in this file.
   - clearer action-first formatting
   - integrated Dream Land context per step
   - care-step command list display
+  - required leaderboard check step (`/leaderboard`) to introduce community competition early
   - italicized tip callouts
   - bold completion + good-luck messaging.
 - Tutorial blockers removed:
