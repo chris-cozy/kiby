@@ -4,7 +4,12 @@ const {
 } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const playerService = require("../../services/playerService");
+const onboardingService = require("../../services/onboardingService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  safeTutorialFollowUp,
+  sendTutorialPromptForStatus,
+} = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "adopt",
@@ -23,6 +28,7 @@ module.exports = {
     await safeDefer(interaction, { ephemeral: false });
 
     try {
+      const now = new Date();
       const targetName = interaction.options.get("name", true).value;
       const result = await playerService.adoptPlayer(interaction.user.id, targetName);
 
@@ -43,18 +49,6 @@ module.exports = {
         .setDescription(
           `You adopted **${result.player.kirbyName}**. Keep their hunger and affection up to help them thrive.`
         )
-        .addFields(
-          {
-            name: "Sleep Schedule",
-            value: "Use `/sleep schedule set` to configure local bedtime.",
-            inline: false,
-          },
-          {
-            name: "Starter Stats",
-            value: "HP 100, Hunger 100, Affection 100",
-            inline: false,
-          }
-        )
         .setImage(media.mediaString)
         .setFooter({
           text: interaction.user.username,
@@ -66,6 +60,32 @@ module.exports = {
         embeds: [embed],
         files: [media.mediaAttach],
       });
+
+      try {
+        const adoption = await onboardingService.registerAdoption(
+          interaction.user.id,
+          now
+        );
+        if (adoption.isFirstAdoption) {
+          const tutorial = await onboardingService.startTutorial(
+            interaction.user.id,
+            "first-adopt",
+            now
+          );
+          await safeTutorialFollowUp(
+            interaction,
+            "Welcome to Dream Land! Let's walk through how to take care of a Kiby"
+          );
+          await sendTutorialPromptForStatus(interaction, tutorial.status);
+        } else {
+          await safeTutorialFollowUp(
+            interaction,
+            "Want a quick refresher for this new Kiby? Use `/tutorial start` to run it again or `/tutorial skip` to dismiss."
+          );
+        }
+      } catch {
+        // Ignore onboarding failures so adoption itself always succeeds.
+      }
     } catch (error) {
       await safeReply(interaction, {
         content: `Could not adopt Kiby: ${error.message}`,

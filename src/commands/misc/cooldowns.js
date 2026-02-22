@@ -2,6 +2,7 @@ const { EmbedBuilder } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const playerService = require("../../services/playerService");
 const sleepService = require("../../services/sleepService");
+const onboardingService = require("../../services/onboardingService");
 const { getActionCooldownMs } = require("../../domain/care/rules");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
@@ -111,5 +112,15 @@ module.exports = {
       embeds: [embed],
       ephemeral: true,
     });
+    try {
+      await onboardingService.recordEvent(
+        interaction.user.id,
+        "cooldowns-view",
+        {},
+        new Date()
+      );
+    } catch {
+      // Ignore onboarding tracking failures.
+    }
   },
 };

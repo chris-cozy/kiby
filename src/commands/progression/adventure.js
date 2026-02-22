@@ -7,6 +7,9 @@ const adventureService = require("../../services/adventureService");
 const economyService = require("../../services/economyService");
 const languageService = require("../../services/languageService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 const ROUTE_CHOICES = adventureService.ROUTES.map((route) => ({
   name: route.label,
@@ -363,5 +366,12 @@ module.exports = {
       ...(routeMedia ? { files: [routeMedia.mediaAttach] } : {}),
       ephemeral: true,
     });
+    await recordTutorialEventAndFollowUp(
+      interaction,
+      interaction.user.id,
+      "adventure-start",
+      {},
+      new Date()
+    );
   },
 };

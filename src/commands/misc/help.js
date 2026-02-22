@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require("discord.js");
 const CommandContext = require("../../classes/command");
+const onboardingService = require("../../services/onboardingService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -19,6 +20,10 @@ module.exports = {
         {
           name: "Adopt",
           value: "`/adopt name:<name>`",
+        },
+        {
+          name: "Onboarding",
+          value: "`/tutorial start`, `/tutorial status`, `/tutorial skip`, `/tutorial replay`",
         },
         {
           name: "Care",
@@ -52,5 +57,15 @@ module.exports = {
       .setTimestamp();
 
     await safeReply(interaction, { embeds: [embed], ephemeral: true });
+    try {
+      await onboardingService.recordEvent(
+        interaction.user.id,
+        "help-view",
+        {},
+        new Date()
+      );
+    } catch {
+      // Ignore onboarding tracking failures.
+    }
   },
 };

@@ -17,8 +17,8 @@ Optional:
 
 ## Local Docker
 ```bash
-docker build -t kiby:2.0.0 .
-docker run --env-file .env -p 8080:8080 kiby:2.0.0
+docker build -t kiby:2.1.0 .
+docker run --env-file .env -p 8080:8080 kiby:2.1.0
 ```
 
 ## Docker Compose

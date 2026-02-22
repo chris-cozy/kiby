@@ -2,6 +2,9 @@ const { EmbedBuilder } = require("discord.js");
 const CommandContext = require("../../classes/command");
 const economyService = require("../../services/economyService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "inventory",
@@ -32,5 +35,12 @@ module.exports = {
       embeds: [embed],
       ephemeral: true,
     });
+    await recordTutorialEventAndFollowUp(
+      interaction,
+      interaction.user.id,
+      "economy-interaction",
+      { interaction: "inventory" },
+      new Date()
+    );
   },
 };

@@ -6,6 +6,9 @@ const CommandContext = require("../../classes/command");
 const progressionService = require("../../services/progressionService");
 const playerService = require("../../services/playerService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "quests",
@@ -164,5 +167,12 @@ module.exports = {
       embeds: [embed],
       ephemeral: true,
     });
+    await recordTutorialEventAndFollowUp(
+      interaction,
+      interaction.user.id,
+      "economy-interaction",
+      { interaction: "quests-view" },
+      new Date()
+    );
   },
 };

@@ -1,5 +1,8 @@
 const progressionService = require("../../services/progressionService");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
 
 module.exports = {
   name: "daily",
@@ -29,5 +32,12 @@ module.exports = {
       )}m** (${result.timezone}).`,
       ephemeral: true,
     });
+    await recordTutorialEventAndFollowUp(
+      interaction,
+      interaction.user.id,
+      "economy-interaction",
+      { interaction: "daily" },
+      new Date()
+    );
   },
 };

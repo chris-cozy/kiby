@@ -8,6 +8,26 @@ const playerService = require("../../services/playerService");
 const convertCountdown = require("../../utils/convertCountdown");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 const { searchTimezones } = require("../../utils/timezones");
+const {
+  recordTutorialEventAndFollowUp,
+} = require("../../utils/tutorialFollowUp");
+
+const START_CHOICES = Array.from({ length: 24 }, (_, hour) => {
+  const period = hour < 12 ? "AM" : "PM";
+  const twelveHour = hour % 12 === 0 ? 12 : hour % 12;
+  return {
+    name: `${twelveHour} ${period}`,
+    value: hour,
+  };
+});
+
+const DURATION_CHOICES = Array.from({ length: 9 }, (_, index) => {
+  const value = index + 1;
+  return {
+    name: `${value} hour${value === 1 ? "" : "s"}`,
+    value,
+  };
+});
 
 module.exports = {
   name: "sleep",
@@ -35,17 +55,17 @@ module.exports = {
             },
             {
               name: "start",
-              description: "Local bedtime in HH:mm (24h)",
-              type: ApplicationCommandOptionType.String,
+              description: "Local bedtime (12-hour picker)",
+              type: ApplicationCommandOptionType.Integer,
               required: true,
+              choices: START_CHOICES,
             },
             {
               name: "duration_hours",
               description: "Sleep duration in hours (1-9)",
               type: ApplicationCommandOptionType.Integer,
               required: true,
-              min_value: 1,
-              max_value: 9,
+              choices: DURATION_CHOICES,
             },
           ],
         },
@@ -64,18 +84,23 @@ module.exports = {
   ],
   autocomplete: async (_client, interaction) => {
     const focused = interaction.options.getFocused(true);
-    if (!focused || focused.name !== "timezone") {
+    if (!focused) {
       await interaction.respond([]);
       return;
     }
 
-    const matches = searchTimezones(focused.value || "");
-    await interaction.respond(
-      matches.map((timezone) => ({
-        name: timezone,
-        value: timezone,
-      }))
-    );
+    if (focused.name === "timezone") {
+      const matches = searchTimezones(focused.value || "");
+      await interaction.respond(
+        matches.map((timezone) => ({
+          name: timezone,
+          value: timezone,
+        }))
+      );
+      return;
+    }
+
+    await interaction.respond([]);
   },
 
   callback: async (client, interaction) => {
@@ -104,7 +129,8 @@ module.exports = {
     if (subcommand === "set") {
       try {
         const timezone = interaction.options.getString("timezone", true);
-        const start = interaction.options.getString("start", true);
+        const startHour = interaction.options.getInteger("start", true);
+        const start = `${startHour.toString().padStart(2, "0")}:00`;
         const durationHours = interaction.options.getInteger("duration_hours", true);
 
         const schedule = await sleepService.setScheduleForUser(interaction.user.id, {
@@ -118,6 +144,13 @@ module.exports = {
           content: `Sleep schedule updated: **${summary.timezone}**, **${summary.startLocalTime}**, **${summary.durationHours}h** nightly.`,
           ephemeral: true,
         });
+        await recordTutorialEventAndFollowUp(
+          interaction,
+          interaction.user.id,
+          "sleep-set",
+          {},
+          new Date()
+        );
       } catch (error) {
         await safeReply(interaction, {
           content: `Could not update schedule: ${error.message}`,

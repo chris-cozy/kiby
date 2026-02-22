@@ -6,6 +6,7 @@ const sleepService = require("../../services/sleepService");
 const economyService = require("../../services/economyService");
 const progressionService = require("../../services/progressionService");
 const env = require("../../config/env");
+const { getActionCooldownMs } = require("../../domain/care/rules");
 const { safeDefer, safeReply } = require("../../utils/interactionReply");
 
 module.exports = {
@@ -55,18 +56,21 @@ module.exports = {
       return;
     }
 
+    const revivedAt = new Date();
+    const petReadyAt = new Date(revivedAt.getTime() - getActionCooldownMs("pet"));
+    const trainReadyAt = new Date(revivedAt.getTime() - getActionCooldownMs("train"));
     const revived = await playerRepository.createPlayer({
       userId: interaction.user.id,
       kirbyName: latestDeath.kirbyName,
-      adoptedAt: new Date(),
+      adoptedAt: revivedAt,
       lastCare: {
-        feed: new Date(),
-        pet: new Date(),
-        play: new Date(),
-        cuddle: new Date(),
-        train: new Date(),
-        bathe: new Date(),
-        socialPlay: new Date(),
+        feed: revivedAt,
+        pet: petReadyAt,
+        play: revivedAt,
+        cuddle: revivedAt,
+        train: trainReadyAt,
+        bathe: revivedAt,
+        socialPlay: revivedAt,
         socialReceived: null,
       },
     });
