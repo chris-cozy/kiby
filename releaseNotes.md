@@ -1,5 +1,18 @@
 # Release Notes
 
+## Version 2.1.1 - Unreleased
+
+- Removed privileged-intent requirements from the runtime intent set:
+  - removed `GuildMembers`, `GuildMessages`, and `MessageContent`
+  - retained `Guilds` and `DirectMessages`.
+- Removed mention-triggered `messageCreate` conversation replies; user interaction is now slash-command + DM oriented.
+- Updated command permission checks to rely on interaction-provided app permissions where available.
+- Improved `/system mode:all_installed` delivery reliability:
+  - tries preferred channels first (`systemChannel`, `publicUpdatesChannel`)
+  - falls back across additional guild text/announcement channels
+  - stops after first successful send per guild
+  - updates delivery reporting to server-level candidate targeting.
+
 ## Version 2.0.0 - February 16, 2026
 
 - Rebuilt Kiby as a fresh production launch with domain/service/repository architecture.

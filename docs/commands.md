@@ -82,6 +82,11 @@ Leaderboard notes:
 - `/version`
 - `/globalevent start event:<event_key>`
 
+`/system` behavior:
+- `active_72h`: targets unique players active in the last 72 hours (DM fanout).
+- `all_installed`: targets all known players and attempts one server broadcast per installed guild.
+- server broadcast selection order: `systemChannel` -> `publicUpdatesChannel` -> other text/announcement channels, stopping on first successful send per guild.
+
 ## Onboarding Telemetry
 - Tutorial funnel telemetry is stored in `PlayerProgress.onboarding`.
 - Retention and onboarding checks can compare step completion/drop-off versus `lastActionAt` cohorts.

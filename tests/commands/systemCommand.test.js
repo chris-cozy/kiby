@@ -82,9 +82,9 @@ describe("/system command", () => {
               name: "Guild One",
               members: { me: {} },
               systemChannel: {
+                id: "g1-system",
                 isTextBased: () => true,
                 isDMBased: () => false,
-                permissionsFor: () => ({ has: () => true }),
                 send: guildChannelSend,
               },
               publicUpdatesChannel: null,
@@ -123,7 +123,8 @@ describe("/system command", () => {
     const dmSend = jest.fn().mockResolvedValue({});
     const createDM = jest.fn().mockResolvedValue({ send: dmSend });
     const usersFetch = jest.fn().mockResolvedValue({ createDM });
-    const systemChannelSend = jest.fn().mockResolvedValue({});
+    const systemChannelSend = jest.fn().mockRejectedValue(new Error("Missing Access"));
+    const fallbackChannelSend = jest.fn().mockResolvedValue({});
 
     const client = {
       users: { fetch: usersFetch },
@@ -136,13 +137,28 @@ describe("/system command", () => {
               name: "Guild One",
               members: { me: {} },
               systemChannel: {
+                id: "g1-system",
                 isTextBased: () => true,
                 isDMBased: () => false,
-                permissionsFor: () => ({ has: () => true }),
                 send: systemChannelSend,
               },
               publicUpdatesChannel: null,
-              channels: { fetch: jest.fn().mockResolvedValue(new Map()) },
+              channels: {
+                fetch: jest.fn().mockResolvedValue(
+                  new Map([
+                    [
+                      "c1",
+                      {
+                        id: "g1-fallback",
+                        type: ChannelType.GuildText,
+                        isTextBased: () => true,
+                        isDMBased: () => false,
+                        send: fallbackChannelSend,
+                      },
+                    ],
+                  ])
+                ),
+              },
             },
           ],
           [
@@ -159,8 +175,10 @@ describe("/system command", () => {
                     [
                       "c1",
                       {
+                        id: "g2-voice",
                         type: ChannelType.GuildVoice,
-                        permissionsFor: () => ({ has: () => true }),
+                        isTextBased: () => false,
+                        isDMBased: () => false,
                       },
                     ],
                   ])
@@ -179,12 +197,13 @@ describe("/system command", () => {
     expect(usersFetch).toHaveBeenCalledTimes(2);
     expect(dmSend).toHaveBeenCalledTimes(2);
     expect(systemChannelSend).toHaveBeenCalledTimes(1);
+    expect(fallbackChannelSend).toHaveBeenCalledTimes(1);
     expect(notificationService.sendDirectMessage).toHaveBeenCalledTimes(2);
     expect(safeReply).toHaveBeenCalledWith(
       expect.any(Object),
       expect.objectContaining({
         content: expect.stringContaining(
-          "Server messages delivered: 1/1 sendable channels (2 installed servers)."
+          "Server messages delivered: 1/1 servers with candidate channels (2 installed servers)."
         ),
       })
     );

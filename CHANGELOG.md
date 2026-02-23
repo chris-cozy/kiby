@@ -2,7 +2,24 @@
 
 All notable changes to this project are documented in this file.
 
-## [2.1.0] - Unreleased
+## [2.1.1] - Unreleased
+### Changed
+- Removed privileged-intent dependencies from runtime startup:
+  - dropped `GuildMembers`, `GuildMessages`, and `MessageContent` intents
+  - retained `Guilds` and `DirectMessages` intents.
+- Removed mention-based `messageCreate` conversation handling; Kiby interaction surface is now slash-command and DM driven.
+- Updated command permission evaluation to prefer `interaction.appPermissions` (with existing fallback behavior), reducing reliance on guild member cache state.
+- Improved `/system mode:all_installed` broadcast reliability:
+  - select candidate channels in priority order (`systemChannel`, `publicUpdatesChannel`, then guild text/announcement channels)
+  - retry across candidate channels per guild until one send succeeds
+  - delivery reporting now reflects server-level targeting instead of single-channel preselection.
+
+### Documentation
+- Updated gameplay/testing docs to remove mention-reply language-surface references.
+- Updated deployment docs to reflect current non-privileged-intent runtime profile.
+- Updated command/reference text for `/system` broadcast behavior and arguments.
+
+## [2.1.0] - 2026-02-22
 ### Added
 - Guided onboarding tutorial system for first-time and returning adopters:
   - auto-start onboarding on first `/adopt`

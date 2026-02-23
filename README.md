@@ -97,13 +97,14 @@ v2.1.0 adds guided onboarding, command UX polish, and legal policy publication a
 - `/ping`: Latency check
 
 ### Developer
-- `/system subject:<text> body:<text>`
+- `/system mode:<active_72h|all_installed> subject:<text> body:<text>`
 - `/globalevent start event:<event_key>`
 
 Behavior notes:
 - `/events view` now shows an idle state when no global event is active.
 - `/events claim` can return no-active-event when no campaign is currently running.
 - `/social interact` may return receiver cooldown with remaining wait time.
+- `/system mode:all_installed` tries multiple candidate channels per server until one broadcast send succeeds.
 
 ## Setup
 ### Requirements

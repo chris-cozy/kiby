@@ -55,7 +55,7 @@
 - `cuddle` works while asleep
 
 ### Language
-- mention/ambient/adventure/event surfaces emit Kiby tokens
+- ambient/adventure/event surfaces emit Kiby tokens
 - repeated exposure unlocks translations
 - `/language` reflects discovered/unknown counts and sample glossary
 
