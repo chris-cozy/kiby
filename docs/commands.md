@@ -1,4 +1,4 @@
-# Command Reference (v2.1.0)
+# Command Reference (v2.1.1)
 
 ## Configuration
 - `/adopt name:<name>`: create your Kiby.

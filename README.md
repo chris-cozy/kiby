@@ -2,10 +2,10 @@
   <img src="src\media\gifs\kirby-cute.gif" width="500"/>
 </div>
 
-# Kiby v2.1.0
+# Kiby v2.1.1
 
 Kiby is a Discord virtual pet system where users adopt a Kiby, maintain core needs, and progress through competitive/social long-term loops.
-v2.1.0 adds guided onboarding, command UX polish, and legal policy publication alongside the existing v2 systems.
+v2.1.1 includes guided onboarding, command UX polish, legal policy publication, and runtime reliability updates alongside the existing v2 systems.
 
 ## Highlights
 - Guided onboarding tutorial:
@@ -138,8 +138,8 @@ npm run seed:npcs:reset
 ## Deployment
 ### Docker
 ```bash
-docker build -t kiby:2.1.0 .
-docker run --env-file .env -p 8080:8080 kiby:2.1.0
+docker build -t kiby:2.1.1 .
+docker run --env-file .env -p 8080:8080 kiby:2.1.1
 ```
 
 ### Docker Compose

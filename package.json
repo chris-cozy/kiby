@@ -1,6 +1,6 @@
 {
   "name": "kiby",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Kiby is a Discord virtual pet experience where players care for Kirby companions in a persistent social leaderboard.",
   "main": "src/app.js",
   "scripts": {

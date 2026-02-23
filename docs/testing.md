@@ -1,4 +1,4 @@
-# Testing Guide (v2.1.0)
+# Testing Guide (v2.1.1)
 
 ## Automated Checks
 - `npm run lint`
