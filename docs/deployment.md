@@ -57,6 +57,7 @@ services:
 - App handles `SIGINT` and `SIGTERM` for graceful shutdown.
 - Scheduler intervals are configured via environment variables.
 - Use structured logs for incident triage and simulation observability.
+- Runtime operation is slash-command/DM oriented and does not require privileged gateway intents.
 - When `TOPGG_COMMAND_SYNC_TOKEN` is configured, the bot publishes its current slash-command schema to top.gg at startup after command registration.
 - You can manually seed NPC data using `npm run seed:npcs` when needed.
 - To wipe and regenerate NPCs, run `npm run seed:npcs:reset`.

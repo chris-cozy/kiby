@@ -145,7 +145,6 @@ Status/claim behavior:
 - Unknown terms remain tokenized.
 - Known terms show glossed output (`token(translation)`).
 - Surfaces:
-  - mention replies
   - ambient messages
   - adventure flavor lines
   - world/global event snippets.

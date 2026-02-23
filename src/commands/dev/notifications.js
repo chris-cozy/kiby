@@ -2,7 +2,6 @@ const {
   ApplicationCommandOptionType,
   ChannelType,
   EmbedBuilder,
-  PermissionsBitField,
 } = require("discord.js");
 const env = require("../../config/env");
 const playerRepository = require("../../repositories/playerRepository");
@@ -14,42 +13,24 @@ const logger = require("../../utils/logger");
 const MODE_ACTIVE_72H = "active_72h";
 const MODE_ALL_INSTALLED = "all_installed";
 const ACTIVE_WINDOW_HOURS = 72;
-const REQUIRED_CHANNEL_PERMISSIONS = [
-  PermissionsBitField.Flags.ViewChannel,
-  PermissionsBitField.Flags.SendMessages,
-  PermissionsBitField.Flags.EmbedLinks,
-];
 
-function hasChannelSendPermissions(channel, botMember) {
-  const permissions = channel.permissionsFor(botMember);
-  return Boolean(permissions && permissions.has(REQUIRED_CHANNEL_PERMISSIONS));
-}
+async function listGuildBroadcastChannels(guild) {
+  const ordered = [];
+  const seen = new Set();
 
-async function resolveGuildBroadcastChannel(guild) {
-  let botMember = guild.members?.me || null;
-  if (!botMember) {
-    const botUserId = guild.client?.user?.id;
-    if (botUserId && guild.members?.fetch) {
-      botMember = await guild.members.fetch(botUserId).catch(() => null);
+  const addCandidate = (channel) => {
+    if (!channel || seen.has(channel.id)) {
+      return;
     }
-  }
-
-  if (!botMember) {
-    return null;
-  }
-
-  const preferredChannels = [guild.systemChannel, guild.publicUpdatesChannel].filter(
-    Boolean
-  );
-  for (const channel of preferredChannels) {
-    if (
-      channel?.isTextBased?.() &&
-      !channel?.isDMBased?.() &&
-      hasChannelSendPermissions(channel, botMember)
-    ) {
-      return channel;
+    if (!channel.isTextBased?.() || channel.isDMBased?.()) {
+      return;
     }
-  }
+    seen.add(channel.id);
+    ordered.push(channel);
+  };
+
+  addCandidate(guild.systemChannel);
+  addCandidate(guild.publicUpdatesChannel);
 
   const guildChannels = await guild.channels.fetch();
   for (const channel of guildChannels.values()) {
@@ -64,14 +45,10 @@ async function resolveGuildBroadcastChannel(guild) {
       continue;
     }
 
-    if (!hasChannelSendPermissions(channel, botMember)) {
-      continue;
-    }
-
-    return channel;
+    addCandidate(channel);
   }
 
-  return null;
+  return ordered;
 }
 
 async function listTargetPlayerIds(mode) {
@@ -133,7 +110,7 @@ function buildSystemReportEmbed({
   if (mode === MODE_ALL_INSTALLED) {
     embed.addFields({
       name: "Server Messages",
-      value: `${serverSent}/${serverTargeted} sendable channels (${installedServerCount} installed servers)`,
+      value: `${serverSent}/${serverTargeted} servers with candidate channels (${installedServerCount} installed servers)`,
       inline: false,
     });
   }
@@ -227,14 +204,34 @@ module.exports = {
     if (mode === MODE_ALL_INSTALLED) {
       for (const guild of client.guilds.cache.values()) {
         try {
-          const channel = await resolveGuildBroadcastChannel(guild);
-          if (!channel) {
+          const channels = await listGuildBroadcastChannels(guild);
+          if (!channels.length) {
             continue;
           }
 
           serverTargeted += 1;
-          await channel.send({ embeds: [embed] });
-          serverSent += 1;
+          let delivered = false;
+          for (const channel of channels) {
+            try {
+              await channel.send({ embeds: [embed] });
+              serverSent += 1;
+              delivered = true;
+              break;
+            } catch (error) {
+              logger.warn("Failed to send system message to channel", {
+                guildId: guild.id,
+                channelId: channel.id,
+                error: error.message,
+              });
+            }
+          }
+
+          if (!delivered) {
+            logger.warn("Failed to send system message to any channel", {
+              guildId: guild.id,
+              attemptedChannels: channels.length,
+            });
+          }
         } catch (error) {
           logger.warn("Failed to send system message to server", {
             guildId: guild.id,
@@ -251,7 +248,7 @@ module.exports = {
 
     if (mode === MODE_ALL_INSTALLED) {
       lines.push(
-        `Server messages delivered: ${serverSent}/${serverTargeted} sendable channels (${installedServerCount} installed servers).`
+        `Server messages delivered: ${serverSent}/${serverTargeted} servers with candidate channels (${installedServerCount} installed servers).`
       );
     }
 
