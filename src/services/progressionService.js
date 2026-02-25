@@ -61,7 +61,7 @@ const QUEST_POOL = [
   },
   {
     key: "social-reach",
-    label: "Use social play",
+    label: "Use social activities",
     category: "social",
     metric: "socialPlay",
     goal: 3,
@@ -104,7 +104,7 @@ const BONUS_QUEST_POOL = [
   },
   {
     key: "social-weekender",
-    label: "Complete 5 social plays",
+    label: "Complete 5 social activities",
     category: "bonus",
     metric: "socialPlay",
     goal: 5,
@@ -274,7 +274,7 @@ function ensureOnboarding(progress) {
   progress.onboarding.latestRun.runId = progress.onboarding.latestRun.runId || "";
   progress.onboarding.latestRun.version = Math.max(
     1,
-    ensureNumber(progress.onboarding.latestRun.version, 1)
+    ensureNumber(progress.onboarding.latestRun.version, 3)
   );
   progress.onboarding.latestRun.source = progress.onboarding.latestRun.source || "";
   const status = progress.onboarding.latestRun.status || "none";
@@ -296,6 +296,14 @@ function ensureOnboarding(progress) {
     progress.onboarding.latestRun.steps.sleep || null;
   progress.onboarding.latestRun.steps.training =
     progress.onboarding.latestRun.steps.training || null;
+  progress.onboarding.latestRun.steps["park-send"] =
+    progress.onboarding.latestRun.steps["park-send"] || null;
+  progress.onboarding.latestRun.steps["park-leave"] =
+    progress.onboarding.latestRun.steps["park-leave"] || null;
+  progress.onboarding.latestRun.steps["playdate-settings"] =
+    progress.onboarding.latestRun.steps["playdate-settings"] || null;
+  progress.onboarding.latestRun.steps.playdate =
+    progress.onboarding.latestRun.steps.playdate || null;
   progress.onboarding.latestRun.steps.adventure =
     progress.onboarding.latestRun.steps.adventure || null;
   progress.onboarding.latestRun.steps.economy =
@@ -534,7 +542,7 @@ async function ensureProgress(userId, now = new Date()) {
         runsSkipped: 0,
         latestRun: {
           runId: "",
-          version: 1,
+          version: 3,
           source: "",
           status: "none",
           startedAt: null,
@@ -544,6 +552,10 @@ async function ensureProgress(userId, now = new Date()) {
             care: null,
             sleep: null,
             training: null,
+            "park-send": null,
+            "park-leave": null,
+            "playdate-settings": null,
+            playdate: null,
             adventure: null,
             economy: null,
             leaderboard: null,

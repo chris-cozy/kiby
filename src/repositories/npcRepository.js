@@ -4,6 +4,10 @@ async function countAll() {
   return NpcProfile.countDocuments();
 }
 
+async function findByNpcId(npcId) {
+  return NpcProfile.findOne({ npcId });
+}
+
 async function createMany(payload) {
   return NpcProfile.insertMany(payload);
 }
@@ -24,6 +28,7 @@ module.exports = {
   countAll,
   createMany,
   deleteAll,
+  findByNpcId,
   listAll,
   saveNpc,
 };

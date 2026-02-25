@@ -47,7 +47,7 @@ module.exports = {
         },
         {
           name: "Social & Events",
-          value: "`/social`, `/events`, `/adventure`",
+          value: "`/playdate`, `/park`, `/events`, `/adventure`",
         }
       )
       .setFooter({

@@ -3,6 +3,7 @@ const { applyCareAction, applyDecay } = require("../domain/care/rules");
 const playerRepository = require("../repositories/playerRepository");
 const sleepScheduleRepository = require("../repositories/sleepScheduleRepository");
 const playerAdventureRepository = require("../repositories/playerAdventureRepository");
+const playerParkRepository = require("../repositories/playerParkRepository");
 const sleepService = require("./sleepService");
 const progressionService = require("./progressionService");
 const deathHistoryRepository = require("../repositories/deathHistoryRepository");
@@ -31,6 +32,19 @@ async function runActionForUser(userId, actionName, now = new Date()) {
       reason: "adventuring",
       player,
       run: adventureRecord.activeRun,
+    };
+  }
+
+  const parkRecord = await playerParkRepository.findByUserId(userId);
+  if (
+    parkRecord?.activeSession &&
+    now.getTime() < new Date(parkRecord.activeSession.resolvedAt).getTime()
+  ) {
+    return {
+      ok: false,
+      reason: "at-park",
+      player,
+      session: parkRecord.activeSession,
     };
   }
 

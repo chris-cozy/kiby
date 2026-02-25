@@ -1,4 +1,5 @@
 const onboardingService = require("../services/onboardingService");
+const playerService = require("../services/playerService");
 
 async function safeTutorialFollowUp(interaction, content) {
   if (!interaction || typeof interaction.followUp !== "function") {
@@ -16,13 +17,32 @@ async function safeTutorialFollowUp(interaction, content) {
   }
 }
 
+async function injectKibyName(content, userId) {
+  if (!content || !content.includes("{{KIBY_NAME}}")) {
+    return content;
+  }
+
+  let kibyName = "your Kiby";
+  try {
+    const player = await playerService.getPlayerByUserId(userId);
+    if (player?.kirbyName) {
+      kibyName = player.kirbyName;
+    }
+  } catch {
+    // Keep fallback value.
+  }
+
+  return content.replaceAll("{{KIBY_NAME}}", kibyName);
+}
+
 async function sendTutorialPromptForStatus(interaction, statusPayload) {
   const prompt = onboardingService.getCurrentPrompt(statusPayload);
   if (!prompt) {
     return false;
   }
 
-  return safeTutorialFollowUp(interaction, prompt.content);
+  const content = await injectKibyName(prompt.content, interaction?.user?.id || "");
+  return safeTutorialFollowUp(interaction, content);
 }
 
 async function sendTutorialRecapForStatus(interaction, statusPayload) {

@@ -203,8 +203,12 @@ async function sendGiftReceivedNotification(client, userId, gift) {
 
 async function sendSocialInteractionReceivedNotification(client, userId, payloadData) {
   const title = "Kiby Social Visit";
-  const description = `**${payloadData.senderName}** used **${payloadData.action}** on your Kiby.\n\nYour Kiby gains:\n- Affection: **+${payloadData.targetAffectionGain}**\n- Social: **+${payloadData.targetSocialGain}**`;
-  const payload = await buildNotificationEmbed(client, title, description, "social");
+  const actionLine =
+    payloadData.action === "playdate"
+      ? `**${payloadData.senderName}** arranged a **playdate** with your Kiby.`
+      : `**${payloadData.senderName}** used **${payloadData.action}** on your Kiby.`;
+  const description = `${actionLine}\n\nYour Kiby gains:\n- Affection: **+${payloadData.targetAffectionGain}**\n- Social: **+${payloadData.targetSocialGain}**`;
+  const payload = await buildNotificationEmbed(client, title, description, "playdate");
   return sendDirectMessage(client, userId, {
     embeds: [payload.embed],
     files: [payload.attachment],

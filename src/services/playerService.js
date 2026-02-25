@@ -28,6 +28,7 @@ async function adoptPlayer(userId, kirbyName) {
     userId,
     kirbyName: safeName,
     adoptedAt,
+    lastPlaydateAt: null,
     lastCare: {
       feed: adoptedAt,
       pet: petReadyAt,
@@ -35,7 +36,7 @@ async function adoptPlayer(userId, kirbyName) {
       cuddle: adoptedAt,
       train: trainReadyAt,
       bathe: adoptedAt,
-      socialPlay: adoptedAt,
+      socialPlay: null,
       socialReceived: null,
     },
   });

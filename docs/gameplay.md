@@ -1,4 +1,4 @@
-# Gameplay Systems (v2.1.0)
+# Gameplay Systems (v2.2.0)
 
 ## Core Stats
 - `hp` (0-100)
@@ -20,8 +20,8 @@
 Important rules:
 - Solo care/item/adventure/passive systems do not grant positive social points.
 - Positive social points come only from:
-  - `/social play-with`
-  - `/social interact`
+  - `/playdate send`
+  - `/park leave`
 - `/cooldowns` surfaces only active care cooldown timers (it omits actions that are already ready).
 
 ## Sleep Scheduling
@@ -68,7 +68,8 @@ On each care tick:
 
 ## Adventure Lock Rules
 - While a Kiby is actively adventuring, care commands are blocked.
-- After the adventure resolves, care unlocks even before `/adventure claim`.
+- After an adventure resolves, `/adventure claim` is required before further game actions.
+- While a Kiby is actively at the park, care commands are also blocked.
 
 ## Battle Power Loop
 - `train` is the primary BP growth action.
@@ -80,7 +81,7 @@ On each care tick:
 
 ## Adventures (Async PvE)
 - Start adventures with preset durations only.
-- Route risk + preparedness + support items determine expected outcome.
+- Route/duration scaling + support items determine expected outcome.
 - Damage is applied by checkpoint simulation.
 - If HP would drop below fail threshold:
   - adventure fails early
@@ -96,7 +97,9 @@ On each care tick:
 - Actual completion resolves within:
   - earliest: `baseline * 0.75`
   - latest: `baseline * 1.25`
-- Low BP increases risk and failure chance materially.
+- Low BP and longer durations increase failure chance materially.
+- Start/status embeds expose a single `Danger Level` (instead of risk band + preparedness split).
+- Projected rewards are not displayed in adventure status embeds.
 - Failure behavior:
   - adventure ends early
   - Kiby returns wounded
@@ -105,16 +108,18 @@ On each care tick:
 - Players are DM-notified once when an adventure becomes claimable.
 
 ## Social Systems
-- One-way social play:
-  - interact with another player's Kiby name target
-  - only your own Kiby gains social/affection
-  - no target notification or target stat changes
-- Direct social interactions:
-  - positive-only
-  - target must opt in
-  - receiver Kiby gains affection/social from interaction effects
-  - receiver gets best-effort DM notification on successful interaction
-  - receiver-side anti-spam cooldown applies globally (default 45 minutes).
+- `/playdate send`:
+  - direct 1-on-1 interaction with any existing Kiby (players + NPCs)
+  - no action-choice selector (single interaction model)
+  - player-owned targets require opt-in
+  - player-owned targets enforce receiver inbound cooldown (default 45 minutes)
+  - non-NPC targets receive best-effort owner notification DM.
+- `/playdate settings` controls inbound opt-in for player-owned Kibys.
+- `/park send|status|leave`:
+  - asynchronous social-care action with duration presets
+  - longer stays provide higher social gains and hunger drain
+  - sessions auto-resolve at duration end if leave is not manually triggered
+  - early leave resolves proportional stat effects.
 
 ## Events
 Two parallel systems:
@@ -181,10 +186,13 @@ Sort order:
   - care action
   - sleep schedule set
   - training action
+  - park send (`/park send`)
+  - park leave (`/park leave`)
+  - playdate preference set (`/playdate settings`)
+  - NPC playdate (`/playdate send` targeting an NPC)
   - adventure start
   - economy interaction (`/daily`, `/quests view`, `/shop list`, or `/inventory`)
   - leaderboard check (`/leaderboard`)
-- Social step is optional and never blocks completion.
 - Users can inspect or rerun via:
   - `/tutorial status`
   - `/tutorial replay`

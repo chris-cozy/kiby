@@ -45,6 +45,14 @@ module.exports = {
         });
         return;
       }
+
+      if (result.reason === "at-park") {
+        await safeReply(interaction, {
+          content: `**${result.player.kirbyName}** is currently at the park. Care actions are locked until they return.`,
+          ephemeral: true,
+        });
+        return;
+      }
     }
 
     const command = new CommandContext();

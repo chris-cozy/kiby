@@ -1,4 +1,4 @@
-# Command Reference (v2.1.1)
+# Command Reference (v2.2.0)
 
 ## Configuration
 - `/adopt name:<name>`: create your Kiby.
@@ -34,18 +34,24 @@ Gifting behavior:
 - receiver gets DM notification when coins/items are received.
 
 ## Social
-- `/social play-with user:<user>`: one-way social action (no target notification).
-- `/social interact user:<user> action:<cheer|encourage|wave>`: direct interaction (target opt-in required).
-- `/social settings opt_in:<true|false>`: Allow direct interactions from others.
+- `/playdate send kiby:<autocomplete>`: direct 1-on-1 playdate with any existing Kiby (player or NPC).
+- `/playdate settings opt_in:<true|false>`: allow direct inbound playdates from players.
+- `/park send duration:<preset>`
+- `/park status`
+- `/park leave`
 
-`/social interact` behavior:
-- applies sender gain + receiver Kiby gains on success.
-- sends a best-effort receiver DM notification on success.
-- enforces sender cooldown and receiver-side anti-spam cooldown.
-- returns `target-cooldown` with remaining wait when receiver recently got an inbound interaction.
+`/playdate send` behavior:
+- supports global target list (not limited to current server/channel).
+- player-owned targets require opt-in and respect receiver cooldown.
+- successful player target visits send best-effort receiver notification DMs.
+- NPC targets do not send owner notifications.
 
-`/social play-with` behavior:
-- remains one-way/no-notify and does not apply receiver stat changes.
+`/park` behavior:
+- send your Kiby asynchronously for a selected duration.
+- longer durations increase social gains and hunger drain.
+- `/park status` shows global occupancy + your remaining time.
+- if `/park leave` is not used, sessions auto-resolve at duration end.
+- `/park leave` resolves completed or early sessions with proportional effects and reveals actual gains/losses.
 
 ## Progression
 - `/daily`
@@ -61,6 +67,11 @@ Gifting behavior:
 - `/adventure claim`
 - `/adventure locations`
 - `/language`
+
+Adventure embed behavior:
+- start/status now show `Danger Level` (single simplified risk signal).
+- projected rewards are hidden from status to preserve reward surprise.
+- once an adventure has completed, `/adventure claim` must be resolved before additional game actions.
 
 Global event behavior:
 - `/events view` can return an idle state when no global campaign event is active.

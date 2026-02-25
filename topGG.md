@@ -30,9 +30,10 @@ Kiby supports both install modes:
 
 ## Social + Events
 
-- One-way social play with no notification spam via `/social play-with`.
-- Optional direct interactions through opt-in settings via `/social settings`.
-- `/social interact` now boosts both sides on success, notifies the receiver, and uses receiver-side anti-spam cooldown.
+- Direct 1-on-1 playdates with `/playdate send` (player + NPC targets).
+- Optional inbound direct-playdate controls via `/playdate settings`.
+- `/playdate send` boosts both sides on success, notifies non-NPC owners, and uses receiver-side anti-spam cooldown for player targets.
+- Park-based social care loop via `/park send|status|leave` with duration-based gains/drain.
 - Social points are earned from true social actions (not solo care/item actions).
 - Random personal world events continue to affect active Kibys over time.
 - Global campaign events run in parallel and reward contributors (`/events view|claim`).

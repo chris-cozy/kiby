@@ -295,7 +295,7 @@ const playerProgressSchema = new Schema(
         },
         version: {
           type: Number,
-          default: 1,
+          default: 3,
           min: 1,
         },
         source: {
@@ -329,6 +329,22 @@ const playerProgressSchema = new Schema(
             default: null,
           },
           training: {
+            type: Date,
+            default: null,
+          },
+          "park-send": {
+            type: Date,
+            default: null,
+          },
+          "park-leave": {
+            type: Date,
+            default: null,
+          },
+          "playdate-settings": {
+            type: Date,
+            default: null,
+          },
+          playdate: {
             type: Date,
             default: null,
           },

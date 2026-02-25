@@ -148,13 +148,8 @@ module.exports = {
             inline: true,
           },
           {
-            name: "Risk",
-            value: run.riskBand,
-            inline: true,
-          },
-          {
-            name: "Preparedness",
-            value: `${Math.round(run.preparednessScore * 100)}%`,
+            name: "Danger Level",
+            value: run.dangerLevel || "Medium",
             inline: true,
           },
           {
@@ -169,11 +164,6 @@ module.exports = {
                 ? `In progress (${Math.max(1, Math.ceil(run.msRemaining / 60000))}m remaining)`
                 : run.status.toUpperCase(),
             inline: true,
-          },
-          {
-            name: "Projected Rewards",
-            value: `${run.rewardCoins} coins, ${run.rewardXp} XP`,
-            inline: false,
           },
           {
             name: "Kiby Signal",
@@ -295,6 +285,9 @@ module.exports = {
         "already-active": "You already have an active adventure.",
         "claim-required":
           "Your previous adventure is ready. Use `/adventure claim` before starting another.",
+        "park-active": "Your Kiby is currently at the park. Use `/park leave` first.",
+        "park-leave-required":
+          "Your park visit is ready to resolve. Use `/park leave` before starting an adventure.",
         "missing-item": "You do not have that support item.",
         "unknown-item": "Support item not found.",
         "invalid-support-item": "That item cannot be used as adventure support.",
@@ -327,13 +320,8 @@ module.exports = {
           inline: true,
         },
         {
-          name: "Risk Band",
-          value: run.riskBand,
-          inline: true,
-        },
-        {
-          name: "Preparedness",
-          value: `${Math.round(run.preparednessScore * 100)}%`,
+          name: "Danger Level",
+          value: run.dangerLevel || "Medium",
           inline: true,
         },
         {

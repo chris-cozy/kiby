@@ -2,7 +2,50 @@
 
 All notable changes to this project are documented in this file.
 
-## [2.1.1] - Unreleased
+## [2.2.0] - Unreleased
+### Added
+- New social command surfaces:
+  - `/playdate send` for direct 1-on-1 playdates with player or NPC Kibys.
+  - `/playdate settings` for inbound player-playdate opt-in.
+  - `/park send|status|leave` for asynchronous social care sessions.
+- New park persistence/runtime model (`PlayerPark`) with:
+  - early-leave proportional stat resolution
+  - timed auto-return resolution when `/park leave` is not used.
+- Tutorial flow expansion with required social-care onboarding before adventure:
+  - park send
+  - park leave
+  - playdate preference set
+  - NPC/player playdate.
+
+### Changed
+- Replaced legacy `/social` command flow:
+  - `/social interact` -> `/playdate send`
+  - `/social play-with` -> `/park`.
+- Playdate targeting now includes all existing Kibys (players + NPCs), not only local server/channel context.
+- Playdate autocomplete/selection now always includes NPC Kibys when available.
+- Playdate UX copy/labels updated:
+  - NPC list and embed display uses `✧` marker.
+  - player type label suffixes removed from playdate surfaces.
+- Park balance updated:
+  - substantially increased social gain over time
+  - moderate hunger drain increase
+  - estimated effects removed from send/status embeds (actual effects shown on resolution).
+- Adventure updates:
+  - replaced split `Risk Band` + `Preparedness Rating` display with single `Danger Level`.
+  - removed projected rewards from adventure embeds.
+  - reward balancing adjusted by route + duration.
+  - unresolved completed adventures now require `/adventure claim` before other actions.
+- Preparedness/duration handling adjusted to align displayed danger with actual run risk over selected duration.
+- Onboarding/tutorial updates:
+  - playdate settings step is now required
+  - playdate step action now injects actual player Kiby name
+  - social tutorial sequence moved before adventure and fixed for park-step progression.
+
+### Documentation
+- Updated README, command reference, gameplay, testing, deployment, and architecture docs for the `/playdate` and `/park` systems and associated adventure/tutorial changes.
+- Deprecated `/social interact` and `/social play-with` references were removed from active command/gameplay guidance.
+
+## [2.1.1] - 2026-02-23
 ### Changed
 - Removed privileged-intent dependencies from runtime startup:
   - dropped `GuildMembers`, `GuildMessages`, and `MessageContent` intents

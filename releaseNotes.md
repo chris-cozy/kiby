@@ -1,6 +1,36 @@
 # Release Notes
 
-## Version 2.1.1 - Unreleased
+## Version 2.2.0 - Unreleased
+
+- Replaced legacy social command surface:
+  - `/social interact` -> `/playdate send`
+  - `/social play-with` -> `/park send|status|leave`
+  - `/playdate settings` added for inbound player-playdate opt-in control.
+- Expanded playdate targeting:
+  - supports global player + NPC Kiby targeting
+  - no local server/channel restriction for target selection
+  - player targets retain owner notification behavior.
+- Added asynchronous park social-care loop:
+  - duration-based social gain and hunger drain
+  - early-leave proportional resolution
+  - automatic return/resolution when duration ends without `/park leave`
+  - occupancy + remaining-time visibility via `/park status`.
+- Park and playdate balancing/UX updates:
+  - park social gain increased significantly; hunger drain increased moderately
+  - park projected effects removed from send/status embeds (outcome shown on resolution only)
+  - NPC labeling standardized to `✧`
+  - player type labels removed from playdate surfaces.
+- Adventure UX and control-flow refresh:
+  - replaced split risk/preparedness display with single `Danger Level`
+  - removed projected rewards from adventure embeds
+  - reward balancing adjusted by route + duration
+  - completed adventures now require `/adventure claim` before other commands proceed.
+- Tutorial updates:
+  - added required social-care sequence before adventure (`/park send` -> `/park leave` -> `/playdate settings` -> `/playdate send`)
+  - fixed park-step backtracking loop
+  - playdate tutorial action now uses actual Kiby name instead of placeholder.
+
+## Version 2.1.1 - 2026-02-24
 
 - Removed privileged-intent requirements from the runtime intent set:
   - removed `GuildMembers`, `GuildMessages`, and `MessageContent`

@@ -1,6 +1,7 @@
 const env = require("../config/env");
 const playerRepository = require("../repositories/playerRepository");
 const playerAdventureRepository = require("../repositories/playerAdventureRepository");
+const playerParkRepository = require("../repositories/playerParkRepository");
 const economyService = require("./economyService");
 const progressionService = require("./progressionService");
 const seasonService = require("./seasonService");
@@ -17,6 +18,7 @@ const ROUTES = [
     label: "Meadow Patrol",
     recommendedBattlePower: 0,
     risk: 0.85,
+    rewardMultiplier: 1,
     damageRange: [4, 11],
     baseCoins: 35,
     baseXp: 22,
@@ -32,6 +34,7 @@ const ROUTES = [
     label: "Crystal Cavern",
     recommendedBattlePower: 90,
     risk: 1.2,
+    rewardMultiplier: 1.18,
     damageRange: [7, 16],
     baseCoins: 54,
     baseXp: 34,
@@ -48,6 +51,7 @@ const ROUTES = [
     label: "Starfall Ruins",
     recommendedBattlePower: 180,
     risk: 1.55,
+    rewardMultiplier: 1.38,
     damageRange: [9, 21],
     baseCoins: 74,
     baseXp: 50,
@@ -64,6 +68,7 @@ const ROUTES = [
     label: "Obsidian Citadel",
     recommendedBattlePower: 300,
     risk: 1.9,
+    rewardMultiplier: 1.62,
     damageRange: [11, 26],
     baseCoins: 95,
     baseXp: 64,
@@ -178,6 +183,61 @@ function getRiskBand(score) {
   return "High";
 }
 
+function estimateSuccessChance({
+  playerHp,
+  hpFloor,
+  route,
+  riskScore,
+  durationMinutes,
+  seed,
+  trials = 64,
+}) {
+  const checkpointMinutes = 15;
+  const segments = Math.max(1, Math.ceil(durationMinutes / checkpointMinutes));
+  let success = 0;
+
+  for (let trial = 0; trial < trials; trial += 1) {
+    const rng = createRng((seed + trial * 7919) >>> 0);
+    let hpTrack = playerHp;
+    let failed = false;
+
+    for (let index = 0; index < segments; index += 1) {
+      const rolled = rng.between(route.damageRange[0], route.damageRange[1]);
+      const segmentDamage = Math.max(1, Math.round(rolled * riskScore));
+      hpTrack -= segmentDamage;
+      if (hpTrack < hpFloor) {
+        failed = true;
+        break;
+      }
+    }
+
+    if (!failed) {
+      success += 1;
+    }
+  }
+
+  return clamp(success / trials, 0.01, 0.99);
+}
+
+function getDangerLevel(readiness, successChance) {
+  const safety = clamp(successChance * 0.8 + readiness * 0.2, 0, 1);
+
+  if (safety >= 0.9) {
+    return "Peaceful";
+  }
+  if (safety >= 0.74) {
+    return "Low";
+  }
+  if (safety >= 0.52) {
+    return "Medium";
+  }
+  if (safety >= 0.32) {
+    return "High";
+  }
+
+  return "Hellscape";
+}
+
 function rollItemDrops(dropTable, rng, multiplier = 1) {
   const rewards = {};
   for (const [itemId, chance] of Object.entries(dropTable || {})) {
@@ -249,11 +309,20 @@ function calculateAdventureBlueprint(
   const etaWindow = getEtaWindowMinutes(baselineDurationMinutes, rng);
   const earliestResolveAt = new Date(now.getTime() + etaWindow.earliest * 60 * 1000);
   const latestResolveAt = new Date(now.getTime() + etaWindow.latest * 60 * 1000);
+  const hpFloor = env.adventureFailThresholdHp;
+  const estimatedSuccessChance = estimateSuccessChance({
+    playerHp: player.hp || 1,
+    hpFloor,
+    route,
+    riskScore,
+    durationMinutes: etaWindow.resolved,
+    seed,
+  });
+  const dangerLevel = getDangerLevel(readiness, estimatedSuccessChance);
 
   const checkpoints = [];
   const checkpointMinutes = 15;
   const segments = Math.max(1, Math.ceil(etaWindow.resolved / checkpointMinutes));
-  const hpFloor = env.adventureFailThresholdHp;
   let hpTrack = player.hp;
   let totalDamage = 0;
   let failureAt = null;
@@ -284,14 +353,18 @@ function calculateAdventureBlueprint(
       ? (player.battlePower || 0) / 90
       : (player.battlePower || 0) / route.recommendedBattlePower;
   const bpMultiplier = clamp(0.35 + bpRatio * 0.75, 0.2, 1.35);
-  const durationScale = Math.max(0.5, etaWindow.resolved / 60);
+  const durationScale = clamp(Math.pow(etaWindow.resolved / 60, 0.92), 0.55, 5.5);
   const rewardPotential = clamp(
-    readiness * 0.8 + bpMultiplier * 0.6 + rng.next() * 0.15 + rewardBoost,
-    0.15,
-    1.65
+    0.55 + readiness * 0.42 + bpMultiplier * 0.35 + rng.next() * 0.1 + rewardBoost,
+    0.35,
+    1.55
   );
-  const baseCoins = Math.round(route.baseCoins * durationScale * rewardPotential);
-  const baseXp = Math.round(route.baseXp * durationScale * rewardPotential);
+  const baseCoins = Math.round(
+    route.baseCoins * (route.rewardMultiplier || 1) * durationScale * rewardPotential
+  );
+  const baseXp = Math.round(
+    route.baseXp * (route.rewardMultiplier || 1) * durationScale * rewardPotential
+  );
   const successItems = rollItemDrops(
     route.dropTable,
     rng,
@@ -311,6 +384,8 @@ function calculateAdventureBlueprint(
     mood,
     readiness,
     riskBand: getRiskBand(readiness),
+    estimatedSuccessChance,
+    dangerLevel,
     seed: rng.seed(),
     checkpoints,
     totalDamage,
@@ -353,6 +428,8 @@ function serializeRun(run, now = new Date()) {
     status: ready ? (run.failureAt ? "failed" : "completed") : "active",
     riskBand: run.riskBand,
     preparednessScore: run.preparednessScore,
+    successChanceEstimate: run.successChanceEstimate,
+    dangerLevel: run.dangerLevel || "Medium",
     supportItemId: run.supportItemId,
     supportItemLabel: run.supportItemLabel,
     failThresholdHp: run.failThresholdHp,
@@ -388,11 +465,22 @@ async function startAdventure(
     };
   }
 
-  const player = await playerRepository.findByUserId(userId);
+  const [player, parkRecord] = await Promise.all([
+    playerRepository.findByUserId(userId),
+    playerParkRepository.findByUserId(userId),
+  ]);
   if (!player) {
     return {
       ok: false,
       reason: "missing-player",
+    };
+  }
+
+  if (parkRecord?.activeSession) {
+    const pendingLeave = now.getTime() >= new Date(parkRecord.activeSession.resolvedAt).getTime();
+    return {
+      ok: false,
+      reason: pendingLeave ? "park-leave-required" : "park-active",
     };
   }
 
@@ -438,6 +526,8 @@ async function startAdventure(
     seed: blueprint.seed,
     preparednessScore: blueprint.readiness,
     riskBand: blueprint.riskBand,
+    successChanceEstimate: blueprint.estimatedSuccessChance,
+    dangerLevel: blueprint.dangerLevel,
     supportItemId: support.item?.id || "",
     supportItemLabel: support.item?.label || "",
     hpAtStart: player.hp,
