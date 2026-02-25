@@ -177,9 +177,9 @@ describe("socialService", () => {
 
     expect(result.ok).toBe(true);
     expect(result.targetType).toBe("npc");
-    expect(result.senderGain).toBe(6);
+    expect(result.senderGain).toBe(8);
     expect(result.targetAffectionGain).toBe(4);
-    expect(result.targetSocialGain).toBe(3);
+    expect(result.targetSocialGain).toBe(8);
     expect(playerRepository.savePlayer).toHaveBeenCalledTimes(1);
     expect(npcRepository.saveNpc).toHaveBeenCalledTimes(1);
   });
