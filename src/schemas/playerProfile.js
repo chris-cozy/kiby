@@ -78,6 +78,10 @@ const playerProfileSchema = new Schema(
       required: true,
       default: Date.now,
     },
+    lastPlaydateAt: {
+      type: Date,
+      default: null,
+    },
     lastCare: {
       feed: {
         type: Date,

@@ -1,4 +1,4 @@
-# Testing Guide (v2.1.1)
+# Testing Guide (v2.2.0)
 
 ## Automated Checks
 - `npm run lint`
@@ -34,22 +34,28 @@
 ### Social policy
 - solo care actions do not increase social
 - toy/direct item use does not grant positive social
-- only `/social play-with` and `/social interact` grant positive social
-- `/social interact` enforces receiver inbound cooldown (default 45m)
-- `/social interact` applies sender + receiver stat gains on success
-- `/social interact` sends receiver DM notification best-effort (no rollback on DM failure)
-- `/social play-with` remains one-way/no-notify with no receiver stat mutation
+- `/playdate send` enforces receiver inbound cooldown (default 45m) for player targets
+- `/playdate send` applies sender + receiver stat gains on success
+- `/playdate send` sends receiver DM notification best-effort (no rollback on DM failure) for player targets
+- `/playdate send` can target NPCs without receiver DM dependency
+- `/park leave` resolves social gain + hunger drain proportionally for early exits
+- `/park status` returns occupancy count and remaining time when active
+- `/park send` and `/park status` do not reveal projected social/hunger effects
 
 ### Battle power / adventures
 - `/train` increases battle power
 - BP decay is lazily applied after elapsed time
 - all routes start without BP hard-gates
 - low BP materially increases failure risk and reduces rewards
+- longer durations materially increase danger/failure risk
 - Obsidian Citadel route appears and runs
 - ETA windows display and resolve within variance bounds
+- adventure start/status embeds show `Danger Level` and omit projected rewards in status
+- once adventure is complete, `/adventure claim` is required before additional game actions
 
 ### Adventure lock / sleep
 - care commands block while active adventure is in progress
+- care commands block while Kiby is actively at the park
 - non-care commands remain available during adventure
 - asleep state allows only `pet` and `cuddle`
 - `cuddle` works while asleep

@@ -46,6 +46,14 @@ module.exports = {
         return;
       }
 
+      if (result.reason === "at-park") {
+        await safeReply(interaction, {
+          content: `**${result.player.kirbyName}** is currently at the park. Care actions are locked until they return.`,
+          ephemeral: true,
+        });
+        return;
+      }
+
       if (result.reason === "cooldown") {
         await safeReply(interaction, {
           content: `You can train again in ${convertCountdown(result.waitMs)}.`,

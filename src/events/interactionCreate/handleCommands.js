@@ -2,6 +2,31 @@ const getLocalCommands = require("../../utils/getLocalCommands");
 const { safeReply } = require("../../utils/interactionReply");
 const env = require("../../config/env");
 const logger = require("../../utils/logger");
+const playerAdventureRepository = require("../../repositories/playerAdventureRepository");
+
+const ADVENTURE_CLAIM_GATE_BYPASS = new Set([
+  "help",
+  "ping",
+  "version",
+  "tutorial",
+  "info",
+  "cooldowns",
+  "leaderboard",
+  "language",
+]);
+
+function isAdventureCommandBypass(interaction) {
+  if (interaction.commandName !== "adventure") {
+    return false;
+  }
+
+  try {
+    const subcommand = interaction.options.getSubcommand();
+    return subcommand === "claim" || subcommand === "status" || subcommand === "locations";
+  } catch {
+    return false;
+  }
+}
 
 module.exports = async (_client, interaction) => {
   if (!interaction.isChatInputCommand() && !interaction.isAutocomplete()) {
@@ -74,6 +99,26 @@ module.exports = async (_client, interaction) => {
           });
           return;
         }
+      }
+    }
+
+    if (
+      !ADVENTURE_CLAIM_GATE_BYPASS.has(interaction.commandName) &&
+      !isAdventureCommandBypass(interaction)
+    ) {
+      const record = await playerAdventureRepository.findByUserId(interaction.user.id);
+      const run = record?.activeRun;
+      if (
+        run &&
+        !run.claimedAt &&
+        new Date().getTime() >= new Date(run.resolvedAt).getTime()
+      ) {
+        await safeReply(interaction, {
+          content:
+            "Your adventure is complete. Use `/adventure claim` before performing more actions.",
+          ephemeral: true,
+        });
+        return;
       }
     }
 

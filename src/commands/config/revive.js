@@ -63,6 +63,7 @@ module.exports = {
       userId: interaction.user.id,
       kirbyName: latestDeath.kirbyName,
       adoptedAt: revivedAt,
+      lastPlaydateAt: null,
       lastCare: {
         feed: revivedAt,
         pet: petReadyAt,

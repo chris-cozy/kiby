@@ -1,26 +1,33 @@
 const playerProgressRepository = require("../repositories/playerProgressRepository");
 const progressionService = require("./progressionService");
 
-const ONBOARDING_VERSION = 1;
+const ONBOARDING_VERSION = 3;
 const REQUIRED_STEPS = [
   "care",
   "sleep",
   "training",
+  "park-send",
+  "park-leave",
+  "playdate-settings",
+  "playdate",
   "adventure",
   "economy",
   "leaderboard",
 ];
-const OPTIONAL_STEPS = ["social"];
+const OPTIONAL_STEPS = [];
 const ALL_STEP_KEYS = [...REQUIRED_STEPS, ...OPTIONAL_STEPS];
 
 const STEP_LABELS = {
   care: "Care System",
   sleep: "Sleep Schedule + World Events",
   training: "Training + Battle Power",
+  "park-send": "Park Send",
+  "park-leave": "Park Leave",
+  "playdate-settings": "Playdate Preferences",
+  playdate: "Playdate",
   adventure: "Adventure System",
   economy: "Economy System",
   leaderboard: "Leaderboard + Community",
-  social: "Social Systems (Optional)",
 };
 
 function buildEmptySteps() {
@@ -28,9 +35,14 @@ function buildEmptySteps() {
     care: null,
     sleep: null,
     training: null,
+    "park-send": null,
+    "park-leave": null,
+    "playdate-settings": null,
+    playdate: null,
     adventure: null,
     economy: null,
     leaderboard: null,
+    // Legacy optional step key retained for old rows.
     social: null,
   };
 }
@@ -227,6 +239,14 @@ function applyEventToRun(run, eventKey, payload, now = new Date()) {
   } else if (eventKey === "training-action") {
     changed = markStep(run, "care", now) || changed;
     changed = markStep(run, "training", now) || changed;
+  } else if (eventKey === "park-send") {
+    changed = markStep(run, "park-send", now) || changed;
+  } else if (eventKey === "park-leave") {
+    changed = markStep(run, "park-leave", now) || changed;
+  } else if (eventKey === "playdate-settings") {
+    changed = markStep(run, "playdate-settings", now) || changed;
+  } else if (eventKey === "playdate-action") {
+    changed = markStep(run, "playdate", now) || changed;
   } else if (eventKey === "sleep-set") {
     changed = markStep(run, "sleep", now) || changed;
   } else if (eventKey === "adventure-start") {
@@ -239,8 +259,6 @@ function applyEventToRun(run, eventKey, payload, now = new Date()) {
     }
   } else if (eventKey === "leaderboard-view") {
     changed = markStep(run, "leaderboard", now) || changed;
-  } else if (eventKey === "social-action") {
-    changed = markStep(run, "social", now) || changed;
   } else if (eventKey === "help-view" && !run.helpViewedAt) {
     run.helpViewedAt = now;
     changed = true;
@@ -460,6 +478,42 @@ function getCurrentPrompt(statusPayload) {
     };
   }
 
+  if (stepKey === "park-send") {
+    return {
+      stepKey,
+      stepNumber,
+      action: "/park send",
+      content: `${prefix}\nSocial care now includes park time so your Kiby can recharge community energy.\n**Action:** Use \`/park send duration:30\` once.\n*Tip:* Longer park visits grant more social points but drain more hunger.\n${skipLine}`,
+    };
+  }
+
+  if (stepKey === "park-leave") {
+    return {
+      stepKey,
+      stepNumber,
+      action: "/park leave",
+      content: `${prefix}\nYour Kiby returns from the park only when you resolve the visit.\n**Action:** Use \`/park leave\` once.\n*Tip:* \`/park status\` shows park occupancy and your remaining time.\n${skipLine}`,
+    };
+  }
+
+  if (stepKey === "playdate") {
+    return {
+      stepKey,
+      stepNumber,
+      action: "/playdate send",
+      content: `${prefix}\nDirect 1-on-1 playdates build trust and complete social care onboarding.\n**Action:** Use \`/playdate send\` and choose a Kiby to send {{KIBY_NAME}} on a playdate with\n*Tip:* Players need to opt-in to allow playdates\n${skipLine}`,
+    };
+  }
+
+  if (stepKey === "playdate-settings") {
+    return {
+      stepKey,
+      stepNumber,
+      action: "/playdate settings",
+      content: `${prefix}\nSet your direct playdate preference so you control inbound social visits.\n**Action:** Use \`/playdate settings opt_in:<true|false>\` once.\n*Tip:* Keep it enabled to receive player playdates, or disable it to prevent them\n${skipLine}`,
+    };
+  }
+
   if (stepKey === "adventure") {
     return {
       stepKey,
@@ -504,10 +558,12 @@ function getCompletionRecap(statusPayload) {
       "- Run care actions and monitor stats with `/info`.\n" +
       "- Keep sleep schedule accurate with `/sleep schedule set/view`.\n" +
       "- Train regularly to build Battle Power for tougher adventures.\n" +
+      "- Use `/park send|status|leave` to maintain social care.\n" +
+      "- Set your preference with `/playdate settings`.\n" +
+      "- Run `/playdate send` for direct 1-on-1 social interactions.\n" +
       "- Use `/adventure start`, `/adventure status`, and `/adventure claim`.\n" +
       "- Keep economy moving with `/daily`, `/quests view`, `/shop list`, and `/inventory`.\n" +
       "- Check `/leaderboard` regularly to follow community and season ranks.\n" +
-      "- Optional social loop: `/social play-with` or `/social settings`.\n" +
       "- Notifications/reminders arrive via DMs (needs, adventure ready, events, social/gifts).\n" +
       "- Track active tasks in `/quests view`, `/adventure status`, `/events view`, `/cooldowns`.\n" +
       "- Milestones unlock over time, including titles in `/titles view`.\n" +

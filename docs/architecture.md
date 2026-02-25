@@ -26,6 +26,7 @@ Persistence abstraction over Mongoose:
 - event repository (`globalEvent`)
 - global event cycle repository (`globalEventCycleState`)
 - adventure repository (`playerAdventure`)
+- park repository (`playerPark`)
 
 ### Services (`src/services`)
 Business orchestration:
@@ -38,7 +39,8 @@ Business orchestration:
 - `globalEventService`: global campaign event lifecycle and rewards
 - `progressionService`: local daily reset, streak shields, quest board, lifetime counters, player activity tracking, language progression state
 - `economyService`: shop/inventory/use/gift/item-context effects
-- `socialService`: one-way and opt-in social interactions
+- `socialService`: playdate targeting, opt-in controls, cross-entity social interactions
+- `parkService`: asynchronous park session lifecycle and social-care stat resolution
 - `adventureService`: async PvE route runs, BP-weighted readiness, ETA-window scheduling, claim processing
 - `seasonService`: weekly/bi-weekly season context, seasonal XP entries, rollover snapshots
 - `titleService`: unlock/equip title management
@@ -89,6 +91,9 @@ On ready:
   - baseline duration and resolved duration
   - ETA window (`earliestResolveAt`, `latestResolveAt`)
   - one-time completion notify tracking (`completionNotifiedAt`)
+- `PlayerPark.activeSession`
+  - send/leave async park lifecycle
+  - planned social/hunger effects and proportional early-leave resolution
 - `GlobalEventState`
   - shared progress and claims
   - scaling snapshot metadata
@@ -102,9 +107,8 @@ On ready:
 - Player-local daily resets are timezone-based, not UTC-only.
 - Economy and progression outlive active Kiby death.
 - Seasonal leaderboard uses separate season entry records (archivable by season key).
-- Social play includes one-way no-notify interactions to avoid spam pressure.
-- Social gain is intentionally restricted to true social actions.
-- Direct cross-player interactions use receiver-side cooldown to prevent notification/care spam.
+- Social gain is intentionally restricted to true social actions (`playdate`, `park`).
+- Direct cross-player playdates use receiver-side cooldown to prevent notification/care spam.
 - Async adventures resolve with bounded risk and non-lethal HP floor.
 - Adventure route access has no BP hard-gates; preparedness uses BP-dominant weighting.
 - Global event goals scale to active-player population.

@@ -2,10 +2,10 @@
   <img src="src\media\gifs\kirby-cute.gif" width="500"/>
 </div>
 
-# Kiby v2.1.1
+# Kiby v2.2.0
 
 Kiby is a Discord virtual pet system where users adopt a Kiby, maintain core needs, and progress through competitive/social long-term loops.
-v2.1.1 includes guided onboarding, command UX polish, legal policy publication, and runtime reliability updates alongside the existing v2 systems.
+v2.2.0 introduces social system redesign (`/playdate`, `/park`), adventure danger-level UX updates, and expanded tutorial flow for social care.
 
 ## Highlights
 - Guided onboarding tutorial:
@@ -40,10 +40,11 @@ v2.1.1 includes guided onboarding, command UX polish, legal policy publication, 
   - scheduler-driven sporadic starts (eligibility + chance)
   - random event durations (`24-72h`) and random idle gaps (`24-48h`)
   - active-user start notifications (best-effort DM fanout)
-- Direct social interaction enhancements:
-  - `/social interact` notifies the receiving player
-  - receiver Kiby gets affection/social gains
-  - receiver-side anti-spam cooldown for inbound interactions
+- Redesigned social loop:
+  - `/playdate send` supports direct 1-on-1 playdates with any Kiby (players + NPCs)
+  - player-owned targets keep opt-in + inbound anti-spam cooldown
+  - non-NPC targets receive best-effort owner notification
+  - `/park send|status|leave` adds asynchronous social care with duration scaling
 - Kiby language progression (v1):
   - tokenized Kiby flavor text
   - per-player translation unlock by exposure
@@ -80,7 +81,8 @@ v2.1.1 includes guided onboarding, command UX polish, legal policy publication, 
 - `/gift coins|item` (recipient DM notification on successful transfer)
 
 ### Social + Progression
-- `/social play-with|interact|settings`
+- `/playdate send|settings`
+- `/park send|status|leave`
 - `/daily`
 - `/quests view|claim|reroll`
 - `/titles view|equip`
@@ -103,7 +105,7 @@ v2.1.1 includes guided onboarding, command UX polish, legal policy publication, 
 Behavior notes:
 - `/events view` now shows an idle state when no global event is active.
 - `/events claim` can return no-active-event when no campaign is currently running.
-- `/social interact` may return receiver cooldown with remaining wait time.
+- `/playdate send` can return receiver cooldown with remaining wait time.
 - `/system mode:all_installed` tries multiple candidate channels per server until one broadcast send succeeds.
 
 ## Setup
@@ -138,8 +140,8 @@ npm run seed:npcs:reset
 ## Deployment
 ### Docker
 ```bash
-docker build -t kiby:2.1.1 .
-docker run --env-file .env -p 8080:8080 kiby:2.1.1
+docker build -t kiby:2.2.0 .
+docker run --env-file .env -p 8080:8080 kiby:2.2.0
 ```
 
 ### Docker Compose

@@ -48,7 +48,7 @@ describe("onboardingService", () => {
     const prompt = onboardingService.getCurrentPrompt(start.status);
 
     expect(prompt.action).toBe("/pet");
-    expect(prompt.content).toContain("**Tutorial 1/6 - Care System**");
+    expect(prompt.content).toContain("**Tutorial 1/10 - Care System**");
     expect(prompt.content).toContain("**Action:**");
     expect(prompt.content).toContain("Available care commands:");
     expect(prompt.content).not.toContain("Lore:");
@@ -64,7 +64,7 @@ describe("onboardingService", () => {
 
     const start = await onboardingService.startTutorial("user-lore", "first-adopt", now);
     const carePrompt = onboardingService.getCurrentPrompt(start.status);
-    expect(carePrompt.content).toContain("**Tutorial 1/6 - Care System**");
+    expect(carePrompt.content).toContain("**Tutorial 1/10 - Care System**");
     expect(carePrompt.content).toContain("**Action:**");
     expect(carePrompt.content).not.toContain("Lore:");
     expect(carePrompt.content).toContain("*Tip:*");
@@ -76,7 +76,7 @@ describe("onboardingService", () => {
       now
     );
     const sleepPrompt = onboardingService.getCurrentPrompt(afterCare.status);
-    expect(sleepPrompt.content).toContain("**Tutorial 2/6 - Sleep Schedule + World Events**");
+    expect(sleepPrompt.content).toContain("**Tutorial 2/10 - Sleep Schedule + World Events**");
     expect(sleepPrompt.content).toContain("**Action:**");
     expect(sleepPrompt.content).not.toContain("Lore:");
     expect(sleepPrompt.content).toContain("*Tip:*");
@@ -88,7 +88,7 @@ describe("onboardingService", () => {
       now
     );
     const trainPrompt = onboardingService.getCurrentPrompt(afterSleep.status);
-    expect(trainPrompt.content).toContain("**Tutorial 3/6 - Training + Battle Power**");
+    expect(trainPrompt.content).toContain("**Tutorial 3/10 - Training + Battle Power**");
     expect(trainPrompt.content).toContain("**Action:**");
     expect(trainPrompt.content).not.toContain("Lore:");
     expect(trainPrompt.content).toContain("*Tip:*");
@@ -99,8 +99,56 @@ describe("onboardingService", () => {
       { actionName: "train" },
       now
     );
-    const adventurePrompt = onboardingService.getCurrentPrompt(afterTrain.status);
-    expect(adventurePrompt.content).toContain("**Tutorial 4/6 - Adventure System**");
+    const parkSendPrompt = onboardingService.getCurrentPrompt(afterTrain.status);
+    expect(parkSendPrompt.content).toContain("**Tutorial 4/10 - Park Send**");
+    expect(parkSendPrompt.content).toContain("**Action:**");
+    expect(parkSendPrompt.content).not.toContain("Lore:");
+    expect(parkSendPrompt.content).toContain("*Tip:*");
+
+    const afterParkSend = await onboardingService.recordEvent(
+      "user-lore",
+      "park-send",
+      {},
+      now
+    );
+    const parkLeavePrompt = onboardingService.getCurrentPrompt(afterParkSend.status);
+    expect(parkLeavePrompt.content).toContain("**Tutorial 5/10 - Park Leave**");
+    expect(parkLeavePrompt.content).toContain("**Action:**");
+    expect(parkLeavePrompt.content).not.toContain("Lore:");
+    expect(parkLeavePrompt.content).toContain("*Tip:*");
+
+    const afterParkLeave = await onboardingService.recordEvent(
+      "user-lore",
+      "park-leave",
+      {},
+      now
+    );
+    const playdateSettingsPrompt = onboardingService.getCurrentPrompt(afterParkLeave.status);
+    expect(playdateSettingsPrompt.content).toContain(
+      "**Tutorial 6/10 - Playdate Preferences**"
+    );
+    expect(playdateSettingsPrompt.content).toContain("**Action:**");
+    expect(playdateSettingsPrompt.content).toContain("*Tip:*");
+
+    const afterPlaydateSettings = await onboardingService.recordEvent(
+      "user-lore",
+      "playdate-settings",
+      { optIn: true },
+      now
+    );
+    const playdatePrompt = onboardingService.getCurrentPrompt(afterPlaydateSettings.status);
+    expect(playdatePrompt.content).toContain("**Tutorial 7/10 - Playdate**");
+    expect(playdatePrompt.content).toContain("**Action:**");
+    expect(playdatePrompt.content).toContain("*Tip:*");
+
+    const afterPlaydate = await onboardingService.recordEvent(
+      "user-lore",
+      "playdate-action",
+      { targetType: "npc", targetId: "npc-001" },
+      now
+    );
+    const adventurePrompt = onboardingService.getCurrentPrompt(afterPlaydate.status);
+    expect(adventurePrompt.content).toContain("**Tutorial 8/10 - Adventure System**");
     expect(adventurePrompt.content).toContain("**Action:**");
     expect(adventurePrompt.content).not.toContain("Lore:");
     expect(adventurePrompt.content).toContain("*Tip:*");
@@ -112,7 +160,7 @@ describe("onboardingService", () => {
       now
     );
     const economyPrompt = onboardingService.getCurrentPrompt(afterAdventure.status);
-    expect(economyPrompt.content).toContain("**Tutorial 5/6 - Economy System**");
+    expect(economyPrompt.content).toContain("**Tutorial 9/10 - Economy System**");
     expect(economyPrompt.content).toContain("**Action:**");
     expect(economyPrompt.content).not.toContain("Lore:");
     expect(economyPrompt.content).toContain("*Tip:*");
@@ -124,7 +172,7 @@ describe("onboardingService", () => {
       now
     );
     const leaderboardPrompt = onboardingService.getCurrentPrompt(afterEconomy.status);
-    expect(leaderboardPrompt.content).toContain("**Tutorial 6/6 - Leaderboard + Community**");
+    expect(leaderboardPrompt.content).toContain("**Tutorial 10/10 - Leaderboard + Community**");
     expect(leaderboardPrompt.action).toBe("/leaderboard");
     expect(leaderboardPrompt.content).toContain("**Action:**");
     expect(leaderboardPrompt.content).toContain("*Tip:*");
@@ -147,6 +195,20 @@ describe("onboardingService", () => {
       "user-recap",
       "training-action",
       { actionName: "train" },
+      now
+    );
+    await onboardingService.recordEvent("user-recap", "park-send", {}, now);
+    await onboardingService.recordEvent("user-recap", "park-leave", {}, now);
+    await onboardingService.recordEvent(
+      "user-recap",
+      "playdate-settings",
+      { optIn: true },
+      now
+    );
+    await onboardingService.recordEvent(
+      "user-recap",
+      "playdate-action",
+      { targetType: "npc", targetId: "npc-001" },
       now
     );
     await onboardingService.recordEvent("user-recap", "adventure-start", {}, now);
@@ -202,6 +264,20 @@ describe("onboardingService", () => {
       { actionName: "train" },
       now
     );
+    await onboardingService.recordEvent("user-3", "park-send", {}, now);
+    await onboardingService.recordEvent("user-3", "park-leave", {}, now);
+    await onboardingService.recordEvent(
+      "user-3",
+      "playdate-settings",
+      { optIn: true },
+      now
+    );
+    await onboardingService.recordEvent(
+      "user-3",
+      "playdate-action",
+      { targetType: "npc", targetId: "npc-001" },
+      now
+    );
     await onboardingService.recordEvent("user-3", "adventure-start", {}, now);
     await onboardingService.recordEvent(
       "user-3",
@@ -219,7 +295,7 @@ describe("onboardingService", () => {
     expect(completion.ok).toBe(true);
     expect(completion.completedNow).toBe(true);
     expect(completion.status.latestRun.status).toBe("completed");
-    expect(completion.status.latestRun.requiredStepsCompleted).toBe(6);
+    expect(completion.status.latestRun.requiredStepsCompleted).toBe(10);
   });
 
   it("honors out-of-order completion credits", async () => {

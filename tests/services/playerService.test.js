@@ -46,5 +46,7 @@ describe("playerService adoption readiness", () => {
 
     expect(adoptedAt - petAt).toBe(getActionCooldownMs("pet"));
     expect(adoptedAt - trainAt).toBe(getActionCooldownMs("train"));
+    expect(payload.lastPlaydateAt).toBeNull();
+    expect(payload.lastCare.socialPlay).toBeNull();
   });
 });

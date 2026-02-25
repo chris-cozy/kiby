@@ -4,6 +4,7 @@ const npcService = require("./npcService");
 const eventService = require("./eventService");
 const globalEventService = require("./globalEventService");
 const adventureService = require("./adventureService");
+const parkService = require("./parkService");
 const notificationService = require("./notificationService");
 const ambientService = require("./ambientService");
 const seasonService = require("./seasonService");
@@ -182,6 +183,17 @@ function createScheduler(client) {
     });
   }
 
+  async function runParkMonitorTick() {
+    const result = await parkService.pullReadyAutoReturns(new Date());
+    if (!result.count) {
+      return;
+    }
+
+    logger.info("Park sessions auto-resolved", {
+      count: result.count,
+    });
+  }
+
   async function start() {
     const seeded = await npcService.ensureNpcSeeded();
     logger.info("NPC seed status", seeded);
@@ -213,6 +225,11 @@ function createScheduler(client) {
     });
     await runAdventureMonitorTick().catch((error) => {
       logger.error("Adventure monitor failed during startup", {
+        error: error.message,
+      });
+    });
+    await runParkMonitorTick().catch((error) => {
+      logger.error("Park monitor failed during startup", {
         error: error.message,
       });
     });
@@ -251,6 +268,11 @@ function createScheduler(client) {
       setInterval(() => {
         runAdventureMonitorTick().catch((error) => {
           logger.error("Adventure monitor failed", { error: error.message });
+        });
+      }, env.careTickMinutes * 60 * 1000),
+      setInterval(() => {
+        runParkMonitorTick().catch((error) => {
+          logger.error("Park monitor failed", { error: error.message });
         });
       }, env.careTickMinutes * 60 * 1000)
     );

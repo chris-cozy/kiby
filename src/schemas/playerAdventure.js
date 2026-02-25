@@ -73,6 +73,19 @@ const adventureRunSchema = new Schema(
       min: 0,
       max: 1,
     },
+    successChanceEstimate: {
+      type: Number,
+      required: false,
+      min: 0,
+      max: 1,
+      default: 0.5,
+    },
+    dangerLevel: {
+      type: String,
+      required: false,
+      enum: ["Peaceful", "Low", "Medium", "High", "Hellscape"],
+      default: "Medium",
+    },
     riskBand: {
       type: String,
       required: true,
